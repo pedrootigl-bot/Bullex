@@ -6,6 +6,13 @@ const campanhasRoutes = require("./routes/campanhaRoutes");
 const materiaisRoutes = require("./routes/materiaisRoutes");
 const copiesRoutes = require("./routes/copiesRoutes");
 const regrasRoutes = require("./routes/regras");
+const statsRoutes = require("./routes/stats");
+const destaqueRoutes = require("./routes/destaque");
+const downloadRoutes = require("./routes/download");
+const kitsRoutes = require("./routes/kits");
+
+
+
 
 const app = express();
 
@@ -37,6 +44,27 @@ app.use(
 app.use(
     "/api/regras",
     regrasRoutes
+);
+
+
+app.use(
+    "/api/stats",
+    statsRoutes
+);
+
+app.use(
+    "/api/destaque",
+    destaqueRoutes
+);
+
+app.use(
+    "/api/download",
+    downloadRoutes
+);
+
+app.use(
+    "/api/kits",
+     kitsRoutes
 );
 
 app.get("/", (req, res) => {

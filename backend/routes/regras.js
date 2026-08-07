@@ -13,11 +13,15 @@ router.get("/:campanha_id", async (req, res) => {
     console.log("Campanha recebida regras:", campanha_id);
 
 
-    const { data, error } = await supabase
-        .from("regras")
-        .select("*")
-        .eq("campanha_id", Number(campanha_id))
-        .order("ordem", { ascending: true });
+ const { data, error } = await supabase
+    .from("regras")
+    .select("*")
+    .eq("campanha_id", Number(campanha_id))
+    .order("ordem", { ascending: true });
+
+
+console.log("Primeira regra:", data);
+console.log("Erro:", error);
 
 
     console.log("Dados regras:", data);
