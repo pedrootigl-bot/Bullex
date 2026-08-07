@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nova Campanha - Bullex Admin</title>
+
+    <link rel="stylesheet" href="../css/admin/dashboard.css">
+
+</head>
+
+
+<body>
+
+
+<header class="admin-header">
+
+    <h1>
+        Nova Campanha
+    </h1>
+
+
+    <button id="voltarBtn">
+        Campanhas
+    </button>
+
+</header>
+
+
+
+
+
+<main class="dashboard">
+
+
+<section class="admin-form">
+
+
+<form id="campanhaForm">
+
+
+<label>
+Título
+</label>
+
+<input 
+type="text"
+id="titulo"
+required
+>
+
+
+
+
+<label>
+Descrição
+</label>
+
+<textarea
+id="descricao"
+rows="5"
+></textarea>
+
+
+
+
+
+<label>
+Categoria
+</label>
+
+<input
+type="text"
+id="categoria"
+>
+
+
+
+
+
+<label>
+Objetivo
+</label>
+
+<input
+type="text"
+id="objetivo"
+>
+
+
+
+
+
+<label>
+Prêmio
+</label>
+
+<input
+type="text"
+id="premio"
+>
+
+
+
+
+
+<label>
+Cupom
+</label>
+
+<input
+type="text"
+id="cupom"
+>
+
+
+
+
+
+<label>
+Depósito mínimo
+</label>
+
+<input
+type="text"
+id="deposito_minimo"
+placeholder="R$ 150"
+>
+
+
+
+
+
+<label>
+Data início
+</label>
+
+<input
+type="date"
+id="data_inicio"
+required
+>
+
+
+
+
+
+<label>
+Data fim
+</label>
+
+<input
+type="date"
+id="data_fim"
+required
+>
+
+
+
+
+
+<label>
+Status
+</label>
+
+<select id="status">
+
+
+<option value="ativa">
+Ativa
+</option>
+
+
+<option value="inativa">
+Inativa
+</option>
+
+
+<option value="encerrada">
+Encerrada
+</option>
+
+
+</select>
+
+
+
+
+
+<label>
+Imagem do card
+</label>
+
+<input
+type="text"
+id="imagem_card"
+placeholder="URL da imagem"
+>
+
+
+
+
+
+<button type="submit">
+
+Criar campanha
+
+</button>
+
+
+
+</form>
+
+
+
+<p id="mensagem"></p>
+
+
+
+</section>
+
+
+
+</main>
+
+
+
+
+
+<script src="./campanha-form.js"></script>
+
+
+</body>
+
+</html>

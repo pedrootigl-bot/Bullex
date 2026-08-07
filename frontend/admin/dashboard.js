@@ -1,6 +1,6 @@
-const SUPABASE_URL = "SUA_URL_SUPABASE";
+const SUPABASE_URL = "https://trakfklbjqynwonqyrfh.supabase.co";
 
-const SUPABASE_KEY = "SUA_CHAVE_PUBLICA";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYWtma2xianF5bndvbnF5cmZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5OTk1OTgsImV4cCI6MjEwMTU3NTU5OH0.k5KZ32_zVKlB_VU3FqqCo48_X3h7pZHQ-_57bEKNslQ";
 
 
 const supabaseClient = supabase.createClient(
@@ -43,6 +43,7 @@ async function verificarUsuario(){
 
 
 
+
 // Busca estatísticas do sistema
 async function carregarStats(){
 
@@ -53,6 +54,7 @@ async function carregarStats(){
         const resposta = await fetch(
             "http://localhost:3000/api/stats"
         );
+
 
 
         if(!resposta.ok){
@@ -129,7 +131,6 @@ if(logoutBtn){
     );
 
 }
-
 
 
 

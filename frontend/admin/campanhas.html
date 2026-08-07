@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Campanhas - Bullex Admin</title>
+
+    <link rel="stylesheet" href="../css/admin/dashboard.css">
+
+</head>
+
+
+<body>
+
+
+<header class="admin-header">
+
+    <h1>
+        Gerenciar Campanhas
+    </h1>
+
+
+    <button id="voltarBtn">
+        Dashboard
+    </button>
+
+</header>
+
+
+
+
+<main class="dashboard">
+
+
+                    <section class="admin-menu">
+                <button onclick="window.location.href='campanha-form.html'">
+                    + Nova campanha
+                </button>
+
+    </section>
+
+
+
+
+    <section id="campanhasContainer">
+
+
+        <!-- campanhas carregadas aqui -->
+
+
+    </section>
+
+
+
+</main>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="./campanhas.js"></script>
+
+
+</body>
+
+</html>
