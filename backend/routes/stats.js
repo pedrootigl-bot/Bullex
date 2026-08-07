@@ -15,9 +15,17 @@ router.get("/", async (req, res) => {
             .select("id");
 
 
+
         const { data: materiais, error: erroMateriais } = await supabase
             .from("materiais")
             .select("id,tipo");
+
+
+
+        const { data: kits, error: erroKits } = await supabase
+            .from("kits")
+            .select("id,tipo");
+
 
 
         const { data: copies, error: erroCopies } = await supabase
@@ -26,7 +34,19 @@ router.get("/", async (req, res) => {
 
 
 
-        if(erroCampanhas || erroMateriais || erroCopies){
+
+        if (
+            erroCampanhas ||
+            erroMateriais ||
+            erroKits ||
+            erroCopies
+        ) {
+
+            console.log("Erro campanhas:", erroCampanhas);
+            console.log("Erro materiais:", erroMateriais);
+            console.log("Erro kits:", erroKits);
+            console.log("Erro copies:", erroCopies);
+
 
             throw new Error(
                 "Erro ao buscar estatísticas"
@@ -36,9 +56,34 @@ router.get("/", async (req, res) => {
 
 
 
-        const videos = materiais.filter(
-            item => item.tipo === "video"
+        const listaMateriais = materiais || [];
+
+        const listaKits = kits || [];
+
+
+
+        const totalVideosMateriais = listaMateriais.filter(
+            item => item.tipo?.trim().toLowerCase() === "video"
         ).length;
+
+
+
+        const totalVideosKits = listaKits.filter(
+            item => item.tipo?.trim().toLowerCase() === "video"
+        ).length;
+
+
+
+        const videos = totalVideosMateriais + totalVideosKits;
+
+
+
+        console.log("Materiais encontrados:", listaMateriais);
+
+        console.log("Kits encontrados:", listaKits);
+
+        console.log("Total de vídeos:", videos);
+
 
 
 
@@ -46,7 +91,7 @@ router.get("/", async (req, res) => {
 
             campanhas: campanhas?.length ?? 0,
 
-            materiais: materiais?.length ?? 0,
+            materiais: listaMateriais.length,
 
             copies: copies?.length ?? 0,
 
@@ -67,13 +112,12 @@ router.get("/", async (req, res) => {
 
         res.status(500).json({
 
-            erro:error.message
+            erro: error.message
 
         });
 
 
     }
-
 
 });
 
