@@ -63,6 +63,8 @@
 
     transition:.35s;
 
+    pointer-events:none;
+
     -webkit-mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
@@ -114,6 +116,10 @@
     height:100%;
 
     padding:0 30px;
+
+    width:100%;
+
+    box-sizing:border-box;
 }
 
 /*==========================
@@ -279,4 +285,188 @@
     color:#fff;
 
     transform:scale(1.05);
+}
+
+/*==========================
+    MENU HAMBURGUER
+==========================*/
+
+.menu-toggle{
+
+    display:none;
+
+    width:42px;
+
+    height:42px;
+
+    border:none;
+
+    background:transparent;
+
+    cursor:pointer;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:0;
+
+    z-index:3;
+
+    margin-left:auto;
+}
+
+.menu-toggle span{
+
+    display:block;
+
+    width:26px;
+
+    height:3px;
+
+    background:#fff;
+
+    border-radius:10px;
+
+    transition:.3s ease;
+}
+
+.menu-toggle.active span:nth-child(1){
+
+    transform:translateY(9px) rotate(45deg);
+}
+
+.menu-toggle.active span:nth-child(2){
+
+    opacity:0;
+}
+
+.menu-toggle.active span:nth-child(3){
+
+    transform:translateY(-9px) rotate(-45deg);
+}
+
+/*==========================
+    MOBILE
+==========================*/
+
+@media (max-width: 768px){
+
+    .navbar{
+
+        width:90%;
+
+        height:64px;
+
+        /* Sem isso o menu mobile fica cortado
+           (overflow + transform na navbar) */
+        overflow:visible;
+    }
+
+    .navbar__content{
+
+        padding:0 18px;
+
+        justify-content:space-between;
+    }
+
+    .menu-toggle{
+
+        display:flex;
+    }
+
+    .menu{
+
+        position:absolute;
+
+        top:calc(100% + 12px);
+
+        left:0;
+
+        right:0;
+
+        width:100%;
+
+        padding:18px;
+
+        background:rgba(17,17,17,.98);
+
+        border:1px solid rgba(255,255,255,.08);
+
+        border-radius:18px;
+
+        box-shadow:0 16px 40px rgba(0,0,0,.45);
+
+        display:flex;
+
+        flex-direction:column;
+
+        align-items:stretch;
+
+        gap:10px;
+
+        transform:translateY(-8px);
+
+        opacity:0;
+
+        visibility:hidden;
+
+        pointer-events:none;
+
+        transition:
+            opacity .3s ease,
+            transform .3s ease,
+            visibility .3s ease;
+
+        z-index:1000;
+    }
+
+    .menu.active{
+
+        transform:translateY(0);
+
+        opacity:1;
+
+        visibility:visible;
+
+        pointer-events:auto;
+    }
+
+    .menu a{
+
+        width:100%;
+
+        height:48px;
+
+        justify-content:flex-start;
+
+        padding:0 18px;
+
+        border-radius:12px;
+    }
+
+    .menu a span{
+
+        max-width:none;
+
+        opacity:1;
+
+        margin-left:12px;
+    }
+
+    .menu a:hover{
+
+        width:100%;
+
+        transform:none;
+    }
+
+    .navbar:hover{
+
+        transform:translateX(-50%);
+    }
 }

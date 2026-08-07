@@ -32,9 +32,24 @@ const destaqueMock = {
  *   if (!response.ok) throw new Error("Falha ao carregar stats");
  *   return response.json();
  */
-async function obterStats() {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    return statsMock;
+async function obterStats(){
+
+    const resposta = await fetch(
+        "http://localhost:3000/api/stats"
+    );
+
+
+    if(!resposta.ok){
+
+        throw new Error(
+            "Erro ao buscar stats"
+        );
+
+    }
+
+
+    return await resposta.json();
+
 }
 
 /**
@@ -45,8 +60,109 @@ async function obterStats() {
  *   return response.json();
  */
 async function obterDestaque() {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    return destaqueMock;
+
+    const resposta = await fetch(
+        "http://localhost:3000/api/destaque"
+    );
+
+
+    if (!resposta.ok) {
+
+        throw new Error(
+            "Erro ao buscar destaque"
+        );
+
+    }
+
+
+    return await resposta.json();
+
+}
+
+function carregarDestaque(destaque){
+
+    document.querySelector("#destaque-titulo").textContent =
+        destaque.titulo;
+
+
+    document.querySelector("#destaque-descricao").textContent =
+        destaque.descricao;
+
+
+    document.querySelector("#destaque-imagem").src =
+        destaque.imagem;
+
+
+    document.querySelector("#destaque-copy").textContent =
+        destaque.copy;
+
+}
+
+function iniciarAcoesDestaque(){
+
+    const botaoCopiar = document.querySelector(
+        "#highlightCopyBtn"
+    );
+
+    const botaoKit = document.querySelector(
+        "#highlightOpenKit"
+    );
+
+
+    const campoCopy = document.querySelector(
+        "#highlightCopy"
+    );
+
+
+    if(botaoCopiar && campoCopy){
+
+        botaoCopiar.addEventListener(
+            "click",
+            async () => {
+
+                await navigator.clipboard.writeText(
+                    campoCopy.textContent
+                );
+
+
+                botaoCopiar.innerHTML = `
+                    <i class="fa-solid fa-check"></i>
+                    Copiado!
+                `;
+
+
+                setTimeout(() => {
+
+                    botaoCopiar.innerHTML = `
+                        <i class="fa-regular fa-copy"></i>
+                        Copiar texto
+                    `;
+
+                },2000);
+
+
+            }
+        );
+
+    }
+
+
+
+    if(botaoKit){
+
+        botaoKit.addEventListener(
+            "click",
+            () => {
+
+                alert(
+                    "Abrir kit completo"
+                );
+
+            }
+        );
+
+    }
+
 }
 
 /**

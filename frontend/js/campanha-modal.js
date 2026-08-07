@@ -1,7 +1,6 @@
 console.log("campanha modal carregado");
 
 
-
 async function abrirModalCampanha(id){
 
     if(!id){
@@ -33,11 +32,29 @@ async function abrirModalCampanha(id){
         console.log("Campanha carregada:", campanha);
 
 
+
+        // Configura botão baixar kit completo
+        const downloadKit = document.getElementById("downloadKit");
+
+        if (downloadKit) {
+
+            downloadKit.href =
+                `http://localhost:3000/api/download/kit/${campanha.id}`;
+
+            downloadKit.removeAttribute("target");
+            downloadKit.removeAttribute("rel");
+            downloadKit.setAttribute("download", "");
+
+        }
+
+
+
         preencherModalCampanha(campanha);
 
 
         await carregarMateriais(campanha.id);
         await carregarCopies(campanha.id);
+        await carregarRegras(campanha.id);
 
 
 
@@ -63,10 +80,6 @@ async function abrirModalCampanha(id){
     }
 
 }
-
-
-
-
 
 async function carregarMateriais(campanhaId){
 
@@ -409,6 +422,82 @@ console.log("HTML final:", container.innerHTML);
 
 }
 
+
+async function carregarRegras(campanhaId){
+
+    try {
+
+        const response = await fetch(
+                `http://localhost:3000/api/regras/${campanhaId}`
+
+        );
+
+
+        if(!response.ok){
+            throw new Error("Erro ao buscar regras");
+        }
+
+
+        const regras = await response.json();
+
+
+        renderizarRegras(regras);
+
+
+    } catch(error){
+
+        console.error("Erro ao carregar regras:", error);
+
+    }
+
+}
+
+
+
+function renderizarRegras(regras) {
+
+    const container = document.getElementById("modal-rules");
+
+
+    if (!container) {
+        console.warn("Container de regras não encontrado");
+        return;
+    }
+
+
+    if (!regras.length) {
+
+        container.innerHTML = `
+            <p>Regras em breve.</p>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = `
+
+        ${regras.map((regra) => `
+
+            <div class="rule-card">
+
+                <h4>
+                    ${regra.titulo}
+                </h4>
+
+
+                <p>
+                    ${regra.descricao}
+                </p>
+
+            </div>
+
+        `).join("")}
+
+    `;
+
+}
 
 
 function paraLista(valor){

@@ -58,6 +58,13 @@
                 </a>
 
             </nav>
+            <button class="menu-toggle" id="menu-toggle">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
 
         </div>
 
@@ -152,8 +159,11 @@
                     </div>
 
                     <div class="stat-card">
-                        <strong id="copies-count">
+
+                        <strong id="copies-count">0</strong>
+
                         <span>COPIES PRONTAS</span>
+
                     </div>
 
                     <div class="stat-card">
@@ -166,72 +176,111 @@
             </div>
 
         </section>
+<!-- ==========================
+    DESTAQUE DO DIA — dados via banco/API
+=========================== -->
+<section class="highlight" id="divulgar-hoje">
 
-        <!-- ==========================
-            DESTAQUE DO DIA — dados via banco/API
-        =========================== -->
-        <section class="highlight" id="divulgar-hoje">
+    <div class="container">
 
-            <div class="container">
+        <header class="highlight__header">
 
-                <header class="highlight__header">
-                    <h2>O que divulgar hoje</h2>
-                    <p>Uma sugestão rápida para você colocar a campanha na rua</p>
-                </header>
+            <h2>
+                O que divulgar hoje
+            </h2>
 
-                <article class="highlight__card">
+            <p>
+                Uma sugestão rápida para você colocar a campanha na rua
+            </p>
 
-                    <div class="highlight__content">
+        </header>
 
-                        <span class="highlight__tag" id="highlightTag"></span>
 
-                        <h3 id="highlightTitle"></h3>
 
-                        <p class="highlight__description" id="highlightDescription"></p>
+        <article class="highlight__card">
 
-                        <div class="highlight__copy-box">
-                            <span class="highlight__copy-label">COPY RECOMENDADA</span>
-                            <p id="highlightCopy"></p>
-                        </div>
 
-                        <div class="highlight__actions">
+            <div class="highlight__content">
 
-                            <button type="button" class="btn" id="highlightCopyBtn">
-                                <i class="fa-regular fa-copy"></i>
-                                Copiar texto
-                            </button>
 
-                            <a class="btn" id="highlightDownloadStory" href="#" target="_blank" rel="noopener">
-                                <i class="fa-solid fa-download"></i>
-                                Baixar story
-                            </a>
+                <span class="highlight__tag" id="highlightTag"></span>
 
-                            <button type="button" class="btn btn--outline" id="highlightOpenKit">
-                                <i class="fa-solid fa-box-archive"></i>
-                                Ver kit completo
-                            </button>
 
-                        </div>
+                <h3 id="highlightTitle"></h3>
 
-                    </div>
 
-                    <div class="highlight__media">
+                <p class="highlight__description" id="highlightDescription"></p>
 
-                        <img id="highlightImage" src="" alt="">
 
-                        <p class="highlight__media-caption">
-                            <strong id="highlightMediaLabel"></strong>
-                            <span>/</span>
-                            <span id="highlightMediaCaption"></span>
-                        </p>
 
-                    </div>
+                <div class="highlight__copy-box">
 
-                </article>
+                    <span class="highlight__copy-label">
+                        COPY RECOMENDADA
+                    </span>
+
+
+                    <p id="highlightCopy"></p>
+
+                </div>
+
+
+
+                <div class="highlight__actions">
+
+
+                    <button 
+                        type="button" 
+                        class="btn" 
+                        id="highlightCopyBtn">
+
+                        <i class="fa-regular fa-copy"></i>
+
+                        Copiar texto
+
+                    </button>
+
+
+
+                    <a 
+                        class="btn" 
+                        id="highlightDownloadStory" 
+                        href="#">
+
+                        <i class="fa-solid fa-download"></i>
+
+                        Baixar story
+
+                    </a>
+
+
+
+                    <button 
+                        type="button" 
+                        class="btn" 
+                        id="openKitModal">
+
+                        <i class="fa-solid fa-box-open"></i>
+
+                        Ver kit completo
+
+                    </button>
+
+
+                </div>
+
 
             </div>
 
-        </section>
+
+        </article>
+
+
+    </div>
+
+
+</section>
+                            
 
     </main>
 
@@ -281,12 +330,13 @@
                         <div class="modal__panel is-active" data-panel="materiais" id="panelMateriais">
                             <div class="modal__top">
                                 <p id="campaignSubtitle"></p>
-                                <a id="downloadKit" class="btn" href="#" target="_blank" rel="noopener">
+                                <a id="downloadKit" class="btn" href="#">
                                     <i class="fa-solid fa-download"></i>
                                     Baixar kit completo
                                 </a>
                             </div>
                             <div id="materialsContainer"></div>
+                            <div id="kit-items"></div>
                         </div>
 
                         <div class="modal__panel" data-panel="visao-geral" id="panelVisaoGeral" hidden>
@@ -306,6 +356,45 @@
                 </div>
 
             </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+            MODAL — Visualização de imagem
+    =========================== -->
+    <div
+        class="modal modal--image-preview"
+        id="imagePreviewModal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Visualização do material"
+        hidden
+    >
+
+        <div class="modal__overlay" data-image-preview-close></div>
+
+        <div class="modal__box modal__box--image-preview">
+
+            <button
+                type="button"
+                class="modal__close"
+                id="closeImagePreview"
+                aria-label="Fechar visualização da imagem"
+                data-image-preview-close
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <figure class="modal__image-preview-figure">
+                <img
+                    id="imagePreview"
+                    src=""
+                    alt="Visualização do material"
+                >
+            </figure>
 
         </div>
 
@@ -364,97 +453,59 @@
 
             <!-- CARDS VÃO APARECER AQUI -->
 
-<div class="campaign-grid" id="campaign-list">
-</div>
-
-
-</div>
-
-
-<section class="calendar-section">
-
-
-    <!-- CARD DA CAMPANHA ATUAL -->
-
-    <div class="campaign-card">
-
-
-        <img 
-            id="campaign-image" 
-            src="" 
-            alt="Imagem da campanha"
-        >
-
-
-
-        <div class="campaign-info">
-
-
-            <h2 id="campaign-title">
-            </h2>
-
-
-            <h3 id="campaign-name">
-            </h3>
-
-
-
-            <p>
-                Ganhe
-                <strong id="campaign-value"></strong>
-                garantido
-            </p>
-
-
-
-            <span>
-                Use o cupom
-                <b id="campaign-coupon"></b>
-            </span>
+            <div class="campaign-grid" id="campaign-list">
+            </div>
 
 
         </div>
 
 
-
-        <button
-            id="campaign-button"
-            class="btn-abrir-campanha">
-
-            Ver campanha
-
-        </button>
+        <section class="calendar-section">
 
 
-    </div>
+            <!-- CARD DA CAMPANHA ATUAL -->
+
+            <div class="campaign-card">
+
+
+                <img id="campaign-image" src="" alt="Imagem da campanha">
 
 
 
+                <div class="campaign-info">
 
 
-    <!-- CALENDÁRIO -->
-
-    <div class="calendar" id="calendar">
-
-
-        <div class="calendar-header">
+                    <h2 id="campaign-title">
+                    </h2>
 
 
-            <div class="calendar-nav">
-
-                <button 
-                    id="prev-month" 
-                    type="button" 
-                    aria-label="Mês anterior">
-                    ‹
-                </button>
+                    <h3 id="campaign-name">
+                    </h3>
 
 
-                <button 
-                    id="next-month" 
-                    type="button" 
-                    aria-label="Próximo mês">
-                    ›
+
+                    <p>
+                        Ganhe
+                        <strong id="campaign-value"></strong>
+                        garantido
+                    </p>
+
+
+
+                    <span>
+                        Use o cupom
+                        <b id="campaign-coupon"></b>
+                    </span>
+
+
+                </div>
+
+
+
+                <button id="campaign-button" class="btn-abrir-campanha">
+
+                    Ver campanha
+
                 </button>
 
 
@@ -462,31 +513,53 @@
 
 
 
-            <div 
-                class="calendar-campaign-label" 
-                id="calendar-campaign-label">
 
-                —
+
+            <!-- CALENDÁRIO -->
+
+            <div class="calendar" id="calendar">
+
+
+                <div class="calendar-header">
+
+
+                    <div class="calendar-nav">
+
+                        <button id="prev-month" type="button" aria-label="Mês anterior">
+                            ‹
+                        </button>
+
+
+                        <button id="next-month" type="button" aria-label="Próximo mês">
+                            ›
+                        </button>
+
+
+                    </div>
+
+
+
+                    <div class="calendar-campaign-label" id="calendar-campaign-label">
+
+                        —
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="calendar-grid" id="calendar-days">
+
+                </div>
+
 
             </div>
 
 
-        </div>
 
-
-
-        <div 
-            class="calendar-grid" 
-            id="calendar-days">
-
-        </div>
-
-
-    </div>
-
-
-
-</section>
+        </section>
 
 
         <!-- CANAIS DE COMUNICAÇÃO -->
@@ -702,235 +775,210 @@
     <div class="campaign-modal" id="campaign-modal">
 
 
-    <div class="modal-content">
+        <div class="modal-content">
 
 
-    <button 
-        class="modal-close"
-        id="modal-close"
-    >
-        ×
-    </button>
+            <button class="modal-close" id="modal-close">
+                ×
+            </button>
 
 
 
-    <!-- CABEÇALHO -->
+            <!-- CABEÇALHO -->
 
-    <img 
-        id="modal-image"
-        alt="Imagem campanha"
-    >
+            <img id="modal-image" alt="Imagem campanha">
 
 
-    <span id="modal-category"></span>
+            <span id="modal-category"></span>
 
 
-    <h2 id="modal-title"></h2>
+            <h2 id="modal-title"></h2>
 
 
-<!-- ABAS -->
+            <!-- ABAS -->
 
-<div class="modal-tabs">
+            <div class="modal-tabs">
 
 
-    <button 
-        class="tab-btn active"
-        data-tab="overview">
-        Visão geral
-    </button>
+                <button class="tab-btn active" data-tab="overview">
+                    Visão geral
+                </button>
 
 
-    <button 
-        class="tab-btn"
-        data-tab="materials">
-        Materiais
-    </button>
+                <button class="tab-btn" data-tab="materials">
+                    Materiais
+                </button>
 
 
-    <button 
-        class="tab-btn"
-        data-tab="copies">
-        Copies
-    </button>
+                <button class="tab-btn" data-tab="copies">
+                    Copies
+                </button>
 
 
-    <button 
-        class="tab-btn"
-        data-tab="rules">
-        Regras
-    </button>
+                <button class="tab-btn" data-tab="rules">
+                    Regras
+                </button>
 
 
-</div>
+            </div>
 
 
 
-<!-- CONTEÚDOS -->
+            <!-- CONTEÚDOS -->
 
 
-<!-- VISÃO GERAL -->
+            <!-- VISÃO GERAL -->
 
-<div 
-    class="tab-content active" 
-    id="overview">
+            <div class="tab-content active" id="overview">
 
 
-    <p id="modal-description"></p>
+                <p id="modal-description"></p>
 
 
-    <div class="modal-info">
+                <div class="modal-info">
 
 
-        <div>
-            <span>Período</span>
-            <p>
-                <b id="modal-start"></b>
-                —
-                <b id="modal-end"></b>
-            </p>
-        </div>
+                    <div>
+                        <span>Período</span>
+                        <p>
+                            <b id="modal-start"></b>
+                            —
+                            <b id="modal-end"></b>
+                        </p>
+                    </div>
 
 
-        <div>
-            <span>Cupom</span>
-            <p id="modal-coupon"></p>
-        </div>
+                    <div>
+                        <span>Cupom</span>
+                        <p id="modal-coupon"></p>
+                    </div>
 
 
-        <div>
-            <span>Depósito mínimo</span>
-            <p id="modal-deposit"></p>
-        </div>
+                    <div>
+                        <span>Depósito mínimo</span>
+                        <p id="modal-deposit"></p>
+                    </div>
 
 
-        <div>
-            <span>Prêmio</span>
-            <p id="modal-prize"></p>
-        </div>
+                    <div>
+                        <span>Prêmio</span>
+                        <p id="modal-prize"></p>
+                    </div>
 
 
-        <div>
-            <span>Público recomendado</span>
-            <p id="modal-audience"></p>
-        </div>
+                    <div>
+                        <span>Público recomendado</span>
+                        <p id="modal-audience"></p>
+                    </div>
 
 
-        <div>
-            <span>Objetivo</span>
-            <p id="modal-objective"></p>
-        </div>
+                    <div>
+                        <span>Objetivo</span>
+                        <p id="modal-objective"></p>
+                    </div>
 
 
-    </div>
+                </div>
 
 
 
-    <h3>
-        Resumo
-    </h3>
+                <h3>
+                    Resumo
+                </h3>
 
 
-    <p id="modal-summary"></p>
+                <p id="modal-summary"></p>
 
 
 
-    <h3>
-        Mecânica
-    </h3>
+                <h3>
+                    Mecânica
+                </h3>
 
 
-    <ol id="modal-mechanics"></ol>
+                <ol id="modal-mechanics"></ol>
 
 
 
-    <h3 class="modal-section-title">
-        Ângulos de divulgação
-    </h3>
+                <h3 class="modal-section-title">
+                    Ângulos de divulgação
+                </h3>
 
 
-    <div id="modal-angles"></div>
+                <div id="modal-angles"></div>
 
 
 
-</div>
+            </div>
 
 
 
 
 
-<!-- MATERIAIS -->
+            <!-- MATERIAIS -->
 
-<div 
-    class="tab-content"
-    id="materials">
+            <div class="tab-content" id="materials">
 
 
-    <h3>
-        Materiais
-    </h3>
+                <h3>
+                    Materiais
+                </h3>
 
 
-    <div id="modal-materials"></div>
+                <div id="modal-materials"></div>
 
 
-</div>
+            </div>
 
 
 
 
 
-<!-- COPIES -->
+            <!-- COPIES -->
 
-<div 
-    class="tab-content"
-    id="copies">
+            <div class="tab-content" id="copies">
 
 
-    <h3>
-        Copies
-    </h3>
+                <h3>
+                    Copies
+                </h3>
 
 
-    <div id="modal-copies"></div>
+                <div id="modal-copies"></div>
 
 
-</div>
+            </div>
 
 
 
 
 
-<!-- REGRAS -->
+            <!-- REGRAS -->
 
-<div 
-    class="tab-content"
-    id="rules">
+            <div class="tab-content" id="rules">
 
 
-    <h3>
-        Regras
-    </h3>
+                <h3>
+                    Regras
+                </h3>
 
 
-    <div id="modal-rules">
+                <div id="modal-rules">
+                </div>
 
-        Nenhuma regra cadastrada.
 
-    </div>
+            </div>
 
-
-</div>
-
-    <!-- JavaScript -->
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/stats.js"></script>
-    <script src="assets/js/highlight.js"></script>
-    <script src="js/campanha.js"></script>
-    <script src="js/calendario.js"></script>
-    <script src="js/campanha-modal.js"></script>
-    <script src="assets/js/navbar.js"></script>
-    <script src="assets/js/modal.js"></script>
-    <script src="assets/js/main.js"></script>
+            <!-- JavaScript -->
+            <script src="assets/js/api.js"></script>
+            <script src="js/stats.js"></script>
+            <script src="js/destaque.js"></script>
+            <script src="js/campanha.js"></script>
+            <script src="js/calendario.js"></script>
+            <script src="js/campanha-modal.js"></script>
+            <script src="js/modal.js"></script>
+            <script src="js/materiais.js"></script>
+            <script src="js/main.js"></script>
 </body>
 
 </html>
