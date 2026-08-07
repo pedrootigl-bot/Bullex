@@ -1,0 +1,19 @@
+:root {
+    /* Cores */
+    --primary: #0E5EFF;
+    --secondary: #18B9FF;
+    --background: #02040A;
+    --surface: #08111F;
+    --text: #D8DCE5;
+    --white: #FFFFFF;
+
+    /* Layout */
+    --container: 1280px;
+    --header-height: 82px;
+
+    /* Bordas */
+    --radius: 16px;
+
+    /* Transições */
+    --transition: .3s ease;
+}

@@ -1,0 +1,162 @@
+/*==========================
+     O QUE DIVULGAR HOJE
+==========================*/
+
+.highlight {
+    padding: 64px 0 100px;
+    background: #02040A;
+}
+
+.highlight__header {
+    margin-bottom: 28px;
+}
+
+.highlight__header h2 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.highlight__header p {
+    margin: 0;
+    color: #8b98ad;
+    font-size: 1rem;
+}
+
+.highlight__card {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 0;
+    overflow: hidden;
+    border-radius: 24px;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.highlight__content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 36px 36px 32px;
+}
+
+.highlight__tag {
+    display: inline-flex;
+    width: fit-content;
+    color: #76E000;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.highlight__content h3 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.highlight__description {
+    margin: 0;
+    max-width: 520px;
+    color: #8b98ad;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.highlight__copy-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 22px;
+    border-radius: 16px;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.highlight__copy-label {
+    color: #6b7280;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.highlight__copy-box p {
+    margin: 0;
+    color: #d8dce5;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.highlight__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.highlight__actions .btn {
+    min-height: 48px;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+}
+
+.highlight__media {
+    position: relative;
+    min-height: 360px;
+    background: #0a0a0a;
+}
+
+.highlight__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.highlight__media-caption {
+    position: absolute;
+    left: 20px;
+    bottom: 18px;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.highlight__media-caption strong {
+    color: #fff;
+    font-weight: 700;
+}
+
+@media (max-width: 900px) {
+    .highlight__card {
+        grid-template-columns: 1fr;
+    }
+
+    .highlight__media {
+        min-height: 280px;
+        order: -1;
+    }
+
+    .highlight__content {
+        padding: 28px 22px 26px;
+    }
+
+    .highlight__actions {
+        flex-direction: column;
+    }
+
+    .highlight__actions .btn {
+        width: 100%;
+    }
+}

@@ -1,0 +1,384 @@
+/*=================================
+    CAMPAIGNS
+=================================*/
+
+.campaigns{
+
+    padding:80px 0;
+
+    background:#050706;
+
+    color:#fff;
+
+}
+
+
+.section-header{
+
+    margin-bottom:35px;
+
+}
+
+
+.section-tag{
+
+    display:block;
+
+    font-size:.75rem;
+
+    letter-spacing:2px;
+
+    color:#5dff00;
+
+    font-weight:700;
+
+    margin-bottom:12px;
+
+}
+
+
+.section-header h2{
+
+    font-size:2.2rem;
+
+    margin:0;
+
+    font-weight:800;
+
+}
+
+
+.section-header p{
+
+    color:#8f969f;
+
+    margin-top:10px;
+
+}
+
+
+/*==============================
+    FILTROS
+==============================*/
+
+
+.campaign-filters{
+
+    display:flex;
+
+    gap:12px;
+
+    margin-bottom:30px;
+
+    overflow-x:auto;
+
+}
+
+
+.campaign-filters button{
+
+
+    background:#101411;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:#bfc5ca;
+
+    padding:10px 20px;
+
+    border-radius:30px;
+
+    cursor:pointer;
+
+    white-space:nowrap;
+
+    transition:.3s;
+
+}
+
+
+
+.campaign-filters button:hover,
+.campaign-filters button.active{
+
+
+    background:#5dff00;
+
+    color:#020402;
+
+    border-color:#5dff00;
+
+}
+
+
+
+/*==============================
+    GRID DOS CARDS
+==============================*/
+
+
+.campaign-grid{
+
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:16px;
+
+
+}
+
+
+
+/*==============================
+    CARD
+==============================*/
+
+
+.campaign-card{
+
+
+    background:#0c100e;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    transition:.3s;
+
+
+}
+
+
+
+.campaign-card:hover{
+
+
+    transform:translateY(-5px);
+
+    border-color:#5dff00;
+
+
+}
+
+
+
+/* IMAGEM */
+
+
+.campaign-card img{
+
+
+    width:100%;
+
+    height:210px;
+
+    object-fit:cover;
+
+    display:block;
+
+
+}
+
+
+
+/* CONTEÚDO */
+
+
+.campaign-content{
+
+
+    padding:16px;
+
+
+}
+
+
+
+.campaign-content h3{
+
+
+    font-size:1rem;
+
+    margin-bottom:8px;
+
+    font-weight:800;
+
+
+}
+
+
+
+.campaign-content p{
+
+
+    font-size:.85rem;
+
+    color:#92999f;
+
+    min-height:40px;
+
+
+}
+
+
+
+.campaign-content strong{
+
+
+    display:block;
+
+    margin:15px 0;
+
+    font-size:.8rem;
+
+
+}
+
+
+
+/* TAGS */
+
+
+.tags{
+
+
+    display:flex;
+
+    gap:6px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:20px;
+
+
+}
+
+
+.tags span{
+
+
+    background:#101611;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:#98ff42;
+
+    font-size:.7rem;
+
+    padding:5px 10px;
+
+    border-radius:20px;
+
+
+}
+
+
+
+/* BOTÕES */
+
+
+.actions{
+
+
+    display:flex;
+
+    gap:10px;
+
+
+}
+
+
+
+.actions button{
+
+
+    flex:1;
+
+    height:38px;
+
+    border-radius:12px;
+
+    border:1px solid rgba(255,255,255,.1);
+
+    background:transparent;
+
+    color:#fff;
+
+    cursor:pointer;
+
+
+}
+
+
+
+.actions button:first-child{
+
+
+    background:#5dff00;
+
+    color:#020402;
+
+    border:none;
+
+
+}
+
+
+
+/*==============================
+    RESPONSIVO
+==============================*/
+
+
+@media(max-width:1100px){
+
+
+    .campaign-grid{
+
+        grid-template-columns:
+        repeat(2,1fr);
+
+    }
+
+
+}
+
+
+
+@media(max-width:600px){
+
+
+    .campaigns{
+
+        padding:50px 0;
+
+    }
+
+
+    .section-header h2{
+
+        font-size:1.7rem;
+
+    }
+
+
+    .campaign-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .campaign-card img{
+
+        height:190px;
+
+    }
+
+
+}

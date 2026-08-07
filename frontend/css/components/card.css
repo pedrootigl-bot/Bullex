@@ -1,0 +1,49 @@
+.material-card{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    padding:18px;
+
+    margin-top:18px;
+
+    border-radius:18px;
+
+    background:#141414;
+
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.material-card img{
+
+    width:90px;
+
+    border-radius:12px;
+}
+
+.material-info{
+
+    flex:1;
+}
+
+.material-info h3{
+
+    color:#fff;
+}
+
+.material-info span{
+
+    color:#999;
+}
+
+.material-actions{
+
+    display:flex;
+
+    gap:12px;
+}

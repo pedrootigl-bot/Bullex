@@ -1,0 +1,282 @@
+/*==========================
+        NAVBAR
+==========================*/
+
+.navbar{
+
+    position: fixed;
+
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: min(1000px, 90%);
+    height: 70px;
+
+    background: rgba(17,17,17,.92);
+
+    border: 1px solid rgba(255,255,255,.08);
+
+    border-radius: 18px;
+
+    backdrop-filter: blur(16px);
+
+    box-shadow: 0 12px 35px rgba(0,0,0,.35);
+
+    overflow: hidden;
+
+    transition:
+        box-shadow .35s ease,
+        transform .35s ease;
+
+    z-index: 999;
+}
+
+/*==========================
+    LUZ NA BORDA
+==========================*/
+
+.navbar::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-2px;
+
+    border-radius:inherit;
+
+    padding:2px;
+
+    background:linear-gradient(
+        90deg,
+        transparent,
+        #18B9FF,
+        #6AE6FF,
+        #18B9FF,
+        transparent
+    );
+
+    background-size:300% 100%;
+
+    opacity:0;
+
+    transition:.35s;
+
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+
+    -webkit-mask-composite:xor;
+            mask-composite:exclude;
+}
+
+.navbar:hover{
+
+    transform:translateX(-50%) translateY(-2px);
+
+    box-shadow:
+        0 0 20px rgba(24,185,255,.18),
+        0 0 45px rgba(24,185,255,.12),
+        0 12px 35px rgba(0,0,0,.35);
+}
+
+.navbar:hover::before{
+
+    opacity:1;
+
+    animation:borderGlow 2s linear infinite;
+}
+
+@keyframes borderGlow{
+
+    from{
+        background-position:0%;
+    }
+
+    to{
+        background-position:300%;
+    }
+}
+
+/*==========================
+    CONTAINER
+==========================*/
+
+.navbar__content{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+    height:100%;
+
+    padding:0 30px;
+}
+
+/*==========================
+        LOGO
+==========================*/
+
+.logo{
+
+    display:flex;
+
+    align-items:center;
+
+    text-decoration:none;
+
+    z-index:2;
+}
+
+.logo img{
+
+    height:42px;
+
+    display:block;
+}
+
+/*==========================
+        MENU
+==========================*/
+
+.menu{
+
+    position:absolute;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+}
+
+/* Item */
+
+.menu a{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:48px;
+
+    height:48px;
+
+    padding:0 16px;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-decoration:none;
+
+    background:transparent;
+
+    color:#BDBDBD;
+
+    transition:
+        width .35s ease,
+        background .35s ease,
+        color .35s ease,
+        transform .35s ease;
+}
+
+/* Ícone */
+
+.menu a i{
+
+    min-width:18px;
+
+    text-align:center;
+
+    font-size:18px;
+
+    flex-shrink:0;
+}
+
+/* Texto */
+
+.menu a span{
+
+    max-width:0;
+
+    margin-left:0;
+
+    opacity:0;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    font-size:14px;
+
+    font-weight:500;
+
+    transition:
+        max-width .35s ease,
+        margin-left .35s ease,
+        opacity .25s ease;
+}
+
+/* Hover */
+
+.menu a:hover{
+
+    width:170px;
+
+    justify-content:flex-start;
+
+    background:rgba(24,185,255,.12);
+
+    color:#18B9FF;
+
+    transform:translateY(-2px);
+}
+
+.menu a:hover span{
+
+    max-width:120px;
+
+    margin-left:10px;
+
+    opacity:1;
+}
+
+/*==========================
+        BOTÃO
+==========================*/
+
+.menu .btn{
+
+    width:auto;
+
+    padding:10px 22px;
+
+    background:#18B9FF;
+
+    color:#fff;
+
+    border-radius:12px;
+
+    font-weight:600;
+}
+
+.menu .btn:hover{
+
+    background:#0E5EFF;
+
+    color:#fff;
+
+    transform:scale(1.05);
+}

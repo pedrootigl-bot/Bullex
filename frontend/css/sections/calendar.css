@@ -1,0 +1,577 @@
+/*=================================
+    CALENDAR SECTION
+=================================*/
+
+
+.calendar-section{
+
+    display:grid;
+
+    grid-template-columns:1fr 1.15fr;
+
+    gap:40px;
+
+    padding:80px 60px;
+
+    background:#050706;
+
+    color:#fff;
+
+    align-items:stretch;
+
+}
+
+
+
+
+/*=================================
+    CARD DA CAMPANHA
+=================================*/
+
+
+
+.calendar-section .campaign-card{
+
+
+    background:#0c100e;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+
+.calendar-section .campaign-card img{
+
+
+    width:100%;
+
+    flex:1;
+
+    min-height:320px;
+
+    max-height:520px;
+
+    object-fit:cover;
+
+    display:block;
+
+    background:#101411;
+
+    transition:opacity .35s ease;
+
+}
+
+
+
+.campaign-info{
+
+
+    padding:25px;
+
+
+}
+
+
+
+.campaign-info h2{
+
+
+    font-size:1.8rem;
+
+    font-weight:800;
+
+    margin-bottom:8px;
+
+
+}
+
+
+
+.campaign-info h3{
+
+
+    color:#55ff00;
+
+    font-size:1rem;
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+.campaign-info p{
+
+
+    color:#aaa;
+
+    margin-bottom:15px;
+
+
+}
+
+
+
+.campaign-info strong{
+
+
+    color:#55ff00;
+
+}
+
+
+
+.campaign-info span{
+
+
+    display:block;
+
+    color:#aaa;
+
+
+}
+
+
+
+.campaign-info b{
+
+
+    color:#fff;
+
+}
+
+
+
+.calendar-section .campaign-card button{
+
+
+    margin:0 25px 25px;
+
+    width:calc(100% - 50px);
+
+    height:45px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#55ff00;
+
+    color:#000;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+
+}
+
+
+
+
+
+/*=================================
+    CALENDÁRIO
+=================================*/
+
+
+
+.calendar{
+
+
+    background:#0c100e;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:24px;
+
+    padding:28px 30px 34px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    min-height:100%;
+
+
+}
+
+
+
+.calendar-header{
+
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-bottom:22px;
+
+    padding-bottom:18px;
+
+    border-bottom:1px solid rgba(255,255,255,.06);
+
+
+}
+
+
+
+.calendar-nav{
+
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+
+}
+
+
+
+.calendar-header button{
+
+
+    width:32px;
+
+    height:32px;
+
+    border:none;
+
+    background:transparent;
+
+    color:#cfcfcf;
+
+    font-size:1.55rem;
+
+    line-height:1;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:0;
+
+
+}
+
+
+
+.calendar-header button:hover{
+
+
+    color:#55ff00;
+
+
+}
+
+
+
+.calendar-campaign-label{
+
+
+    color:#bdbdbd;
+
+    font-size:.95rem;
+
+    letter-spacing:.04em;
+
+    text-transform:uppercase;
+
+    font-weight:500;
+
+
+}
+
+
+
+
+
+/*=================================
+    GRID DO CALENDÁRIO
+=================================*/
+
+
+
+.calendar-grid{
+
+
+    display:grid;
+
+    grid-template-columns:72px repeat(7, 1fr);
+
+    row-gap:22px;
+
+    column-gap:8px;
+
+    align-items:center;
+
+
+}
+
+
+
+.calendar-weekday{
+
+
+    color:#7a7a7a;
+
+    font-size:.72rem;
+
+    letter-spacing:.08em;
+
+    text-transform:uppercase;
+
+    text-align:center;
+
+    font-weight:500;
+
+
+}
+
+
+
+.calendar-weekday.is-spacer{
+
+
+    visibility:hidden;
+
+
+}
+
+
+
+.week-label{
+
+
+    color:#6e6e6e;
+
+    font-size:.78rem;
+
+    letter-spacing:.06em;
+
+    text-transform:uppercase;
+
+    white-space:nowrap;
+
+
+}
+
+
+
+.day{
+
+
+    width:42px;
+
+    height:42px;
+
+    margin:0 auto;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    color:#6a6a6a;
+
+    font-size:.95rem;
+
+    font-weight:500;
+
+    font-variant-numeric:tabular-nums;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    border:1.5px solid transparent;
+
+    background:transparent;
+
+    user-select:none;
+
+
+}
+
+
+
+.day.is-empty{
+
+
+    pointer-events:none;
+
+    visibility:hidden;
+
+
+}
+
+
+
+.day:hover:not(.is-selected){
+
+
+    color:#fff;
+
+    background:rgba(85,255,0,.08);
+
+
+}
+
+
+
+.day.has-campaign{
+
+
+    color:#55ff00;
+
+    border-color:#55ff00;
+
+    background:transparent;
+
+
+}
+
+
+
+.day.is-selected{
+
+
+    background:#55ff00;
+
+    border-color:#55ff00;
+
+    color:#0a0a0a;
+
+    font-weight:700;
+
+    box-shadow:0 0 18px rgba(85,255,0,.55);
+
+
+}
+
+
+
+.day.is-selected.has-campaign{
+
+
+    color:#0a0a0a;
+
+
+}
+
+
+
+
+
+/*=================================
+    RESPONSIVO
+=================================*/
+
+
+
+@media(max-width:900px){
+
+
+    .calendar-section{
+
+
+        grid-template-columns:1fr;
+
+        gap:30px;
+
+        padding:50px 24px;
+
+
+    }
+
+
+
+    .calendar-section .campaign-card img{
+
+
+        min-height:240px;
+
+        max-height:340px;
+
+
+    }
+
+
+}
+
+
+
+@media(max-width:600px){
+
+
+    .calendar{
+
+
+        padding:20px 16px 24px;
+
+
+    }
+
+
+
+    .calendar-grid{
+
+
+        grid-template-columns:54px repeat(7, 1fr);
+
+        row-gap:14px;
+
+        column-gap:4px;
+
+
+    }
+
+
+
+    .day{
+
+
+        width:34px;
+
+        height:34px;
+
+        font-size:.8rem;
+
+
+    }
+
+
+
+    .week-label{
+
+
+        font-size:.68rem;
+
+
+    }
+
+
+}

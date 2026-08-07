@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bullex</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="assets/images/favicon.ico">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+
+    <!-- ==========================
+            HEADER
+    =========================== -->
+    <header class="navbar">
+
+        <div class="container navbar__content">
+
+            <a href="#" class="logo">
+                <img src="images/Logo_Vetorizado_BULLEX_superior (2).png" alt="Bullex">
+            </a>
+
+            <nav class="menu">
+
+                <a href="#divulgar-hoje">
+                    <i class="fa-solid fa-car-side"></i>
+                    <span>Materiais</span>
+                </a>
+
+                <a href="#campaigns">
+                    <i class="fa-regular fa-image"></i>
+                    <span>Campanhas</span>
+                </a>
+
+
+                <a href="#calendar">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>Calendário</span>
+                </a>
+
+                <a href="#suporte">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Suporte</span>
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+    <main>
+
+        <section class="hero" id="hero">
+
+            <div class="container">
+
+                <div class="hero__grid">
+
+                    <!-- Texto -->
+                    <div class="hero__content">
+
+                        <span class="hero__tag">
+                            🚀 Plataforma de Marketing
+                        </span>
+
+                        <h1>
+                            O GT dos traders pode ser seu.
+                            <span>HAVAL H6 GT</span>
+                        </h1>
+
+                        <p>
+                            Campanha voltada para engajamento,
+                            movimentação nas redes sociais,
+                            reativação de traders,
+                            incentivo ao redépósito e aumento do número de operações.
+                        </p>
+
+                        <p class="hero__period">
+                            03 DE AGO • 03 DE SET
+                        </p>
+
+                        <!-- Grid unificado: botões + cards -->
+                        <div class="hero__actions">
+
+                            <div class="hero__actions-buttons">
+
+                                <button type="button" class="btn" id="openModal" aria-haspopup="dialog"
+                                    aria-controls="modalMateriais">
+                                    <i class="fa-solid fa-download"></i>
+                                    Acessar materiais
+                                </button>
+
+                                <a href="#como-participar" class="btn btn--outline">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    Entender campanha
+                                </a>
+
+                            </div>
+
+                            <div class="info-card">
+                                <span class="info-card__label">CUPOM</span>
+                                <strong class="info-card__value highlight">BULLCAR</strong>
+                            </div>
+
+                            <div class="info-card">
+                                <span class="info-card__label">DEPÓSITO MÍN.</span>
+                                <strong class="info-card__value">R$ 150</strong>
+                            </div>
+
+                            <div class="info-card">
+                                <span class="info-card__label">PRÊMIO</span>
+                                <strong class="info-card__value">HAVAL H6 GT 0km</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Imagem -->
+                    <div class="hero__image">
+                        <img src="/frontend/images/post.png" alt="Campanha">
+                    </div>
+
+                </div>
+
+                <!-- Stats — valores virão do banco/API -->
+                <section class="stats" aria-label="Indicadores da plataforma">
+
+                    <div class="stat-card">
+                        <strong id="campanhas">0</strong>
+                        <span>CAMPANHAS ATIVAS</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <strong id="materiais">0</strong>
+                        <span>MATERIAIS</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <strong id="copies-count">
+                        <span>COPIES PRONTAS</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <strong id="videos">0</strong>
+                        <span>VÍDEOS</span>
+                    </div>
+
+                </section>
+
+            </div>
+
+        </section>
+
+        <!-- ==========================
+            DESTAQUE DO DIA — dados via banco/API
+        =========================== -->
+        <section class="highlight" id="divulgar-hoje">
+
+            <div class="container">
+
+                <header class="highlight__header">
+                    <h2>O que divulgar hoje</h2>
+                    <p>Uma sugestão rápida para você colocar a campanha na rua</p>
+                </header>
+
+                <article class="highlight__card">
+
+                    <div class="highlight__content">
+
+                        <span class="highlight__tag" id="highlightTag"></span>
+
+                        <h3 id="highlightTitle"></h3>
+
+                        <p class="highlight__description" id="highlightDescription"></p>
+
+                        <div class="highlight__copy-box">
+                            <span class="highlight__copy-label">COPY RECOMENDADA</span>
+                            <p id="highlightCopy"></p>
+                        </div>
+
+                        <div class="highlight__actions">
+
+                            <button type="button" class="btn" id="highlightCopyBtn">
+                                <i class="fa-regular fa-copy"></i>
+                                Copiar texto
+                            </button>
+
+                            <a class="btn" id="highlightDownloadStory" href="#" target="_blank" rel="noopener">
+                                <i class="fa-solid fa-download"></i>
+                                Baixar story
+                            </a>
+
+                            <button type="button" class="btn btn--outline" id="highlightOpenKit">
+                                <i class="fa-solid fa-box-archive"></i>
+                                Ver kit completo
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="highlight__media">
+
+                        <img id="highlightImage" src="" alt="">
+
+                        <p class="highlight__media-caption">
+                            <strong id="highlightMediaLabel"></strong>
+                            <span>/</span>
+                            <span id="highlightMediaCaption"></span>
+                        </p>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ==========================
+            MODAL — Materiais da campanha
+    =========================== -->
+    <div class="modal" id="modalMateriais" role="dialog" aria-modal="true" aria-labelledby="campaignTitle" hidden>
+
+        <div class="modal__overlay" data-modal-close></div>
+
+        <div class="modal__box">
+
+            <button type="button" class="modal__close" id="closeModal" aria-label="Fechar modal" data-modal-close>
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="modal__loading" id="modalLoading" hidden>
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <span>Carregando materiais...</span>
+            </div>
+
+            <div class="modal__error" id="modalError" hidden>
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p id="modalErrorMessage">Não foi possível carregar os materiais.</p>
+                <button type="button" class="btn" id="modalRetry">Tentar novamente</button>
+            </div>
+
+            <div class="modal__body" id="modalBody">
+
+                <div class="modal__banner">
+                    <img id="campaignBanner" src="" alt="">
+                </div>
+
+                <div class="modal__content">
+
+                    <div class="modal__header">
+                        <span class="status" id="campaignStatus"></span>
+                        <h2 id="campaignTitle"></h2>
+                        <p id="campaignDescription"></p>
+                        <strong id="campaignPeriod"></strong>
+                    </div>
+
+                    <nav class="modal__tabs" id="campaignTabs" aria-label="Seções da campanha"></nav>
+
+                    <div class="modal__panels">
+
+                        <div class="modal__panel is-active" data-panel="materiais" id="panelMateriais">
+                            <div class="modal__top">
+                                <p id="campaignSubtitle"></p>
+                                <a id="downloadKit" class="btn" href="#" target="_blank" rel="noopener">
+                                    <i class="fa-solid fa-download"></i>
+                                    Baixar kit completo
+                                </a>
+                            </div>
+                            <div id="materialsContainer"></div>
+                        </div>
+
+                        <div class="modal__panel" data-panel="visao-geral" id="panelVisaoGeral" hidden>
+                            <div class="modal__panel-content" id="visaoGeralContent"></div>
+                        </div>
+
+                        <div class="modal__panel" data-panel="copies" id="panelCopies" hidden>
+                            <div class="modal__panel-content" id="copiesContent"></div>
+                        </div>
+
+                        <div class="modal__panel" data-panel="regras" id="panelRegras" hidden>
+                            <div class="modal__panel-content" id="regrasContent"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+          Section campanha
+    =========================== -->
+
+
+    <section class="campaigns" id="campaigns">
+        <div class="container">
+
+            <div class="section-header">
+
+                <span class="section-tag">
+                    BIBLIOTECA OPERACIONAL
+                </span>
+
+                <h2>
+                    Campanhas ativas
+                </h2>
+
+                <p>
+                    Deslize para ver todas as campanhas em andamento.
+                </p>
+
+            </div>
+
+
+            <div class="campaign-filters">
+
+                <button class="active" data-filter="Todos">
+                    Todos
+                </button>
+
+                <button data-filter="Aquisição">
+                    Aquisição
+                </button>
+
+                <button data-filter="FTD">
+                    FTD
+                </button>
+
+                <button data-filter="Retenção">
+                    Retenção
+                </button>
+
+                <button data-filter="Volume">
+                    Volume
+                </button>
+
+            </div>
+
+
+            <!-- CARDS VÃO APARECER AQUI -->
+
+<div class="campaign-grid" id="campaign-list">
+</div>
+
+
+</div>
+
+
+<section class="calendar-section">
+
+
+    <!-- CARD DA CAMPANHA ATUAL -->
+
+    <div class="campaign-card">
+
+
+        <img 
+            id="campaign-image" 
+            src="" 
+            alt="Imagem da campanha"
+        >
+
+
+
+        <div class="campaign-info">
+
+
+            <h2 id="campaign-title">
+            </h2>
+
+
+            <h3 id="campaign-name">
+            </h3>
+
+
+
+            <p>
+                Ganhe
+                <strong id="campaign-value"></strong>
+                garantido
+            </p>
+
+
+
+            <span>
+                Use o cupom
+                <b id="campaign-coupon"></b>
+            </span>
+
+
+        </div>
+
+
+
+        <button
+            id="campaign-button"
+            class="btn-abrir-campanha">
+
+            Ver campanha
+
+        </button>
+
+
+    </div>
+
+
+
+
+
+    <!-- CALENDÁRIO -->
+
+    <div class="calendar" id="calendar">
+
+
+        <div class="calendar-header">
+
+
+            <div class="calendar-nav">
+
+                <button 
+                    id="prev-month" 
+                    type="button" 
+                    aria-label="Mês anterior">
+                    ‹
+                </button>
+
+
+                <button 
+                    id="next-month" 
+                    type="button" 
+                    aria-label="Próximo mês">
+                    ›
+                </button>
+
+
+            </div>
+
+
+
+            <div 
+                class="calendar-campaign-label" 
+                id="calendar-campaign-label">
+
+                —
+
+            </div>
+
+
+        </div>
+
+
+
+        <div 
+            class="calendar-grid" 
+            id="calendar-days">
+
+        </div>
+
+
+    </div>
+
+
+
+</section>
+
+
+        <!-- CANAIS DE COMUNICAÇÃO -->
+
+        <section class="support" id="suporte">
+
+            <div class="container">
+
+                <div class="support__header">
+
+                    <span class="section-tag">
+                        SUPORTE
+                    </span>
+
+                    <h2>
+                        Precisa de ajuda?
+                    </h2>
+
+                    <p>
+                        Nossa equipe está disponível para tirar suas dúvidas
+                        e ajudar você durante sua participação.
+                    </p>
+
+                </div>
+
+
+                <div class="support__cards">
+
+
+                    <a href="#" class="support-card">
+
+                        <div class="support-card__icon">
+                            💬
+                        </div>
+
+                        <div>
+                            <h3>
+                                WhatsApp
+                            </h3>
+
+                            <p>
+                                Fale diretamente com nossa equipe.
+                            </p>
+                        </div>
+
+                    </a>
+
+
+
+                    <a href="#" class="support-card">
+
+                        <div class="support-card__icon">
+                            ✉️
+                        </div>
+
+                        <div>
+                            <h3>
+                                E-mail
+                            </h3>
+
+                            <p>
+                                Envie sua dúvida para nosso suporte.
+                            </p>
+                        </div>
+
+                    </a>
+
+
+
+                    <a href="#faq" class="support-card">
+
+                        <div class="support-card__icon">
+                            ❓
+                        </div>
+
+                        <div>
+                            <h3>
+                                Perguntas frequentes
+                            </h3>
+
+                            <p>
+                                Consulte respostas rápidas.
+                            </p>
+                        </div>
+
+                    </a>
+
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+
+        <div class="container">
+
+
+            <div class="footer__content">
+
+
+                <!-- LOGO -->
+
+                <div class="footer__brand">
+
+                    <img src="assets/images/Logo_Vetorizado_BULLEX_superior (2).png" alt="Logo">
+
+                    <p>
+                        Participe, acompanhe sua campanha
+                        e concorra aos melhores prêmios.
+                    </p>
+
+                </div>
+
+
+
+                <!-- LINKS -->
+
+                <div class="footer__links">
+
+                    <h3>
+                        Navegação
+                    </h3>
+
+                    <a href="#banner">
+                        Home
+                    </a>
+
+                    <a href="#how-it-works">
+                        Como participar
+                    </a>
+
+                    <a href="#prize">
+                        Prêmio
+                    </a>
+
+                    <a href="#faq">
+                        Regulamento
+                    </a>
+
+                </div>
+
+
+
+
+                <!-- SUPORTE -->
+
+                <div class="footer__contact">
+
+                    <h3>
+                        Atendimento
+                    </h3>
+
+
+                    <a href="#">
+                        WhatsApp
+                    </a>
+
+
+                    <a href="#">
+                        E-mail
+                    </a>
+
+
+                    <a href="#suporte">
+                        Central de ajuda
+                    </a>
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+            <div class="footer__bottom">
+
+
+                <p>
+                    © 2026 Todos os direitos reservados.
+                </p>
+
+
+                <div class="footer__legal">
+
+                    <a href="#">
+                        Política de privacidade
+                    </a>
+
+                    <a href="#">
+                        Termos de uso
+                    </a>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </footer>
+
+    <div class="campaign-modal" id="campaign-modal">
+
+
+    <div class="modal-content">
+
+
+    <button 
+        class="modal-close"
+        id="modal-close"
+    >
+        ×
+    </button>
+
+
+
+    <!-- CABEÇALHO -->
+
+    <img 
+        id="modal-image"
+        alt="Imagem campanha"
+    >
+
+
+    <span id="modal-category"></span>
+
+
+    <h2 id="modal-title"></h2>
+
+
+<!-- ABAS -->
+
+<div class="modal-tabs">
+
+
+    <button 
+        class="tab-btn active"
+        data-tab="overview">
+        Visão geral
+    </button>
+
+
+    <button 
+        class="tab-btn"
+        data-tab="materials">
+        Materiais
+    </button>
+
+
+    <button 
+        class="tab-btn"
+        data-tab="copies">
+        Copies
+    </button>
+
+
+    <button 
+        class="tab-btn"
+        data-tab="rules">
+        Regras
+    </button>
+
+
+</div>
+
+
+
+<!-- CONTEÚDOS -->
+
+
+<!-- VISÃO GERAL -->
+
+<div 
+    class="tab-content active" 
+    id="overview">
+
+
+    <p id="modal-description"></p>
+
+
+    <div class="modal-info">
+
+
+        <div>
+            <span>Período</span>
+            <p>
+                <b id="modal-start"></b>
+                —
+                <b id="modal-end"></b>
+            </p>
+        </div>
+
+
+        <div>
+            <span>Cupom</span>
+            <p id="modal-coupon"></p>
+        </div>
+
+
+        <div>
+            <span>Depósito mínimo</span>
+            <p id="modal-deposit"></p>
+        </div>
+
+
+        <div>
+            <span>Prêmio</span>
+            <p id="modal-prize"></p>
+        </div>
+
+
+        <div>
+            <span>Público recomendado</span>
+            <p id="modal-audience"></p>
+        </div>
+
+
+        <div>
+            <span>Objetivo</span>
+            <p id="modal-objective"></p>
+        </div>
+
+
+    </div>
+
+
+
+    <h3>
+        Resumo
+    </h3>
+
+
+    <p id="modal-summary"></p>
+
+
+
+    <h3>
+        Mecânica
+    </h3>
+
+
+    <ol id="modal-mechanics"></ol>
+
+
+
+    <h3 class="modal-section-title">
+        Ângulos de divulgação
+    </h3>
+
+
+    <div id="modal-angles"></div>
+
+
+
+</div>
+
+
+
+
+
+<!-- MATERIAIS -->
+
+<div 
+    class="tab-content"
+    id="materials">
+
+
+    <h3>
+        Materiais
+    </h3>
+
+
+    <div id="modal-materials"></div>
+
+
+</div>
+
+
+
+
+
+<!-- COPIES -->
+
+<div 
+    class="tab-content"
+    id="copies">
+
+
+    <h3>
+        Copies
+    </h3>
+
+
+    <div id="modal-copies"></div>
+
+
+</div>
+
+
+
+
+
+<!-- REGRAS -->
+
+<div 
+    class="tab-content"
+    id="rules">
+
+
+    <h3>
+        Regras
+    </h3>
+
+
+    <div id="modal-rules">
+
+        Nenhuma regra cadastrada.
+
+    </div>
+
+
+</div>
+
+    <!-- JavaScript -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/stats.js"></script>
+    <script src="assets/js/highlight.js"></script>
+    <script src="js/campanha.js"></script>
+    <script src="js/calendario.js"></script>
+    <script src="js/campanha-modal.js"></script>
+    <script src="assets/js/navbar.js"></script>
+    <script src="assets/js/modal.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+
+</html>
