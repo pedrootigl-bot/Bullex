@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bullex Admin - Dashboard</title>
+
+    <link rel="stylesheet" href="../css/admin/dashboard.css">
+
+</head>
+
+
+<body>
+
+
+    <header class="admin-header">
+
+        <h1>
+            Bullex Admin
+        </h1>
+
+
+        <button id="logoutBtn">
+            Sair
+        </button>
+
+    </header>
+
+
+
+    <main class="dashboard">
+
+
+        <section class="stats">
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Campanhas
+                </h3>
+
+                <strong id="campanhas">
+                    0
+                </strong>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Materiais
+                </h3>
+
+                <strong id="materiais">
+                    0
+                </strong>
+
+            </div>
+
+
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Copies
+                </h3>
+
+                <strong id="copies">
+                    0
+                </strong>
+
+            </div>
+
+
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Vídeos
+                </h3>
+
+                <strong id="videos">
+                    0
+                </strong>
+
+            </div>
+
+
+        </section>
+
+
+
+        <section class="admin-menu">
+
+
+            <button>
+                Gerenciar campanhas
+            </button>
+
+
+            <button>
+                Gerenciar materiais
+            </button>
+
+
+            <button>
+                Gerenciar copies
+            </button>
+
+
+        </section>
+
+
+    </main>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script src="dashboard.js"></script>
+
+
+</body>
+
+</html>
