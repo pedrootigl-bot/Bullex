@@ -1,196 +1,256 @@
-const API = "http://localhost:3000";
+document.addEventListener("DOMContentLoaded", function () {
 
+    console.log("campanha-form.js carregado");
 
 
-const form = document.querySelector("#campanhaForm");
+    // ==========================================
+    // BOTÃO VOLTAR
+    // ==========================================
 
-const mensagem = document.querySelector("#mensagem");
+    const voltarBtn = document.getElementById("voltarBtn");
 
-const voltarBtn = document.querySelector("#voltarBtn");
+    if (voltarBtn) {
 
+        voltarBtn.addEventListener("click", function () {
 
+            window.location.href = "campanhas.html";
 
-
-
-// voltar para campanhas
-
-if(voltarBtn){
-
-    voltarBtn.addEventListener(
-        "click",
-        ()=>{
-
-            window.location.href =
-            "campanhas.html";
-
-        }
-    );
-
-}
-
-
-
-
-
-// criar campanha
-
-form.addEventListener(
-"submit",
-async(e)=>{
-
-
-e.preventDefault();
-
-
-
-
-const campanha = {
-
-
-    titulo:
-    document.querySelector("#titulo").value,
-
-
-    descricao:
-    document.querySelector("#descricao").value,
-
-
-    categoria:
-    document.querySelector("#categoria").value,
-
-
-    objetivo:
-    document.querySelector("#objetivo").value,
-
-
-    premio:
-    document.querySelector("#premio").value,
-
-
-    cupom:
-    document.querySelector("#cupom").value,
-
-
-    deposito_minimo:
-    document.querySelector("#deposito_minimo").value,
-
-
-    data_inicio:
-    document.querySelector("#data_inicio").value,
-
-
-    data_fim:
-    document.querySelector("#data_fim").value,
-
-
-    status:
-    document.querySelector("#status").value,
-
-
-    imagem_card:
-    document.querySelector("#imagem_card").value
-
-
-
-};
-
-
-
-
-try{
-
-
-    mensagem.textContent =
-    "Criando campanha...";
-
-
-
-
-    const resposta = await fetch(
-
-        `${API}/api/campanhas`,
-
-        {
-
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":
-                "application/json"
-
-            },
-
-
-            body:
-            JSON.stringify(campanha)
-
-        }
-
-    );
-
-
-
-
-
-    const resultado =
-    await resposta.json();
-
-
-
-
-
-    if(!resposta.ok){
-
-
-        throw new Error(
-            resultado.erro ||
-            "Erro ao criar campanha"
-        );
-
+        });
 
     }
 
 
+    // ==========================================
+    // FORMULÁRIO
+    // ==========================================
+
+    const form = document.getElementById("campanha-form");
+
+    if (!form) {
+
+        console.error(
+            "Formulário #campanha-form não encontrado."
+        );
+
+        return;
+
+    }
 
 
+    // ==========================================
+    // SUBMIT
+    // ==========================================
 
-    mensagem.textContent =
-    "Campanha criada com sucesso!";
+    form.addEventListener("submit", async function (event) {
 
-
-
-
-
-    setTimeout(()=>{
+        event.preventDefault();
 
 
-        window.location.href =
-        "campanhas.html";
+        console.log("Formulário enviado");
 
 
-    },1000);
+        const submitButton =
+            form.querySelector('button[type="submit"]');
 
 
+        if (submitButton) {
+
+            submitButton.disabled = true;
+
+            submitButton.textContent = "Criando...";
+
+        }
 
 
+        try {
+
+            // ==========================================
+            // PEGAR DADOS
+            // ==========================================
+
+            const dados = {
+
+                titulo:
+                    document.getElementById("titulo").value.trim(),
+
+                descricao:
+                    document.getElementById("descricao").value.trim(),
+
+                categoria:
+                    document.getElementById("categoria").value.trim(),
+
+                objetivo:
+                    document.getElementById("objetivo").value.trim(),
+
+                premio:
+                    document.getElementById("premio").value.trim(),
+
+                cupom:
+                    document.getElementById("cupom").value.trim(),
+
+                deposito_minimo:
+                    document.getElementById("deposito_minimo").value,
+
+                data_inicio:
+                    document.getElementById("data_inicio").value,
+
+                data_fim:
+                    document.getElementById("data_fim").value,
+
+                status:
+                    document.getElementById("status").value,
+
+                imagem_card:
+                    document.getElementById("imagem_card").value.trim()
+
+            };
 
 
-}catch(error){
+            console.log(
+                "Dados que serão enviados:",
+                dados
+            );
 
 
-    console.error(
-        "Erro criar campanha:",
-        error
-    );
+            // ==========================================
+            // VALIDAÇÃO
+            // ==========================================
+
+            if (!dados.titulo) {
+
+                alert("Digite o título da campanha.");
+
+                return;
+
+            }
 
 
-    mensagem.textContent =
-    error.message;
+            if (!dados.data_inicio) {
+
+                alert("Informe a data de início.");
+
+                return;
+
+            }
 
 
-}
+            if (!dados.data_fim) {
+
+                alert("Informe a data de fim.");
+
+                return;
+
+            }
 
 
+            if (dados.data_fim < dados.data_inicio) {
+
+                alert(
+                    "A data de fim não pode ser anterior à data de início."
+                );
+
+                return;
+
+            }
+
+
+            // ==========================================
+            // POST
+            // ==========================================
+
+            console.log(
+                "Enviando campanha para API..."
+            );
+
+
+            const response = await fetch(
+                "http://localhost:3000/api/campanhas",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type": "application/json"
+
+                    },
+
+                    body: JSON.stringify(dados)
+
+                }
+            );
+
+
+            const resultado =
+                await response.json();
+
+
+            console.log(
+                "Resposta da API:",
+                resultado
+            );
+
+
+            // ==========================================
+            // ERRO
+            // ==========================================
+
+            if (!response.ok) {
+
+                throw new Error(
+                    resultado.erro ||
+                    "Erro ao criar campanha."
+                );
+
+            }
+
+
+            // ==========================================
+            // SUCESSO
+            // ==========================================
+
+            console.log(
+                "Campanha criada:",
+                resultado.campanha
+            );
+
+
+            alert(
+                "Campanha criada com sucesso!"
+            );
+
+
+            window.location.href =
+                "campanhas.html";
+
+
+        } catch (error) {
+
+            console.error(
+                "Erro ao criar campanha:",
+                error
+            );
+
+
+            alert(
+                error.message ||
+                "Erro ao criar campanha."
+            );
+
+
+        } finally {
+
+            if (submitButton) {
+
+                submitButton.disabled = false;
+
+                submitButton.textContent =
+                    "Criar campanha";
+
+            }
+
+        }
+
+    });
 
 });

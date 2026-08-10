@@ -1,0 +1,864 @@
+const API = "http://localhost:3000";
+
+// ======================================================
+// PEGAR ID DA URL
+// ======================================================
+
+const params = new URLSearchParams(
+    window.location.search
+);
+
+const campanhaId = params.get("id");
+
+console.log(
+    "Campanha ID:",
+    campanhaId
+);
+
+
+// ======================================================
+// ELEMENTOS
+// ======================================================
+
+const detailImage =
+    document.querySelector("#detail-image");
+
+const detailCategory =
+    document.querySelector("#detail-category");
+
+const detailTitle =
+    document.querySelector("#detail-title");
+
+const detailDescription =
+    document.querySelector("#detail-description");
+
+const detailObjective =
+    document.querySelector("#detail-objective");
+
+const detailPrize =
+    document.querySelector("#detail-prize");
+
+const detailCoupon =
+    document.querySelector("#detail-coupon");
+
+const detailMinimum =
+    document.querySelector("#detail-minimum");
+
+const detailStart =
+    document.querySelector("#detail-start");
+
+const detailEnd =
+    document.querySelector("#detail-end");
+
+const detailStatus =
+    document.querySelector("#detail-status");
+
+const voltarBtn =
+    document.querySelector("#voltarBtn");
+
+
+// ======================================================
+// VOLTAR
+// ======================================================
+
+if (voltarBtn) {
+
+    voltarBtn.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "campanhas.html";
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// VALIDAR ID
+// ======================================================
+
+if (!campanhaId) {
+
+    console.error(
+        "ID da campanha não informado."
+    );
+
+    alert(
+        "ID da campanha não informado."
+    );
+
+    window.location.href =
+        "campanhas.html";
+
+}
+
+
+// ======================================================
+// FORMATAR DATA
+// ======================================================
+
+function formatarData(data) {
+
+    if (!data) {
+        return "-";
+    }
+
+    try {
+
+        const dataLimpa =
+            String(data).split("T")[0];
+
+        const partes =
+            dataLimpa.split("-");
+
+        if (partes.length === 3) {
+
+            const [ano, mes, dia] =
+                partes;
+
+            return `${dia}/${mes}/${ano}`;
+
+        }
+
+        return data;
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao formatar data:",
+            error
+        );
+
+        return data;
+
+    }
+
+}
+
+
+// ======================================================
+// FORMATAR VALOR
+// ======================================================
+
+function formatarMoeda(valor) {
+
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ""
+    ) {
+        return "-";
+    }
+
+    const numero =
+        Number(valor);
+
+    if (Number.isNaN(numero)) {
+        return valor;
+    }
+
+    return numero.toLocaleString(
+        "pt-BR",
+        {
+            style: "currency",
+            currency: "BRL"
+        }
+    );
+
+}
+
+
+// ======================================================
+// CARREGAR CAMPANHA
+// ======================================================
+
+async function carregarCampanha() {
+
+    try {
+
+        console.log(
+            "Carregando campanha:",
+            campanhaId
+        );
+
+
+        const resposta =
+            await fetch(
+                `${API}/api/campanhas/${campanhaId}`
+            );
+
+
+        const campanha =
+            await resposta.json();
+
+
+        console.log(
+            "Resposta da campanha:",
+            campanha
+        );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                campanha.erro ||
+                campanha.error ||
+                "Erro ao carregar campanha."
+            );
+
+        }
+
+
+        // ==================================================
+        // TÍTULO
+        // ==================================================
+
+        if (detailTitle) {
+
+            detailTitle.textContent =
+                campanha.titulo || "-";
+
+        }
+
+
+        // ==================================================
+        // CATEGORIA
+        // ==================================================
+
+        if (detailCategory) {
+
+            detailCategory.textContent =
+                campanha.categoria || "-";
+
+        }
+
+
+        // ==================================================
+        // DESCRIÇÃO
+        // ==================================================
+
+        if (detailDescription) {
+
+            detailDescription.textContent =
+                campanha.descricao || "-";
+
+        }
+
+
+        // ==================================================
+        // OBJETIVO
+        // ==================================================
+
+        if (detailObjective) {
+
+            detailObjective.textContent =
+                campanha.objetivo || "-";
+
+        }
+
+
+        // ==================================================
+        // PRÊMIO
+        // ==================================================
+
+        if (detailPrize) {
+
+            detailPrize.textContent =
+                campanha.premio || "-";
+
+        }
+
+
+        // ==================================================
+        // CUPOM
+        // ==================================================
+
+        if (detailCoupon) {
+
+            detailCoupon.textContent =
+                campanha.cupom || "-";
+
+        }
+
+
+        // ==================================================
+        // DEPÓSITO MÍNIMO
+        // ==================================================
+
+        if (detailMinimum) {
+
+            detailMinimum.textContent =
+                formatarMoeda(
+                    campanha.deposito_minimo
+                );
+
+        }
+
+
+        // ==================================================
+        // DATA DE INÍCIO
+        // ==================================================
+
+        if (detailStart) {
+
+            detailStart.textContent =
+                formatarData(
+                    campanha.data_inicio
+                );
+
+        }
+
+
+        // ==================================================
+        // DATA DE ENCERRAMENTO
+        // ==================================================
+
+        if (detailEnd) {
+
+            detailEnd.textContent =
+                formatarData(
+                    campanha.data_fim
+                );
+
+        }
+
+
+        // ==================================================
+        // STATUS
+        // ==================================================
+
+        if (detailStatus) {
+
+            detailStatus.textContent =
+                campanha.status || "-";
+
+        }
+
+
+        // ==================================================
+        // IMAGEM
+        // ==================================================
+
+        if (detailImage) {
+
+            const imagem =
+                campanha.imagem_card ||
+                campanha.banner;
+
+
+            if (imagem) {
+
+                detailImage.src =
+                    imagem;
+
+                detailImage.alt =
+                    campanha.titulo ||
+                    "Imagem da campanha";
+
+                detailImage.style.display =
+                    "block";
+
+
+                detailImage.onerror =
+                    () => {
+
+                        console.error(
+                            "Erro ao carregar imagem:",
+                            imagem
+                        );
+
+                        detailImage.style.display =
+                            "none";
+
+                    };
+
+            } else {
+
+                detailImage.style.display =
+                    "none";
+
+            }
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar detalhes:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Não foi possível carregar a campanha."
+        );
+
+
+        window.location.href =
+            "campanhas.html";
+
+    }
+
+}
+
+
+// ======================================================
+// INICIAR
+// ======================================================
+
+if (campanhaId) {
+
+    carregarCampanha();
+
+}
+
+// ======================================================
+// CARREGAR REGRAS DA CAMPANHA
+// ======================================================
+
+async function carregarRegras() {
+
+    const rulesContainer =
+        document.querySelector("#rulesContainer");
+
+    if (!rulesContainer) {
+
+        console.error(
+            "Container #rulesContainer não encontrado."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        console.log(
+            "Carregando regras da campanha:",
+            campanhaId
+        );
+
+
+        rulesContainer.innerHTML = `
+            <p class="loading-rules">
+                Carregando regras...
+            </p>
+        `;
+
+
+        const resposta =
+            await fetch(
+                `${API}/api/regras/${campanhaId}`
+            );
+
+
+        const regras =
+            await resposta.json();
+
+
+        console.log(
+            "Regras recebidas:",
+            regras
+        );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                regras.erro ||
+                regras.error ||
+                "Erro ao carregar regras."
+            );
+
+        }
+
+
+        if (
+            !Array.isArray(regras) ||
+            regras.length === 0
+        ) {
+
+            rulesContainer.innerHTML = `
+                <p class="empty-rules">
+                    Nenhuma regra cadastrada para esta campanha.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        // ==========================================
+        // ORDENAR REGRAS
+        // ==========================================
+
+        regras.sort(
+            (a, b) =>
+                (a.ordem ?? 0) -
+                (b.ordem ?? 0)
+        );
+
+
+        rulesContainer.innerHTML = "";
+
+
+        // ==========================================
+        // CRIAR REGRAS
+        // ==========================================
+
+        regras.forEach((regra) => {
+
+            const regraElement =
+                document.createElement("div");
+
+
+            regraElement.classList.add(
+                "rule-item"
+            );
+
+
+            regraElement.innerHTML = `
+
+                <div class="rule-number">
+                    ${regra.ordem}
+                </div>
+
+
+                <div class="rule-content">
+
+                    <h3>
+                        ${regra.titulo || "-"}
+                    </h3>
+
+                    <p>
+                        ${regra.descricao || "-"}
+                    </p>
+
+                </div>
+
+            `;
+
+
+            rulesContainer.appendChild(
+                regraElement
+            );
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar regras:",
+            error
+        );
+
+
+        rulesContainer.innerHTML = `
+            <p class="error-rules">
+                Não foi possível carregar as regras.
+            </p>
+        `;
+
+    }
+
+}
+
+
+async function carregarMateriais() {
+
+    const materialsContainer =
+        document.querySelector("#materialsContainer");
+
+    if (!materialsContainer) {
+
+        console.error(
+            "Container #materialsContainer não encontrado."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        console.log(
+            "Carregando materiais da campanha:",
+            campanhaId
+        );
+
+
+        materialsContainer.innerHTML = `
+            <p class="loading-materials">
+                Carregando materiais...
+            </p>
+        `;
+
+
+        const resposta =
+            await fetch(
+                `${API}/api/materiais/${campanhaId}`
+            );
+
+
+        const materiais =
+            await resposta.json();
+
+
+        console.log(
+            "Materiais recebidos:",
+            materiais
+        );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                materiais.erro ||
+                materiais.error ||
+                "Erro ao carregar materiais."
+            );
+
+        }
+
+
+        if (
+            !Array.isArray(materiais) ||
+            materiais.length === 0
+        ) {
+
+            materialsContainer.innerHTML = `
+                <p class="empty-materials">
+                    Nenhum material cadastrado para esta campanha.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        materialsContainer.innerHTML = "";
+
+
+        materiais.forEach((material) => {
+
+            const materialCard =
+                document.createElement("div");
+
+
+            materialCard.classList.add(
+                "material-card"
+            );
+
+
+            const nome =
+                material.nome || "Material";
+
+
+            const tipo =
+                material.tipo || "Material";
+
+
+            const url =
+                material.url || "";
+
+
+            materialCard.innerHTML = `
+
+                <div class="material-preview">
+
+                    ${
+                        url
+                            ? `
+                                <img
+                                    src="${url}"
+                                    alt="${nome}"
+                                    class="material-image"
+                                >
+                            `
+                            : `
+                                <div class="material-no-image">
+                                    Sem imagem
+                                </div>
+                            `
+                    }
+
+                </div>
+
+
+                <div class="material-content">
+
+                    <h3>
+                        ${nome}
+                    </h3>
+
+
+                    <span class="material-type">
+                        ${tipo}
+                    </span>
+
+
+                    ${
+                        url
+                            ? `
+                                <a
+                                    href="${url}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn-material"
+                                >
+                                    Abrir material
+                                </a>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            `;
+
+
+            materialsContainer.appendChild(
+                materialCard
+            );
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar materiais:",
+            error
+        );
+
+
+        materialsContainer.innerHTML = `
+            <p class="error-materials">
+                Não foi possível carregar os materiais.
+            </p>
+        `;
+
+    }
+
+}
+
+// ======================================================
+// MODAL DE MATERIAIS
+// ======================================================
+
+const materialsModal =
+    document.querySelector("#materialsModal");
+
+const btnAbrirMateriais =
+    document.querySelector("#btnAbrirMateriais");
+
+const btnFecharMateriais =
+    document.querySelector("#btnFecharMateriais");
+
+const materialsModalOverlay =
+    document.querySelector("#materialsModalOverlay");
+
+
+// ======================================================
+// ABRIR MODAL
+// ======================================================
+
+if (btnAbrirMateriais) {
+
+    btnAbrirMateriais.addEventListener(
+        "click",
+        () => {
+
+            if (!materialsModal) {
+                return;
+            }
+
+            materialsModal.hidden = false;
+
+            document.body.classList.add(
+                "modal-open"
+            );
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// FECHAR MODAL
+// ======================================================
+
+function fecharMateriaisModal() {
+
+    if (!materialsModal) {
+        return;
+    }
+
+    materialsModal.hidden = true;
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+}
+
+
+if (btnFecharMateriais) {
+
+    btnFecharMateriais.addEventListener(
+        "click",
+        fecharMateriaisModal
+    );
+
+}
+
+
+if (materialsModalOverlay) {
+
+    materialsModalOverlay.addEventListener(
+        "click",
+        fecharMateriaisModal
+    );
+
+}
+
+
+// ======================================================
+// ESC
+// ======================================================
+
+document.addEventListener(
+    "keydown",
+    (event) => {
+
+        if (
+            event.key === "Escape" &&
+            materialsModal &&
+            !materialsModal.hidden
+        ) {
+
+            fecharMateriaisModal();
+
+        }
+
+    }
+);
+// ======================================================
+// INICIAR
+// ======================================================
+
+if (campanhaId) {
+
+    carregarCampanha();
+
+    carregarRegras();
+
+    carregarMateriais();
+
+}

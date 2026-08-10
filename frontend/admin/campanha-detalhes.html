@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<link rel="stylesheet" href="../css/admin/admin.css">
+
+<title>Detalhes da Campanha</title>
+
+
+</head>
+
+<body>
+
+<!-- ==========================================
+     CABEÇALHO
+=========================================== -->
+
+<div class="admin-header">
+
+    <h1>
+        Detalhes da Campanha
+    </h1>
+
+    <button
+        type="button"
+        id="voltarBtn"
+        class="btn btn-secondary"
+    >
+        Voltar para campanhas
+    </button>
+
+</div>
+
+
+<!-- ==========================================
+     CAMPANHA
+=========================================== -->
+
+<div class="campaign-detail-card">
+
+    <img
+        id="detail-image"
+        src=""
+        alt="Imagem da campanha"
+    >
+
+
+    <div class="detail-content">
+
+        <span
+            id="detail-category"
+        ></span>
+
+
+        <h1
+            id="detail-title"
+        ></h1>
+
+
+        <p
+            id="detail-description"
+        ></p>
+
+
+        <div class="detail-info">
+
+            <p>
+                Objetivo:
+
+                <strong
+                    id="detail-objective"
+                ></strong>
+            </p>
+
+
+            <p>
+                Prêmio:
+
+                <strong
+                    id="detail-prize"
+                ></strong>
+            </p>
+
+
+            <p>
+                Cupom:
+
+                <strong
+                    id="detail-coupon"
+                ></strong>
+            </p>
+
+
+            <p>
+                Depósito mínimo:
+
+                <strong
+                    id="detail-minimum"
+                ></strong>
+            </p>
+
+
+            <p>
+                Início:
+
+                <span
+                    id="detail-start"
+                ></span>
+            </p>
+
+
+            <p>
+                Encerramento:
+
+                <span
+                    id="detail-end"
+                ></span>
+            </p>
+
+
+            <p>
+                Status:
+
+                <strong
+                    id="detail-status"
+                ></strong>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     REGRAS DA CAMPANHA
+=========================================== -->
+
+<section
+    class="campaign-rules"
+    id="campaignRules"
+>
+
+    <div class="section-header">
+
+        <h2>
+            Regras da Campanha
+        </h2>
+
+    </div>
+
+
+    <div
+        id="rulesContainer"
+        class="rules-container"
+    >
+
+        <p class="loading-rules">
+            Carregando regras...
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     MATERIAIS DA CAMPANHA
+=========================================== -->
+
+<section
+    class="campaign-materials"
+    id="campaignMaterials"
+>
+
+
+<div class="section-header">
+
+    <div>
+
+        <h2>
+            Materiais
+        </h2>
+
+        <p>
+            Acesse os materiais disponíveis para esta campanha.
+        </p>
+
+    </div>
+
+
+    <button
+        type="button"
+        id="btnAbrirMateriais"
+        class="btn btn-primary"
+    >
+        Ver materiais
+    </button>
+
+</div>
+
+</section>
+
+<!-- ==========================================
+     MODAL DE MATERIAIS
+=========================================== -->
+
+<div
+    class="materials-modal"
+    id="materialsModal"
+    hidden
+>
+
+
+<div
+    class="materials-modal__overlay"
+    id="materialsModalOverlay"
+></div>
+
+
+<div
+    class="materials-modal__box"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="materialsModalTitle"
+>
+
+    <div class="materials-modal__header">
+
+        <div>
+
+            <h2 id="materialsModalTitle">
+                Materiais da campanha
+            </h2>
+
+            <p id="materialsModalSubtitle">
+                Materiais disponíveis para divulgação.
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="btnFecharMateriais"
+            class="materials-modal__close"
+            aria-label="Fechar materiais"
+        >
+            &times;
+        </button>
+
+    </div>
+
+
+    <div
+        id="materialsContainer"
+        class="materials-container"
+    >
+
+        <p class="loading-materials">
+            Carregando materiais...
+        </p>
+
+    </div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- ==========================================
+     COPIES
+=========================================== -->
+
+<section
+    class="campaign-copies"
+    id="campaignCopies"
+>
+
+    <div class="section-header">
+
+        <h2>
+            Copies
+        </h2>
+
+    </div>
+
+
+    <div
+        id="copiesContainer"
+        class="copies-container"
+    >
+
+        <p>
+            Copies serão carregadas aqui.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     ÂNGULOS DE DIVULGAÇÃO
+=========================================== -->
+
+<section
+    class="campaign-angles"
+    id="campaignAngles"
+>
+
+    <div class="section-header">
+
+        <h2>
+            Ângulos de Divulgação
+        </h2>
+
+    </div>
+
+
+    <div
+        id="anglesContainer"
+        class="angles-container"
+    >
+
+        <p>
+            Ângulos de divulgação serão carregados aqui.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     KIT DA CAMPANHA
+=========================================== -->
+
+<section
+    class="campaign-kit"
+    id="campaignKit"
+>
+
+    <div class="section-header">
+
+        <h2>
+            Kit da Campanha
+        </h2>
+
+    </div>
+
+
+    <div
+        id="kitContainer"
+        class="kit-container"
+    >
+
+        <p>
+            Kit será carregado aqui.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     JAVASCRIPT
+=========================================== -->
+
+<script src="campanha-detalhes.js"></script>
+
+
+</body>
+
+</html>

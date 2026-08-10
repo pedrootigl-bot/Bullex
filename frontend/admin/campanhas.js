@@ -1,107 +1,288 @@
 const API = "http://localhost:3000";
 
+const container = document.querySelector("#campanhasContainer");
 
+// ======================================================
+// CARREGAR CAMPANHAS
+// ======================================================
 
-const container =
-document.querySelector("#campanhasContainer");
+async function carregarCampanhas() {
 
+    if (!container) {
+        console.error(
+            "Container #campanhasContainer não encontrado."
+        );
+        return;
+    }
 
-
-
-// Carregar campanhas
-async function carregarCampanhas(){
-
-
-    try{
-
+    try {
 
         const resposta = await fetch(
             `${API}/api/campanhas`
         );
 
+        const campanhas = await resposta.json();
 
-        const campanhas =
-        await resposta.json();
+        if (!resposta.ok) {
 
+            throw new Error(
+                campanhas.erro ||
+                "Erro ao carregar campanhas."
+            );
 
+        }
 
         container.innerHTML = "";
 
+        if (
+            !Array.isArray(campanhas) ||
+            campanhas.length === 0
+        ) {
 
+            container.innerHTML = `
+                <div class="campanhas-vazia">
+                    <p>
+                        Nenhuma campanha cadastrada.
+                    </p>
+                </div>
+            `;
 
-        campanhas.forEach(campanha => {
+            return;
+        }
 
-              console.log(campanha);
-
+        campanhas.forEach((campanha) => {
 
             const card =
-            document.createElement("div");
+                document.createElement("div");
 
+            card.classList.add(
+                "campaign-card"
+            );
 
-            card.className =
-            "stat-card";
+            card.innerHTML = `
 
+                <h2>
+                    ${campanha.titulo ?? "Sem título"}
+                </h2>
 
+                <p>
+                    Categoria:
+                    ${campanha.categoria ?? "-"}
+                </p>
 
-           card.innerHTML = `
+                <p>
+                    Status:
+                    ${campanha.status ?? "-"}
+                </p>
 
-                    <h2>
-                        ${campanha.titulo}
-                    </h2>
+                <p>
+                    Início:
+                    ${campanha.data_inicio ?? "-"}
+                </p>
 
+                <p>
+                    Fim:
+                    ${campanha.data_fim ?? "-"}
+                </p>
 
-                    <p>
-                        Categoria:
-                        ${campanha.categoria ?? "-"}
-                    </p>
+                <p>
+                    Prêmio:
+                    ${campanha.premio ?? "-"}
+                </p>
 
+                <div class="campaign-card__actions">
 
-                    <p>
-                        Status:
-                        ${campanha.status ?? "-"}
-                    </p>
+                    <button
+                        type="button"
+                        class="btn-visualizar"
+                        data-id="${campanha.id}"
+                    >
+                        Visualizar
+                    </button>
 
-
-                    <p>
-                        Início:
-                        ${campanha.data_inicio ?? "-"}
-                    </p>
-
-
-                    <p>
-                        Fim:
-                        ${campanha.data_fim ?? "-"}
-                    </p>
-
-
-                    <p>
-                        Prêmio:
-                        ${campanha.premio ?? "-"}
-                    </p>
-
-
-                    <button>
+                    <button
+                        type="button"
+                        class="btn-editar"
+                        data-id="${campanha.id}"
+                    >
                         Editar
                     </button>
 
-
-                    <button>
+                    <button
+                        type="button"
+                        class="btn-excluir"
+                        data-id="${campanha.id}"
+                    >
                         Excluir
                     </button>
 
-                `;
-
+                </div>
+            `;
 
             container.appendChild(card);
 
 
+            // ==========================================
+            // VISUALIZAR
+            // ==========================================
+
+            const btnVisualizar =
+                card.querySelector(
+                    ".btn-visualizar"
+                );
+
+            if (btnVisualizar) {
+
+                btnVisualizar.addEventListener(
+                    "click",
+                    () => {
+
+                        const id =
+                            btnVisualizar.dataset.id;
+
+                        console.log(
+                            "Visualizando campanha:",
+                            id
+                        );
+
+                        window.location.href =
+                            `campanha-detalhes.html?id=${id}`;
+
+                    }
+                );
+
+            }
+
+
+            // ==========================================
+            // EDITAR
+            // ==========================================
+
+            const btnEditar =
+                card.querySelector(
+                    ".btn-editar"
+                );
+
+            if (btnEditar) {
+
+                btnEditar.addEventListener(
+                    "click",
+                    () => {
+
+                        const id =
+                            btnEditar.dataset.id;
+
+                        console.log(
+                            "Editando campanha:",
+                            id
+                        );
+
+                        window.location.href =
+                            `campanha-form.html?id=${id}`;
+
+                    }
+                );
+
+            }
+
+
+            // ==========================================
+            // EXCLUIR
+            // ==========================================
+
+            const btnExcluir =
+                card.querySelector(
+                    ".btn-excluir"
+                );
+
+            if (btnExcluir) {
+
+                btnExcluir.addEventListener(
+                    "click",
+                    async () => {
+
+                        const id =
+                            btnExcluir.dataset.id;
+
+                        const confirmar =
+                            confirm(
+                                "Tem certeza que deseja excluir esta campanha?"
+                            );
+
+                        if (!confirmar) {
+                            return;
+                        }
+
+                        try {
+
+                            btnExcluir.disabled = true;
+
+                            btnExcluir.textContent =
+                                "Excluindo...";
+
+
+                            const resposta =
+                                await fetch(
+                                    `${API}/api/campanhas/${id}`,
+                                    {
+                                        method: "DELETE"
+                                    }
+                                );
+
+
+                            const resultado =
+                                await resposta.json();
+
+
+                            if (!resposta.ok) {
+
+                                throw new Error(
+                                    resultado.erro ||
+                                    "Erro ao excluir campanha."
+                                );
+
+                            }
+
+
+                            console.log(
+                                "Campanha excluída:",
+                                id
+                            );
+
+
+                            await carregarCampanhas();
+
+
+                        } catch (error) {
+
+                            console.error(
+                                "Erro ao excluir campanha:",
+                                error
+                            );
+
+
+                            alert(
+                                error.message ||
+                                "Não foi possível excluir a campanha."
+                            );
+
+
+                            btnExcluir.disabled =
+                                false;
+
+                            btnExcluir.textContent =
+                                "Excluir";
+
+                        }
+
+                    }
+                );
+
+            }
 
         });
 
-
-
-    }catch(error){
-
+    } catch (error) {
 
         console.error(
             "Erro campanhas:",
@@ -109,54 +290,94 @@ async function carregarCampanhas(){
         );
 
 
+        container.innerHTML = `
+            <div class="campanhas-erro">
+
+                <p>
+                    Não foi possível carregar as campanhas.
+                </p>
+
+                <button
+                    type="button"
+                    id="tentarNovamente"
+                >
+                    Tentar novamente
+                </button>
+
+            </div>
+        `;
+
+
+        const tentarNovamente =
+            document.querySelector(
+                "#tentarNovamente"
+            );
+
+
+        if (tentarNovamente) {
+
+            tentarNovamente.addEventListener(
+                "click",
+                carregarCampanhas
+            );
+
+        }
+
     }
 
-
 }
 
 
+// ======================================================
+// VOLTAR PARA DASHBOARD
+// ======================================================
 
-
-
-// voltar dashboard
 const voltar =
-document.querySelector("#voltarBtn");
+    document.querySelector("#voltarBtn");
 
+if (voltar) {
 
-if(voltar){
+    voltar.addEventListener(
+        "click",
+        () => {
 
+            window.location.href =
+                "dashboard.html";
 
-    voltar.onclick = ()=>{
-
-
-        window.location.href =
-        "dashboard.html";
-
-
-    };
-
-
-}
-
-
-
-
-
-// botão nova campanha
-
-document.querySelector("#novaCampanha")
-.onclick = ()=>{
-
-
-    alert(
-        "Área de criação será adicionada"
+        }
     );
 
-
-};
-
+}
 
 
+// ======================================================
+// NOVA CAMPANHA
+// ======================================================
+
+const novaCampanha =
+    document.querySelector("#novaCampanha");
+
+if (novaCampanha) {
+
+    novaCampanha.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "campanha-form.html";
+
+        }
+    );
+
+}
 
 
-carregarCampanhas();
+// ======================================================
+// INICIAR
+// ======================================================
+
+if (container) {
+
+    carregarCampanhas();
+
+}

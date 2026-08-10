@@ -1,238 +1,297 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
 
-    <meta charset="UTF-8">
+```
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Nova Campanha - Bullex Admin</title>
+<title>Nova Campanha - Bullex Admin</title>
 
-    <link rel="stylesheet" href="../css/admin/dashboard.css">
+<link
+    rel="stylesheet"
+    href="../css/admin/dashboard.css"
+>
+```
 
 </head>
 
-
 <body>
 
-
-<header class="admin-header">
+```
+<main>
 
     <h1>
         Nova Campanha
     </h1>
 
 
-    <button id="voltarBtn">
+    <button
+        type="button"
+        id="voltarBtn"
+    >
         Campanhas
     </button>
 
-</header>
 
+    <form id="campanha-form">
 
+        <!-- ==========================================
+             TÍTULO
+        =========================================== -->
 
+        <div>
 
+            <label for="titulo">
+                Título
+            </label>
 
-<main class="dashboard">
+            <input
+                type="text"
+                id="titulo"
+                name="titulo"
+                required
+            >
 
+        </div>
 
-<section class="admin-form">
 
+        <!-- ==========================================
+             DESCRIÇÃO
+        =========================================== -->
 
-<form id="campanhaForm">
+        <div>
 
+            <label for="descricao">
+                Descrição
+            </label>
 
-<label>
-Título
-</label>
+            <textarea
+                id="descricao"
+                name="descricao"
+                rows="4"
+            ></textarea>
 
-<input 
-type="text"
-id="titulo"
-required
->
+        </div>
 
 
+        <!-- ==========================================
+             CATEGORIA
+        =========================================== -->
 
+        <div>
 
-<label>
-Descrição
-</label>
+            <label for="categoria">
+                Categoria
+            </label>
 
-<textarea
-id="descricao"
-rows="5"
-></textarea>
+            <input
+                type="text"
+                id="categoria"
+                name="categoria"
+            >
 
+        </div>
 
 
+        <!-- ==========================================
+             OBJETIVO
+        =========================================== -->
 
+        <div>
 
-<label>
-Categoria
-</label>
+            <label for="objetivo">
+                Objetivo
+            </label>
 
-<input
-type="text"
-id="categoria"
->
+            <input
+                type="text"
+                id="objetivo"
+                name="objetivo"
+            >
 
+        </div>
 
 
+        <!-- ==========================================
+             PRÊMIO
+        =========================================== -->
 
+        <div>
 
-<label>
-Objetivo
-</label>
+            <label for="premio">
+                Prêmio
+            </label>
 
-<input
-type="text"
-id="objetivo"
->
+            <input
+                type="text"
+                id="premio"
+                name="premio"
+            >
 
+        </div>
 
 
+        <!-- ==========================================
+             CUPOM
+        =========================================== -->
 
+        <div>
 
-<label>
-Prêmio
-</label>
+            <label for="cupom">
+                Cupom
+            </label>
 
-<input
-type="text"
-id="premio"
->
+            <input
+                type="text"
+                id="cupom"
+                name="cupom"
+            >
 
+        </div>
 
 
+        <!-- ==========================================
+             DEPÓSITO MÍNIMO
+        =========================================== -->
 
+        <div>
 
-<label>
-Cupom
-</label>
+            <label for="deposito_minimo">
+                Depósito mínimo
+            </label>
 
-<input
-type="text"
-id="cupom"
->
+            <input
+                type="number"
+                id="deposito_minimo"
+                name="deposito_minimo"
+                placeholder="R$ 150"
+                min="0"
+                step="0.01"
+            >
 
+        </div>
 
 
+        <!-- ==========================================
+             DATA DE INÍCIO
+        =========================================== -->
 
+        <div>
 
-<label>
-Depósito mínimo
-</label>
+            <label for="data_inicio">
+                Data de início
+            </label>
 
-<input
-type="text"
-id="deposito_minimo"
-placeholder="R$ 150"
->
+            <input
+                type="date"
+                id="data_inicio"
+                name="data_inicio"
+                required
+            >
 
+        </div>
 
 
+        <!-- ==========================================
+             DATA DE FIM
+        =========================================== -->
 
+        <div>
 
-<label>
-Data início
-</label>
+            <label for="data_fim">
+                Data de fim
+            </label>
 
-<input
-type="date"
-id="data_inicio"
-required
->
+            <input
+                type="date"
+                id="data_fim"
+                name="data_fim"
+                required
+            >
 
+        </div>
 
 
+        <!-- ==========================================
+             STATUS
+        =========================================== -->
 
+        <div>
 
-<label>
-Data fim
-</label>
+            <label for="status">
+                Status
+            </label>
 
-<input
-type="date"
-id="data_fim"
-required
->
+            <select
+                id="status"
+                name="status"
+            >
 
+                <option value="ativa">
+                    Ativa
+                </option>
 
+                <option value="inativa">
+                    Inativa
+                </option>
 
+                <option value="encerrada">
+                    Encerrada
+                </option>
 
+            </select>
 
-<label>
-Status
-</label>
+        </div>
 
-<select id="status">
 
+        <!-- ==========================================
+             IMAGEM
+        =========================================== -->
 
-<option value="ativa">
-Ativa
-</option>
+        <div>
 
+            <label for="imagem_card">
+                URL da imagem
+            </label>
 
-<option value="inativa">
-Inativa
-</option>
+            <input
+                type="text"
+                id="imagem_card"
+                name="imagem_card"
+                placeholder="https://..."
+            >
 
+        </div>
 
-<option value="encerrada">
-Encerrada
-</option>
 
+        <!-- ==========================================
+             AÇÕES
+        =========================================== -->
 
-</select>
+        <div>
 
+            <button
+                type="submit"
+            >
+                Criar campanha
+            </button>
 
+        </div>
 
-
-
-<label>
-Imagem do card
-</label>
-
-<input
-type="text"
-id="imagem_card"
-placeholder="URL da imagem"
->
-
-
-
-
-
-<button type="submit">
-
-Criar campanha
-
-</button>
-
-
-
-</form>
-
-
-
-<p id="mensagem"></p>
-
-
-
-</section>
-
-
+    </form>
 
 </main>
 
 
-
-
-
-<script src="./campanha-form.js"></script>
-
+<script src="campanha-form.js"></script>
+```
 
 </body>
 
