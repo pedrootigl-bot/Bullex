@@ -401,4 +401,130 @@ router.put("/:id", async (req, res) => {
 });
 
 
+// ======================================================
+// EXCLUIR CAMPANHA
+// DELETE /api/campanhas/:id
+// ======================================================
+
+router.delete("/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+        const campanhaId = Number(id);
+
+        if (!campanhaId) {
+
+            return res.status(400).json({
+                erro: "ID da campanha inválido"
+            });
+
+        }
+
+
+        // Confere se a campanha existe
+        const { data: campanha, error: erroBusca } = await supabase
+            .from("campanhas")
+            .select("id")
+            .eq("id", campanhaId)
+            .single();
+
+
+        if (erroBusca || !campanha) {
+
+            return res.status(404).json({
+                erro: "Campanha não encontrada"
+            });
+
+        }
+
+
+        // Remove vínculos antes da campanha (evita erro de FK)
+        const tabelasRelacionadas = [
+            "copies",
+            "regras",
+            "materiais",
+            "kits",
+            "angulos_divulgacao"
+        ];
+
+        for (const tabela of tabelasRelacionadas) {
+
+            const { error: erroRelacionado } = await supabase
+                .from(tabela)
+                .delete()
+                .eq("campanha_id", campanhaId);
+
+            if (erroRelacionado) {
+
+                // Se a tabela não existir no banco, segue; outros erros param a exclusão
+                const mensagem = String(erroRelacionado.message || "");
+                const tabelaInexistente =
+                    mensagem.toLowerCase().includes("does not exist") ||
+                    mensagem.toLowerCase().includes("não existe") ||
+                    erroRelacionado.code === "42P01" ||
+                    erroRelacionado.code === "PGRST205";
+
+                if (!tabelaInexistente) {
+
+                    console.error(
+                        `Erro ao excluir ${tabela}:`,
+                        erroRelacionado
+                    );
+
+                    return res.status(500).json({
+                        erro:
+                            erroRelacionado.message ||
+                            `Erro ao excluir registros de ${tabela}`
+                    });
+
+                }
+
+            }
+
+        }
+
+
+        const { error: erroCampanha } = await supabase
+            .from("campanhas")
+            .delete()
+            .eq("id", campanhaId);
+
+
+        if (erroCampanha) {
+
+            console.error(
+                "Erro ao excluir campanha:",
+                erroCampanha
+            );
+
+            return res.status(500).json({
+                erro: erroCampanha.message
+            });
+
+        }
+
+
+        return res.json({
+            mensagem: "Campanha excluída com sucesso",
+            id: campanhaId
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro interno ao excluir campanha:",
+            error
+        );
+
+        return res.status(500).json({
+            erro: "Erro interno do servidor"
+        });
+
+    }
+
+});
+
+
 module.exports = router;

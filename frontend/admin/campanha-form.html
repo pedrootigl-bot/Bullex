@@ -1,297 +1,260 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Campanha - Bullex</title>
 
-```
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>Nova Campanha - Bullex Admin</title>
-
-<link
-    rel="stylesheet"
-    href="../css/admin/dashboard.css"
->
-```
-
+    <link rel="stylesheet" href="../css/admin/admin.css">
+    <link rel="stylesheet" href="../css/admin/campanha-form.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
 
-```
-<main>
-
-    <h1>
-        Nova Campanha
-    </h1>
-
-
-    <button
-        type="button"
-        id="voltarBtn"
-    >
-        Campanhas
-    </button>
-
-
-    <form id="campanha-form">
-
-        <!-- ==========================================
-             TÍTULO
-        =========================================== -->
-
-        <div>
-
-            <label for="titulo">
-                Título
-            </label>
-
-            <input
-                type="text"
-                id="titulo"
-                name="titulo"
-                required
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             DESCRIÇÃO
-        =========================================== -->
-
-        <div>
-
-            <label for="descricao">
-                Descrição
-            </label>
-
-            <textarea
-                id="descricao"
-                name="descricao"
-                rows="4"
-            ></textarea>
-
-        </div>
-
-
-        <!-- ==========================================
-             CATEGORIA
-        =========================================== -->
-
-        <div>
-
-            <label for="categoria">
-                Categoria
-            </label>
-
-            <input
-                type="text"
-                id="categoria"
-                name="categoria"
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             OBJETIVO
-        =========================================== -->
-
-        <div>
-
-            <label for="objetivo">
-                Objetivo
-            </label>
-
-            <input
-                type="text"
-                id="objetivo"
-                name="objetivo"
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             PRÊMIO
-        =========================================== -->
-
-        <div>
-
-            <label for="premio">
-                Prêmio
-            </label>
-
-            <input
-                type="text"
-                id="premio"
-                name="premio"
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             CUPOM
-        =========================================== -->
-
-        <div>
-
-            <label for="cupom">
-                Cupom
-            </label>
-
-            <input
-                type="text"
-                id="cupom"
-                name="cupom"
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             DEPÓSITO MÍNIMO
-        =========================================== -->
-
-        <div>
-
-            <label for="deposito_minimo">
-                Depósito mínimo
-            </label>
-
-            <input
-                type="number"
-                id="deposito_minimo"
-                name="deposito_minimo"
-                placeholder="R$ 150"
-                min="0"
-                step="0.01"
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             DATA DE INÍCIO
-        =========================================== -->
-
-        <div>
-
-            <label for="data_inicio">
-                Data de início
-            </label>
-
-            <input
-                type="date"
-                id="data_inicio"
-                name="data_inicio"
-                required
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             DATA DE FIM
-        =========================================== -->
-
-        <div>
-
-            <label for="data_fim">
-                Data de fim
-            </label>
-
-            <input
-                type="date"
-                id="data_fim"
-                name="data_fim"
-                required
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             STATUS
-        =========================================== -->
-
-        <div>
-
-            <label for="status">
-                Status
-            </label>
-
-            <select
-                id="status"
-                name="status"
-            >
-
-                <option value="ativa">
-                    Ativa
-                </option>
-
-                <option value="inativa">
-                    Inativa
-                </option>
-
-                <option value="encerrada">
-                    Encerrada
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- ==========================================
-             IMAGEM
-        =========================================== -->
-
-        <div>
-
-            <label for="imagem_card">
-                URL da imagem
-            </label>
-
-            <input
-                type="text"
-                id="imagem_card"
-                name="imagem_card"
-                placeholder="https://..."
-            >
-
-        </div>
-
-
-        <!-- ==========================================
-             AÇÕES
-        =========================================== -->
-
-        <div>
-
-            <button
-                type="submit"
-            >
-                Criar campanha
+    <header class="admin-header">
+        <div class="admin-header__left">
+            <button type="button" id="voltarBtn" class="btn-voltar">
+                <i class="fa-solid fa-arrow-left"></i>
+                Voltar
             </button>
-
+            <h1 id="pageTitle">Nova Campanha</h1>
         </div>
+    </header>
 
-    </form>
+    <main class="admin-main">
 
-</main>
+        <form id="campanhaForm">
 
+            <section class="form-section">
+                <div class="form-section__header">
+                    <div>
+                        <h2>Dados da campanha</h2>
+                        <p>Preencha as informações principais da campanha.</p>
+                    </div>
+                </div>
 
-<script src="campanha-form.js"></script>
-```
+                <div class="form-grid">
+
+                    <div class="form-group form-group--full">
+                        <label for="titulo">Título</label>
+                        <input
+                            type="text"
+                            id="titulo"
+                            name="titulo"
+                            placeholder="Ex: Campanha Haval H6 GT"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group form-group--full">
+                        <label for="descricao">Descrição</label>
+                        <textarea
+                            id="descricao"
+                            name="descricao"
+                            rows="5"
+                            placeholder="Descreva a campanha..."
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group form-group--full">
+                        <label for="objetivo">Objetivo</label>
+                        <textarea
+                            id="objetivo"
+                            name="objetivo"
+                            rows="3"
+                            placeholder="Qual o objetivo da campanha?"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria" name="categoria">
+                            <option value="">Selecione uma categoria</option>
+                            <option value="Aquisição">Aquisição</option>
+                            <option value="Retenção">Retenção</option>
+                            <option value="Engajamento">Engajamento</option>
+                            <option value="Indicação">Indicação</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="ativa">Ativa</option>
+                            <option value="inativa">Inativa</option>
+                            <option value="rascunho">Rascunho</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="data_inicio">Data de início</label>
+                        <input type="date" id="data_inicio" name="data_inicio" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="data_fim">Data de término</label>
+                        <input type="date" id="data_fim" name="data_fim" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cupom">Cupom</label>
+                        <input
+                            type="text"
+                            id="cupom"
+                            name="cupom"
+                            placeholder="Ex: BULLCAR"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deposito_minimo">Depósito mínimo</label>
+                        <input
+                            type="number"
+                            id="deposito_minimo"
+                            name="deposito_minimo"
+                            min="0"
+                            step="0.01"
+                            placeholder="Ex: 150"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="premio">Prêmio</label>
+                        <input
+                            type="text"
+                            id="premio"
+                            name="premio"
+                            placeholder="Ex: HAVAL H6 GT 0km"
+                        >
+                    </div>
+
+                    <div class="form-group form-group--full">
+                        <label>Imagem do card</label>
+
+                        <input
+                            type="hidden"
+                            id="imagem_card"
+                            name="imagem_card"
+                            value=""
+                        >
+
+                        <input
+                            type="file"
+                            id="imagem_card_file"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                            hidden
+                        >
+
+                        <div
+                            id="imagemCardDropzone"
+                            class="upload-dropzone"
+                            tabindex="0"
+                            role="button"
+                            aria-label="Área de upload da imagem do card"
+                        >
+
+                            <div class="upload-dropzone__empty" id="imagemCardEmpty">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <p>Arraste e solte a imagem aqui</p>
+                                <span>PNG, JPG ou WEBP · máx. 5 MB</span>
+                                <button type="button" id="imagemCardSelectBtn" class="btn-secondary">
+                                    Selecionar imagem
+                                </button>
+                            </div>
+
+                            <div class="upload-dropzone__preview" id="imagemCardPreview" hidden>
+                                <img id="imagemCardPreviewImg" alt="Preview da imagem do card">
+                                <div class="upload-dropzone__meta">
+                                    <strong id="imagemCardFileName">imagem</strong>
+                                    <div class="upload-dropzone__actions">
+                                        <button type="button" id="imagemCardReplaceBtn" class="btn-secondary">
+                                            Trocar
+                                        </button>
+                                        <button type="button" id="imagemCardRemoveBtn" class="btn-secondary">
+                                            Remover
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="upload-dropzone__status" id="imagemCardStatus" hidden></div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="form-section">
+                <div class="form-section__header">
+                    <div>
+                        <h2>Copies da campanha</h2>
+                        <p>Adicione os textos que serão utilizados na divulgação da campanha.</p>
+                    </div>
+                </div>
+
+                <div id="copiesContainer"></div>
+
+                <button type="button" id="adicionarCopyBtn" class="btn-secondary">
+                    <i class="fa-solid fa-plus"></i>
+                    Adicionar copy
+                </button>
+            </section>
+
+            <section class="form-section">
+                <div class="form-section__header">
+                    <div>
+                        <h2>Regras da campanha</h2>
+                        <p>Adicione as regras e condições da campanha.</p>
+                    </div>
+                </div>
+
+                <div id="regrasContainer"></div>
+
+                <button type="button" id="adicionarRegraBtn" class="btn-secondary">
+                    <i class="fa-solid fa-plus"></i>
+                    Adicionar regra
+                </button>
+            </section>
+
+            <section class="form-section">
+                <div class="form-section__header">
+                    <div>
+                        <h2>Materiais da campanha</h2>
+                        <p>Adicione os materiais de divulgação vinculados à campanha.</p>
+                    </div>
+                </div>
+
+                <div id="materiaisContainer"></div>
+
+                <button type="button" id="adicionarMaterialBtn" class="btn-secondary">
+                    <i class="fa-solid fa-plus"></i>
+                    Adicionar material
+                </button>
+            </section>
+
+            <div class="form-actions">
+                <button type="button" id="cancelarBtn" class="btn-secondary">
+                    Cancelar
+                </button>
+
+                <button type="submit" id="salvarBtn" class="btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Salvar campanha
+                </button>
+            </div>
+
+        </form>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase-client.js"></script>
+    <script src="./campanha-form.js"></script>
 
 </body>
 

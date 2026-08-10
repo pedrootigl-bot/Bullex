@@ -6,7 +6,9 @@
 
     justify-content:space-between;
 
-    gap:20px;
+    flex-wrap:wrap;
+
+    gap:16px;
 
     padding:18px;
 
@@ -17,35 +19,97 @@
     background:#141414;
 
     border:1px solid rgba(255,255,255,.06);
+
+    box-sizing:border-box;
+
+    min-width:0;
+
+    overflow:hidden;
 }
 
 .material-card img{
 
     width:90px;
 
+    height:90px;
+
+    object-fit:cover;
+
     border-radius:12px;
+
+    flex-shrink:0;
 }
 
 .material-info{
 
-    flex:1;
+    flex:1 1 160px;
+
+    min-width:0;
+
+    overflow:hidden;
 }
 
 .material-info h3{
 
+    margin:0 0 4px;
+
     color:#fff;
+
+    font-size:1rem;
+
+    line-height:1.3;
+
+    overflow-wrap:anywhere;
+
+    word-break:break-word;
 }
 
 .material-info span{
 
+    display:inline-block;
+
     color:#999;
+
+    font-size:0.85rem;
+
+    overflow-wrap:anywhere;
 }
 
 .material-actions{
 
     display:flex;
 
-    gap:12px;
+    flex-wrap:wrap;
+
+    gap:10px;
+
+    flex:1 1 100%;
+
+    min-width:0;
+}
+
+.material-actions .btn{
+
+    flex:1 1 auto;
+
+    min-height:44px;
+
+    padding:10px 14px;
+
+    font-size:0.9rem;
+
+    white-space:nowrap;
+}
+
+@media (min-width: 720px){
+
+    .material-actions{
+
+        flex:0 1 auto;
+
+        justify-content:flex-end;
+    }
+
 }
 
 .rule-card {

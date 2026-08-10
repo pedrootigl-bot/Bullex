@@ -10,6 +10,7 @@ const statsRoutes = require("./routes/stats");
 const destaqueRoutes = require("./routes/destaque");
 const downloadRoutes = require("./routes/download");
 const kitsRoutes = require("./routes/kits");
+const angulosRoutes = require("./routes/angulosRoutes");
 
 
 
@@ -67,6 +68,10 @@ app.use(
      kitsRoutes
 );
 
+app.use("/api/angulos", 
+    angulosRoutes
+);
+
 app.get("/", (req, res) => {
 
     res.json({
@@ -74,6 +79,7 @@ app.get("/", (req, res) => {
     });
 
 });
+
 
 
 

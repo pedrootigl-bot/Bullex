@@ -156,11 +156,16 @@ async function carregarMateriais(campanhaId){
             String(material.tipo || "").toLowerCase();
 
             const url = material.url || "";
+            const nome = material.nome ?? "Material";
 
             const ehImagem =
                 tipo.includes("imagem")
                 || tipo.includes("image")
                 || /\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(url);
+
+            const ehVideo =
+                tipo.includes("video")
+                || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
 
 
             if(ehImagem && url){
@@ -169,7 +174,7 @@ async function carregarMateriais(campanhaId){
                 document.createElement("img");
 
                 img.src = url;
-                img.alt = material.nome ?? "Material";
+                img.alt = nome;
                 card.appendChild(img);
 
             }
@@ -184,8 +189,7 @@ async function carregarMateriais(campanhaId){
             const titulo =
             document.createElement("h3");
 
-            titulo.textContent =
-                material.nome ?? "Material";
+            titulo.textContent = nome;
 
 
             const meta =
@@ -208,24 +212,75 @@ async function carregarMateriais(campanhaId){
 
             if(url){
 
-                const link =
+                const btnVisualizar =
+                document.createElement("button");
+
+                btnVisualizar.type = "button";
+                btnVisualizar.className = "btn btn--outline";
+                btnVisualizar.innerHTML = `
+                    <i class="fa-regular fa-eye"></i>
+                    Visualizar
+                `;
+
+                btnVisualizar.addEventListener("click", () => {
+
+                    if (ehVideo) {
+
+                        if (typeof abrirVideoPreview === "function") {
+                            abrirVideoPreview(url, nome);
+                        } else {
+                            window.open(url, "_blank", "noopener");
+                        }
+
+                        return;
+                    }
+
+                    if (ehImagem && typeof abrirImagePreview === "function") {
+                        abrirImagePreview(url, nome);
+                        return;
+                    }
+
+                    // Outros tipos: abre para visualizar sem forçar download
+                    window.open(url, "_blank", "noopener");
+
+                });
+
+
+                const linkBaixar =
                 document.createElement("a");
 
-                link.href = url;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-                link.className = "btn";
-                link.textContent = "Baixar";
+                linkBaixar.href = url;
+                linkBaixar.className = "btn";
+                linkBaixar.setAttribute("download", "");
+                linkBaixar.innerHTML = `
+                    <i class="fa-solid fa-download"></i>
+                    Baixar
+                `;
 
-                actions.appendChild(link);
+                linkBaixar.addEventListener("click", (event) => {
+
+                    if (typeof forcarDownloadArquivo === "function") {
+                        forcarDownloadArquivo(event, url, nome);
+                        return;
+                    }
+
+                    // Fallback: tenta download nativo
+                    linkBaixar.setAttribute(
+                        "download",
+                        nome.replace(/\s+/g, "-").toLowerCase()
+                    );
+
+                });
+
+
+                actions.appendChild(btnVisualizar);
+                actions.appendChild(linkBaixar);
 
             }
 
 
             card.appendChild(actions);
             container.appendChild(card);
-
-            console.log("HTML final:", container.innerHTML);
 
 
         });

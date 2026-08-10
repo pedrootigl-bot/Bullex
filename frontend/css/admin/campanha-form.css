@@ -1,0 +1,816 @@
+/* ======================================================
+   RESET
+====================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ======================================================
+   BASE
+====================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fafc 0%,
+            #eef2f7 100%
+        );
+
+    color: #1f2937;
+
+    line-height: 1.5;
+}
+
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.admin-header {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    width: 100%;
+
+    min-height: 76px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 0 5%;
+
+    background:
+        rgba(255, 255, 255, 0.94);
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+    box-shadow:
+        0 4px 20px rgba(15, 23, 42, 0.05);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+
+/* ======================================================
+   TÍTULO DA PÁGINA
+====================================================== */
+
+.admin-header h1 {
+    color: #111827;
+
+    font-size: 26px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.6px;
+}
+
+
+/* ======================================================
+   BOTÃO VOLTAR
+====================================================== */
+
+#voltarBtn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 40px;
+
+    padding: 9px 18px;
+
+    border: 1px solid #dbe1e8;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+#voltarBtn:hover {
+    background: #f8fafc;
+
+    border-color: #2563eb;
+
+    color: #2563eb;
+
+    transform: translateY(-1px);
+}
+
+#voltarBtn:active {
+    transform: translateY(0);
+}
+
+
+/* ======================================================
+   ÁREA PRINCIPAL
+====================================================== */
+
+main.dashboard {
+
+    width: min(1100px, 92%);
+
+    margin: 45px auto 70px;
+}
+
+
+/* ======================================================
+   TÍTULO + BOTÃO
+====================================================== */
+
+/*
+   Caso o h1 e o botão estejam diretamente
+   dentro do main, organizamos visualmente.
+*/
+
+main.dashboard > h1 {
+
+    margin-bottom: 10px;
+
+    color: #111827;
+
+    font-size: 32px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.8px;
+}
+
+main.dashboard > #voltarBtn {
+
+    margin-bottom: 30px;
+}
+
+
+/* ======================================================
+   FORMULÁRIO
+====================================================== */
+
+.admin-main {
+    width: min(1100px, 92%);
+    margin: 45px auto 70px;
+}
+
+.admin-header__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+#campanhaForm {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-section {
+    padding: 32px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.07);
+}
+
+.form-section__header {
+    margin-bottom: 22px;
+}
+
+.form-section__header h2 {
+    margin-bottom: 6px;
+    color: #111827;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.form-section__header p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group--full {
+    grid-column: 1 / -1;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 8px 0 0;
+}
+
+#copiesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.copy-item {
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.copy-item__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.copy-item h3 {
+    margin-bottom: 8px;
+    color: #111827;
+    font-size: 16px;
+}
+
+.remover-copy {
+    margin-top: 8px;
+    align-self: flex-start;
+}
+
+
+/* ======================================================
+   LABEL
+====================================================== */
+
+#campanhaForm label {
+
+    color: #374151;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+/* ======================================================
+   INPUTS / SELECT / TEXTAREA
+====================================================== */
+
+#campanhaForm input,
+#campanhaForm textarea,
+#campanhaForm select {
+
+    width: 100%;
+
+    min-height: 46px;
+
+    padding:
+        11px 14px;
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #111827;
+
+    font-size: 15px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+/* ======================================================
+   PLACEHOLDER
+====================================================== */
+
+#campanhaForm input::placeholder,
+#campanhaForm textarea::placeholder {
+
+    color: #9ca3af;
+}
+
+
+/* ======================================================
+   FOCUS
+====================================================== */
+
+#campanhaForm input:focus,
+#campanhaForm textarea:focus,
+#campanhaForm select:focus {
+
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.12);
+
+    background: #ffffff;
+}
+
+
+/* ======================================================
+   TEXTAREA
+====================================================== */
+
+#campanhaForm textarea {
+
+    min-height: 140px;
+
+    resize: vertical;
+
+    line-height: 1.5;
+}
+
+
+/* ======================================================
+   SELECT
+====================================================== */
+
+#campanhaForm select {
+
+    cursor: pointer;
+
+    appearance: auto;
+}
+
+
+/* ======================================================
+   DATA
+====================================================== */
+
+#data_inicio,
+#data_fim {
+
+    cursor: pointer;
+}
+
+
+/* ======================================================
+   DEPÓSITO
+====================================================== */
+
+#deposito_minimo {
+
+    font-variant-numeric:
+        tabular-nums;
+}
+
+
+/* ======================================================
+   URL DA IMAGEM
+====================================================== */
+
+#imagem_card {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
+/* ======================================================
+   BOTÃO CRIAR
+====================================================== */
+
+#campanhaForm button[type="submit"] {
+
+    min-height: 46px;
+
+    padding:
+        11px 24px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #1d4ed8
+        );
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 6px 15px
+        rgba(37, 99, 235, 0.22);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+#campanhaForm button[type="submit"]:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 10px 22px
+        rgba(37, 99, 235, 0.28);
+}
+
+#campanhaForm button[type="submit"]:active {
+
+    transform:
+        translateY(0);
+}
+
+
+/* ======================================================
+   BOTÃO DESABILITADO
+====================================================== */
+
+#campanhaForm button[type="submit"]:disabled {
+
+    opacity: 0.65;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+/* ======================================================
+   CAMPOS OBRIGATÓRIOS
+====================================================== */
+
+#campanhaForm input:required,
+#campanhaForm textarea:required,
+#campanhaForm select:required {
+
+    background-color: #fff;
+}
+
+
+/* ======================================================
+   VALIDAÇÃO
+====================================================== */
+
+#campanhaForm input:invalid:not(:placeholder-shown),
+#campanhaForm textarea:invalid:not(:placeholder-shown) {
+
+    border-color: #fca5a5;
+}
+
+#campanhaForm input:valid,
+#campanhaForm textarea:valid {
+
+    border-color: #d1d5db;
+}
+
+
+/* ======================================================
+   FOCO ACESSÍVEL
+====================================================== */
+
+#voltarBtn:focus-visible,
+#campanhaForm button:focus-visible,
+#campanhaForm input:focus-visible,
+#campanhaForm textarea:focus-visible,
+#campanhaForm select:focus-visible {
+
+    outline:
+        3px solid
+        rgba(37, 99, 235, 0.2);
+
+    outline-offset: 2px;
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width: 800px) {
+
+    main.dashboard {
+
+        width: 92%;
+
+        margin:
+            35px auto
+            50px;
+    }
+
+
+    .form-section {
+        padding: 25px;
+    }
+
+    .form-grid {
+        gap: 18px;
+    }
+
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 600px) {
+
+    main.dashboard {
+
+        width:
+            calc(100% - 30px);
+
+        margin:
+            25px auto
+            40px;
+    }
+
+
+    main.dashboard > h1 {
+
+        font-size: 26px;
+
+        margin-bottom: 8px;
+    }
+
+
+    main.dashboard > #voltarBtn {
+
+        width: 100%;
+
+        margin-bottom: 22px;
+    }
+
+
+    .form-section {
+        padding: 20px;
+        border-radius: 14px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .form-group--full {
+        grid-column: auto;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #campanhaForm input,
+    #campanhaForm textarea,
+    #campanhaForm select {
+        min-height: 48px;
+    }
+
+    #campanhaForm textarea {
+        min-height: 130px;
+    }
+
+    #campanhaForm button[type="submit"] {
+        width: 100%;
+        min-height: 50px;
+    }
+
+}
+
+
+/* ======================================================
+   UPLOAD IMAGEM DO CARD
+====================================================== */
+
+.upload-dropzone {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    min-height: 180px;
+
+    padding: 20px;
+
+    border: 2px dashed #cbd5e1;
+    border-radius: 14px;
+
+    background: #f8fafc;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.upload-dropzone.is-dragover {
+    border-color: #2563eb;
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.upload-dropzone.is-uploading {
+    opacity: 0.75;
+    pointer-events: none;
+}
+
+.upload-dropzone.has-preview {
+    border-style: solid;
+    border-color: #d1d5db;
+    background: #ffffff;
+}
+
+.upload-dropzone__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    text-align: center;
+    color: #6b7280;
+}
+
+.upload-dropzone__empty[hidden],
+.upload-dropzone__preview[hidden],
+.upload-dropzone__status[hidden] {
+    display: none !important;
+}
+
+.upload-dropzone__empty i {
+    font-size: 28px;
+    color: #2563eb;
+    margin-bottom: 4px;
+}
+
+.upload-dropzone__empty p {
+    margin: 0;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.upload-dropzone__empty span {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.upload-dropzone__empty .btn-secondary {
+    margin-top: 8px;
+}
+
+.upload-dropzone__preview {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.upload-dropzone__preview img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #f3f4f6;
+}
+
+.upload-dropzone__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.upload-dropzone__meta strong {
+    color: #111827;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+.upload-dropzone__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.upload-dropzone__status {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.upload-dropzone__status.is-loading {
+    color: #2563eb;
+}
+
+.upload-dropzone__status.is-success {
+    color: #16a34a;
+}
+
+.upload-dropzone__status.is-error {
+    color: #dc2626;
+}
+
+.material-item .material-upload-dropzone {
+    margin-top: 4px;
+}
+
+.material-item .material-upload-preview-img[hidden] {
+    display: none !important;
+}
+
+.material-item .remover-material {
+    margin-top: 12px;
+}
+
+/* ======================================================
+TELAS MUITO PEQUENAS
+====================================================== */
+
+@media (max-width: 380px) {
+
+    main.dashboard {
+
+        width:
+            calc(100% - 22px);
+    }
+
+
+    .form-section {
+        padding: 16px;
+    }
+
+
+    main.dashboard > h1 {
+
+        font-size: 23px;
+    }
+
+    .upload-dropzone__preview img {
+        width: 100%;
+        height: 180px;
+    }
+
+}

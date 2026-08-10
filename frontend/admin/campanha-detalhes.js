@@ -747,6 +747,124 @@ async function carregarMateriais() {
 
 }
 
+
+// ======================================================
+// CARREGAR ANGULOS
+// ======================================================
+async function carregarAngulos() {
+
+    const anglesContainer =
+        document.querySelector("#anglesContainer");
+
+    if (!anglesContainer) {
+        console.error(
+            "Container #anglesContainer não encontrado."
+        );
+        return;
+    }
+
+    try {
+
+        anglesContainer.innerHTML = `
+            <p class="loading-angles">
+                Carregando ângulos...
+            </p>
+        `;
+
+        const resposta = await fetch(
+            `${API}/api/angulos/${campanhaId}`
+        );
+
+        const angulos = await resposta.json();
+
+        console.log(
+            "Ângulos recebidos:",
+            angulos
+        );
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                angulos.erro ||
+                angulos.error ||
+                "Erro ao carregar ângulos."
+            );
+
+        }
+
+        if (
+            !Array.isArray(angulos) ||
+            angulos.length === 0
+        ) {
+
+            anglesContainer.innerHTML = `
+                <p class="empty-angles">
+                    Nenhum ângulo de divulgação cadastrado.
+                </p>
+            `;
+
+            return;
+        }
+
+        // Ordenar pela ordem cadastrada
+        angulos.sort(
+            (a, b) =>
+                (a.ordem ?? 0) -
+                (b.ordem ?? 0)
+        );
+
+        anglesContainer.innerHTML = "";
+
+        angulos.forEach((angulo) => {
+
+            const card =
+                document.createElement("article");
+
+            card.classList.add(
+                "angle-card"
+            );
+
+            card.innerHTML = `
+
+                <div class="angle-card__number">
+                    ${angulo.ordem ?? "-"}
+                </div>
+
+                <div class="angle-card__content">
+
+                    <h3>
+                        ${angulo.titulo || "Sem título"}
+                    </h3>
+
+                    <p>
+                        ${angulo.descricao || "Sem descrição"}
+                    </p>
+
+                </div>
+
+            `;
+
+            anglesContainer.appendChild(card);
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar ângulos:",
+            error
+        );
+
+        anglesContainer.innerHTML = `
+            <p class="error-angles">
+                Não foi possível carregar os ângulos de divulgação.
+            </p>
+        `;
+
+    }
+}
+
+
 // ======================================================
 // MODAL DE MATERIAIS
 // ======================================================
@@ -860,5 +978,8 @@ if (campanhaId) {
     carregarRegras();
 
     carregarMateriais();
+
+    carregarAngulos();
+
 
 }
