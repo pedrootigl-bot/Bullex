@@ -3,7 +3,7 @@
 ==========================*/
 
 .support {
-    padding: 5.5rem 0;
+    padding: 5rem 0 5.5rem;
     background: transparent;
 }
 
@@ -24,10 +24,10 @@
 }
 
 .support__header h2 {
-    font-size: clamp(1.7rem, 4vw, 2.5rem);
+    font-size: clamp(1.7rem, 4vw, 2.45rem);
     color: #fff;
     margin-bottom: 0.85rem;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
 }
 
 .support__header p {
@@ -45,8 +45,8 @@
     display: flex;
     align-items: center;
     gap: 1.1rem;
-    padding: 1.35rem;
-    background: linear-gradient(160deg, #1a2420, #0d1210);
+    padding: 1.4rem;
+    background: var(--surface-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     text-decoration: none;
@@ -58,8 +58,10 @@
 
 .support-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(104, 218, 0, 0.28);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+    border-color: var(--border-green);
+    box-shadow:
+        0 14px 32px rgba(0, 0, 0, 0.28),
+        0 0 20px rgba(104, 218, 0, 0.08);
 }
 
 .support-card__icon {
@@ -68,17 +70,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    background: var(--primary);
-    color: #0a1200;
-    font-size: 1.35rem;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #7ae600 0%, var(--primary) 100%);
+    color: #071000;
+    font-size: 1.25rem;
     flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(104, 218, 0, 0.22);
 }
 
 .support-card h3 {
     color: #fff;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.3rem;
     font-size: 1.05rem;
+    letter-spacing: -0.02em;
 }
 
 .support-card p {

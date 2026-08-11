@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="../css/admin/admin.css">
     <link rel="stylesheet" href="../css/admin/campanha-form.css">
+    <link rel="stylesheet" href="../css/admin/admin-theme.css">
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
@@ -199,17 +200,18 @@
                 </div>
             </section>
 
-            <section class="form-section">
+            <section class="form-section form-section--copies">
                 <div class="form-section__header">
                     <div>
+                        <span class="form-section__eyebrow">Conteúdo</span>
                         <h2>Copies da campanha</h2>
                         <p>Adicione os textos que serão utilizados na divulgação da campanha.</p>
                     </div>
                 </div>
 
-                <div id="copiesContainer"></div>
+                <div id="copiesContainer" class="copies-list"></div>
 
-                <button type="button" id="adicionarCopyBtn" class="btn-secondary">
+                <button type="button" id="adicionarCopyBtn" class="btn-add-copy">
                     <i class="fa-solid fa-plus"></i>
                     Adicionar copy
                 </button>

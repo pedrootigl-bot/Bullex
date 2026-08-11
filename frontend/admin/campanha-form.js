@@ -402,10 +402,14 @@ const { error } = await supabaseClient.storage
 
         copies.forEach((copy, index) => {
             const ordemInput = copy.querySelector(".copy-ordem");
+            const badge = copy.querySelector(".copy-item__badge");
             const titulo = copy.querySelector("h3");
 
             if (ordemInput) ordemInput.value = index + 1;
-            if (titulo) titulo.textContent = `Copy ${index + 1}`;
+            if (badge) badge.textContent = `COPY ${index + 1}`;
+            if (titulo && !copy.querySelector(".copy-item__badge")) {
+                titulo.textContent = `Copy ${index + 1}`;
+            }
         });
     }
 
@@ -447,51 +451,66 @@ const { error } = await supabaseClient.storage
         }
 
         copyElement.innerHTML = `
-            <div class="copy-item__content">
-                <h3>Copy ${contadorCopies}</h3>
-
-                <label>Título</label>
-                <input
-                    type="text"
-                    class="copy-titulo"
-                    placeholder="Ex: Urgência"
-                    value="${escapeHtml(dados.titulo || "")}"
-                >
-
-                <label>Texto</label>
-                <textarea
-                    class="copy-texto"
-                    rows="5"
-                    placeholder="Digite o texto da copy..."
-                >${escapeHtml(dados.texto || "")}</textarea>
-
-                <label>Canal</label>
-                <input
-                    type="text"
-                    class="copy-canal"
-                    placeholder="Ex: Instagram"
-                    value="${escapeHtml(dados.canal || "")}"
-                >
-
-                <label>Tipo</label>
-                <input
-                    type="text"
-                    class="copy-tipo"
-                    placeholder="Ex: Story"
-                    value="${escapeHtml(dados.tipo || "")}"
-                >
-
-                <label>Ordem</label>
-                <input
-                    type="number"
-                    class="copy-ordem"
-                    value="${escapeHtml(dados.ordem || contadorCopies)}"
-                    min="1"
-                >
-
-                <button type="button" class="remover-copy btn-secondary">
-                    Remover Copy
+            <div class="copy-item__header">
+                <div>
+                    <span class="copy-item__badge">COPY ${contadorCopies}</span>
+                    <h3>Texto recomendado</h3>
+                </div>
+                <button type="button" class="remover-copy" aria-label="Remover copy">
+                    <i class="fa-solid fa-trash"></i>
+                    Remover
                 </button>
+            </div>
+
+            <div class="copy-item__content">
+                <div class="copy-field copy-field--full">
+                    <label>Título</label>
+                    <input
+                        type="text"
+                        class="copy-titulo"
+                        placeholder="Ex: Urgência"
+                        value="${escapeHtml(dados.titulo || "")}"
+                    >
+                </div>
+
+                <div class="copy-field copy-field--full">
+                    <label>Texto</label>
+                    <textarea
+                        class="copy-texto"
+                        rows="5"
+                        placeholder="Digite o texto da copy..."
+                    >${escapeHtml(dados.texto || "")}</textarea>
+                </div>
+
+                <div class="copy-field">
+                    <label>Canal</label>
+                    <input
+                        type="text"
+                        class="copy-canal"
+                        placeholder="Ex: Instagram"
+                        value="${escapeHtml(dados.canal || "")}"
+                    >
+                </div>
+
+                <div class="copy-field">
+                    <label>Tipo</label>
+                    <input
+                        type="text"
+                        class="copy-tipo"
+                        placeholder="Ex: Story"
+                        value="${escapeHtml(dados.tipo || "")}"
+                    >
+                </div>
+
+                <div class="copy-field">
+                    <label>Ordem</label>
+                    <input
+                        type="number"
+                        class="copy-ordem"
+                        value="${escapeHtml(dados.ordem || contadorCopies)}"
+                        min="1"
+                    >
+                </div>
             </div>
         `;
 

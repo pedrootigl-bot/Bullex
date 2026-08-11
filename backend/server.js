@@ -11,6 +11,7 @@ const destaqueRoutes = require("./routes/destaque");
 const downloadRoutes = require("./routes/download");
 const kitsRoutes = require("./routes/kits");
 const angulosRoutes = require("./routes/angulosRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 
 
@@ -90,6 +91,11 @@ app.use(
 
 app.use("/api/angulos", 
     angulosRoutes
+);
+
+app.use(
+    "/api/upload",
+    uploadRoutes
 );
 
 app.get("/", (req, res) => {

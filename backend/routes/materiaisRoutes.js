@@ -156,4 +156,115 @@ router.get("/:campanha_id", async (req, res) => {
 });
 
 
+// ======================================================
+// ATUALIZAR MATERIAL
+// PUT /api/materiais/:id
+// ======================================================
+
+router.put("/:id", requireAuth, async (req, res) => {
+
+    try {
+
+        const materialId = Number(req.params.id);
+
+        if (!materialId) {
+            return res.status(400).json({
+                erro: "id inválido"
+            });
+        }
+
+        const { nome, tipo, url } = req.body;
+
+        if (!nome || !String(nome).trim()) {
+            return res.status(400).json({
+                erro: "O nome do material é obrigatório"
+            });
+        }
+
+        const atualizacao = {
+            nome: String(nome).trim(),
+            tipo: tipo?.trim() || null,
+            url: url?.trim() || null
+        };
+
+        const { data, error } = await supabase
+            .from("materiais")
+            .update(atualizacao)
+            .eq("id", materialId)
+            .select()
+            .single();
+
+        if (error) {
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao atualizar material"
+            );
+        }
+
+        return res.json({
+            mensagem: "Material atualizado com sucesso",
+            material: data
+        });
+
+    } catch (error) {
+
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao atualizar material"
+        );
+
+    }
+
+});
+
+
+// ======================================================
+// EXCLUIR MATERIAL
+// DELETE /api/materiais/:id
+// ======================================================
+
+router.delete("/:id", requireAuth, async (req, res) => {
+
+    try {
+
+        const materialId = Number(req.params.id);
+
+        if (!materialId) {
+            return res.status(400).json({
+                erro: "id inválido"
+            });
+        }
+
+        const { error } = await supabase
+            .from("materiais")
+            .delete()
+            .eq("id", materialId);
+
+        if (error) {
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao excluir material"
+            );
+        }
+
+        return res.json({
+            mensagem: "Material excluído com sucesso"
+        });
+
+    } catch (error) {
+
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao excluir material"
+        );
+
+    }
+
+});
+
+
 module.exports = router;

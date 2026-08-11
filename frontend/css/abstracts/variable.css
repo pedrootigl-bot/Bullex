@@ -5,19 +5,21 @@
     --accent: #c8ff8a;
     --primary-dark: #4fad00;
     --primary-soft: rgba(104, 218, 0, 0.14);
-    --primary-glow: rgba(104, 218, 0, 0.28);
+    --primary-glow: rgba(104, 218, 0, 0.35);
 
     --background: #070908;
     --background-deep: #0a0d0b;
     --surface: #0b110e;
     --surface-elevated: #101614;
     --surface-hover: #122018;
+    --surface-card: linear-gradient(165deg, #151d19 0%, #0c100e 100%);
 
     --text: #d8e0da;
     --text-muted: #8f969f;
     --white: #ffffff;
-    --border: rgba(255, 255, 255, 0.1);
+    --border: rgba(255, 255, 255, 0.09);
     --border-strong: rgba(255, 255, 255, 0.16);
+    --border-green: rgba(104, 218, 0, 0.28);
 
     /* Tipografia */
     --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
@@ -33,4 +35,5 @@
     /* Motion */
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --transition: 0.3s var(--ease-out);
+    --shadow-lift: 0 18px 48px rgba(0, 0, 0, 0.35);
 }

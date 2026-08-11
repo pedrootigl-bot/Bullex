@@ -6,6 +6,48 @@ let diaSelecionado = null;
 let campanhaExibida = null;
 
 const DIAS_SEMANA = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+const DIAS_SEMANA_COMPLETO = [
+    "DOMINGO",
+    "SEGUNDA",
+    "TERÇA",
+    "QUARTA",
+    "QUINTA",
+    "SEXTA",
+    "SÁBADO"
+];
+const MESES_CURTOS = [
+    "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+    "Jul", "Ago", "Set", "Out", "Nov", "Dez"
+];
+
+
+
+function atualizarSubtituloCalendario(){
+    const el = document.querySelector("#calendar-subtitle");
+    if(!el) return;
+
+    const mes = MESES_CURTOS[dataAtual.getMonth()] || "";
+    el.textContent = `Campanhas de ${mes} — navegue pelas setas.`;
+}
+
+
+
+function atualizarDiaSelecionadoUI(ano, mes, dia){
+    const diaEl = document.querySelector("#calendar-selected-day");
+    const semanaEl = document.querySelector("#calendar-selected-weekday");
+
+    if(!diaEl || !semanaEl) return;
+
+    if(dia == null || ano == null || mes == null){
+        diaEl.textContent = "—";
+        semanaEl.textContent = "";
+        return;
+    }
+
+    const data = new Date(ano, mes, dia);
+    diaEl.textContent = String(dia).padStart(2, "0");
+    semanaEl.textContent = DIAS_SEMANA_COMPLETO[data.getDay()] || "";
+}
 
 
 
@@ -79,7 +121,7 @@ function atualizarLabelCampanha(campanha){
     );
 
     label.textContent =
-        `${rotuloCampanha(campanha)} ${indice + 1}/${campanhasCalendario.length}`;
+        `${rotuloCampanha(campanha)}  ${indice + 1}/${campanhasCalendario.length}`;
 }
 
 
@@ -137,7 +179,7 @@ function atualizarCardCampanha(campanha){
     }
 
     if(cupom){
-        cupom.textContent = campanha.cupom ?? "Sem cupom";
+        cupom.textContent = rotuloCampanha(campanha);
     }
 
     if(valor){
@@ -192,6 +234,7 @@ function escolherCampanhaPadrao(){
 
 function selecionarDia(ano, mes, dia, campanhas){
     diaSelecionado = { ano, mes, dia };
+    atualizarDiaSelecionadoUI(ano, mes, dia);
 
     const lista = campanhas || campanhasDoDia(new Date(ano, mes, dia));
 
@@ -227,6 +270,8 @@ function renderizarCalendario(){
         console.error("Elemento #calendar-days não encontrado");
         return;
     }
+
+    atualizarSubtituloCalendario();
 
     grid.innerHTML = "";
 
@@ -292,6 +337,14 @@ function renderizarCalendario(){
 
             grid.appendChild(celula);
         }
+    }
+
+    if(diaSelecionado){
+        atualizarDiaSelecionadoUI(
+            diaSelecionado.ano,
+            diaSelecionado.mes,
+            diaSelecionado.dia
+        );
     }
 }
 

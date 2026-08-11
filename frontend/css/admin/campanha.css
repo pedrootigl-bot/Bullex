@@ -1,18 +1,72 @@
 /* ======================================================
-   CAMPANHAS
+   CAMPANHAS — toolbar + listagem
 ====================================================== */
+
+.campanhas-page {
+    padding-bottom: 4rem;
+}
+
+.campanhas-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    padding: 1.25rem 1.35rem;
+    border-radius: 16px;
+    background: rgba(10, 18, 12, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.campanhas-toolbar__text h2 {
+    margin: 0 0 0.35rem;
+    color: #f8fafc;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.campanhas-toolbar__text p {
+    margin: 0;
+    color: #8f969f;
+    font-size: 0.9rem;
+}
+
+.btn-nova-campanha {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    min-height: 46px;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #7ae600 0%, #68da00 100%);
+    color: #071000;
+    font-size: 0.92rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(104, 218, 0, 0.22);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+.btn-nova-campanha:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+    box-shadow: 0 14px 30px rgba(104, 218, 0, 0.3);
+}
 
 #campanhasContainer {
     width: 100%;
-
     display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
-    gap: 24px;
-
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.35rem;
     align-items: stretch;
+    margin-top: 0.25rem;
 }
 
 
@@ -119,27 +173,15 @@
 
 #campanhasContainer .campaign-card > p {
     min-height: 40px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 15px;
-
     margin: 0;
-
-    padding:
-        10px 0;
-
-    border-bottom:
-        1px solid #f1f5f9;
-
-    color: #6b7280;
-
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #8f969f;
     font-size: 13px;
-
     line-height: 1.4;
 }
 
@@ -208,18 +250,11 @@
 
 #campanhasContainer .campaign-card__actions {
     display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
-    gap: 8px;
-
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
     margin-top: auto;
-
-    padding-top: 18px;
-
-    border-top:
-        1px solid #f1f5f9;
+    padding-top: 1.1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 
@@ -229,32 +264,23 @@
 
 #campanhasContainer .campaign-card__actions button {
     min-width: 0;
-
     min-height: 40px;
-
     display: inline-flex;
-
     align-items: center;
     justify-content: center;
-
-    padding:
-        8px 10px;
-
+    gap: 0.35rem;
+    padding: 0.5rem 0.6rem;
     border: 1px solid transparent;
-
-    border-radius: 9px;
-
-    font-size: 12px;
-
+    border-radius: 10px;
+    font-size: 0.75rem;
     font-weight: 700;
-
     cursor: pointer;
-
     transition:
         background 0.2s ease,
         color 0.2s ease,
         border-color 0.2s ease,
-        transform 0.2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 
@@ -263,28 +289,17 @@
 ====================================================== */
 
 #campanhasContainer .btn-visualizar {
-    background:
-        #f3ffe8;
-
-    border-color:
-        #d9f7b8;
-
-    color:
-        #76E000;
+    background: rgba(104, 218, 0, 0.12);
+    border-color: rgba(104, 218, 0, 0.28);
+    color: #9cff5c;
 }
 
 #campanhasContainer .btn-visualizar:hover {
-    background:
-        #76E000;
-
-    border-color:
-        #76E000;
-
-    color:
-        #111;
-
-    transform:
-        translateY(-1px);
+    background: #68da00;
+    border-color: #68da00;
+    color: #071000;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(104, 218, 0, 0.22);
 }
 
 
@@ -293,28 +308,16 @@
 ====================================================== */
 
 #campanhasContainer .btn-editar {
-    background:
-        #fff7ed;
-
-    border-color:
-        #fed7aa;
-
-    color:
-        #c2410c;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #e5e7eb;
 }
 
 #campanhasContainer .btn-editar:hover {
-    background:
-        #ea580c;
-
-    border-color:
-        #ea580c;
-
-    color:
-        #ffffff;
-
-    transform:
-        translateY(-1px);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+    transform: translateY(-1px);
 }
 
 
@@ -323,28 +326,17 @@
 ====================================================== */
 
 #campanhasContainer .btn-excluir {
-    background:
-        #fef2f2;
-
-    border-color:
-        #fecaca;
-
-    color:
-        #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(248, 113, 113, 0.28);
+    color: #fca5a5;
 }
 
 #campanhasContainer .btn-excluir:hover {
-    background:
-        #dc2626;
-
-    border-color:
-        #dc2626;
-
-    color:
-        #ffffff;
-
-    transform:
-        translateY(-1px);
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(220, 38, 38, 0.25);
 }
 
 
@@ -500,6 +492,17 @@ TABLET PEQUENO
 ====================================================== */
 
 @media (max-width: 720px) {
+
+    .campanhas-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-nova-campanha {
+        width: 100%;
+    }
 
     #campanhasContainer {
         grid-template-columns:

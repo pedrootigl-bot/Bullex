@@ -183,6 +183,65 @@ router.get("/kit/:campanha_id", async (req, res) => {
     }
 });
 
+/**
+ * Download de um arquivo pela URL pública do Storage.
+ * GET /api/download/file?url=...&nome=opcional
+ * Reutiliza baixarBufferItem (mesmo fluxo do kit).
+ */
+router.get("/file", async (req, res) => {
+    try {
+        const url = String(req.query.url || "").trim();
+        const nomeQuery = String(req.query.nome || "").trim();
+
+        if (!url) {
+            return res.status(400).json({
+                erro: "url é obrigatória"
+            });
+        }
+
+        const storage = extrairStorageDeUrl(url);
+
+        if (!storage) {
+            return res.status(400).json({
+                erro: "URL de arquivo inválida"
+            });
+        }
+
+        // Restringe a buckets conhecidos do projeto
+        if (!["campanhas", "stories"].includes(storage.bucket)) {
+            return res.status(400).json({
+                erro: "Bucket não permitido"
+            });
+        }
+
+        const buffer = await baixarBufferItem({ url });
+
+        if (!buffer) {
+            return res.status(404).json({
+                erro: "Arquivo não encontrado"
+            });
+        }
+
+        const nomeSeguro = (nomeQuery || nomeArquivoItem({ url }, 1))
+            .replace(/[\\/]+/g, "_")
+            .replace(/"/g, "")
+            .slice(0, 180) || "arquivo";
+
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${nomeSeguro}"`
+        );
+        res.setHeader("Content-Type", "application/octet-stream");
+        res.setHeader("Content-Length", buffer.length);
+        return res.send(buffer);
+    } catch (error) {
+        console.error("Erro download file:", error);
+        return res.status(500).json({
+            erro: "Erro ao baixar arquivo"
+        });
+    }
+});
+
 // Download de arquivo individual (legado)
 router.get("/:arquivo", async (req, res) => {
     try {

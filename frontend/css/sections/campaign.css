@@ -3,7 +3,7 @@
 =================================*/
 
 .campaigns {
-    padding: 5rem 0;
+    padding: 4.5rem 0 5.5rem;
     background: transparent;
     color: #fff;
 }
@@ -23,29 +23,30 @@
 }
 
 .section-header h2 {
-    font-size: clamp(1.7rem, 3.5vw, 2.2rem);
+    font-size: clamp(1.7rem, 3.5vw, 2.25rem);
     margin: 0;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
 }
 
 .section-header p {
     color: var(--text-muted);
-    margin-top: 0.6rem;
+    margin-top: 0.65rem;
     max-width: 36rem;
+    line-height: 1.65;
 }
 
 .campaign-filters {
     display: flex;
     gap: 0.65rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.6rem;
     overflow-x: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--secondary) #2c322f;
 }
 
 .campaign-filters button {
-    background: var(--surface-elevated);
+    background: rgba(16, 22, 20, 0.9);
     border: 1px solid var(--border);
     color: #bfc5ca;
     padding: 0.55rem 1.1rem;
@@ -60,35 +61,38 @@
 .campaign-filters button:hover,
 .campaign-filters button.active {
     background: var(--primary);
-    color: #0a1200;
+    color: #071000;
     border-color: var(--primary);
+    box-shadow: 0 8px 20px rgba(104, 218, 0, 0.2);
 }
 
 .campaign-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: 1.1rem;
 }
 
 .campaign-grid .campaign-card,
 .campaigns .campaign-card {
-    background: linear-gradient(160deg, #1a2420, #0d1210);
+    background: var(--surface-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
     transition:
-        transform 0.28s var(--ease-out),
-        border-color 0.28s ease,
-        background-color 0.28s ease,
-        box-shadow 0.28s ease;
+        transform 0.3s var(--ease-out),
+        border-color 0.3s ease,
+        background-color 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 .campaign-grid .campaign-card:hover,
 .campaigns .campaign-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(104, 218, 0, 0.22);
+    transform: translateY(-5px) scale(1.01);
+    border-color: var(--border-green);
     background: var(--surface-hover);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+    box-shadow:
+        0 16px 36px rgba(0, 0, 0, 0.32),
+        0 0 24px rgba(104, 218, 0, 0.08);
 }
 
 .campaign-grid .campaign-card img,
@@ -97,28 +101,30 @@
     height: 200px;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s var(--ease-out);
+    transition: transform 0.45s var(--ease-out);
 }
 
 .campaign-grid .campaign-card:hover img,
 .campaigns .campaign-card:hover img {
-    transform: scale(1.03);
+    transform: scale(1.04);
 }
 
 .campaign-content {
-    padding: 1rem;
+    padding: 1.05rem 1.1rem 1.15rem;
 }
 
 .campaign-content h3 {
-    font-size: 1rem;
+    font-size: 1.02rem;
     margin-bottom: 0.5rem;
     font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
 .campaign-content p {
     font-size: 0.85rem;
     color: var(--text-muted);
     min-height: 40px;
+    line-height: 1.5;
 }
 
 .campaign-content strong {
@@ -162,7 +168,7 @@
 
 .actions button {
     flex: 1;
-    height: 38px;
+    height: 40px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: transparent;
@@ -173,13 +179,17 @@
 }
 
 .actions button:first-child {
-    background: var(--primary);
-    color: #0a1200;
+    background: linear-gradient(180deg, #7ae600 0%, var(--primary) 100%);
+    color: #071000;
     border: none;
 }
 
 .actions button:hover {
     border-color: rgba(104, 218, 0, 0.35);
+}
+
+.actions button:first-child:hover {
+    filter: brightness(1.06);
 }
 
 @media (max-width: 1100px) {
@@ -195,6 +205,16 @@
 
     .campaign-grid {
         grid-template-columns: 1fr;
+    }
+
+    .campaign-grid .campaign-card,
+    .campaigns .campaign-card {
+        transform: none;
+    }
+
+    .campaign-grid .campaign-card:hover,
+    .campaigns .campaign-card:hover {
+        transform: none;
     }
 
     .campaign-grid .campaign-card img,

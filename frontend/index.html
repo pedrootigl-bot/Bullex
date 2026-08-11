@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="is-loading">
 
 <head>
     <meta charset="UTF-8">
@@ -26,6 +26,35 @@
 </head>
 
 <body>
+
+    <!-- ==========================
+            LOADING SCREEN
+    =========================== -->
+    <div class="site-loader" id="siteLoader" role="status" aria-live="polite" aria-busy="true">
+        <div class="site-loader__glow" aria-hidden="true"></div>
+        <div class="site-loader__scan" aria-hidden="true"></div>
+
+        <div class="site-loader__content">
+            <div class="site-loader__mark" aria-hidden="true">
+                <span class="site-loader__ring"></span>
+                <span class="site-loader__ring site-loader__ring--delay"></span>
+                <span class="site-loader__core">
+                    <i class="fa-solid fa-bolt"></i>
+                </span>
+            </div>
+
+            <p class="site-loader__brand">BULLEX</p>
+            <p class="site-loader__sub">Partner Hub</p>
+
+            <div class="site-loader__track" aria-hidden="true">
+                <span class="site-loader__bar"></span>
+            </div>
+
+            <p class="site-loader__status">
+                Preparando materiais<span class="site-loader__dots"></span>
+            </p>
+        </div>
+    </div>
 
     <!-- ==========================
             HEADER
@@ -90,103 +119,107 @@
 
                 <div class="hero__grid">
 
-                    <!-- Texto -->
                     <div class="hero__content">
 
-                        <span class="hero__tag">
-                            🚀 Plataforma de Marketing
-                        </span>
+                        <h1>O GT dos traders pode ser seu.</h1>
 
-                        <h1>
-                            O GT dos traders pode ser seu.
-                            <span>HAVAL H6 GT</span>
-                        </h1>
-
-                        <p>
-                            Campanha voltada para engajamento,
-                            movimentação nas redes sociais,
-                            reativação de traders,
-                            incentivo ao redépósito e aumento do número de operações.
+                        <p class="hero__lead">
+                            Campanha voltada para engajamento, movimentação nas redes sociais,
+                            reativação de traders, incentivo ao redépósito e aumento do número de operações.
                         </p>
 
-                        <p class="hero__period">
-                            03 DE AGO • 03 DE SET
-                        </p>
+                        <p class="hero__period">03 DE AGO — 03 DE SET</p>
 
-                        <!-- Grid unificado: botões + cards -->
-                        <div class="hero__actions">
+                        <div class="hero__actions-buttons">
 
-                            <div class="hero__actions-buttons">
+                            <button type="button" class="btn" id="openModal" aria-haspopup="dialog"
+                                aria-controls="modalMateriais">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Acessar materiais</span>
+                            </button>
 
-                                <button type="button" class="btn" id="openModal" aria-haspopup="dialog"
-                                    aria-controls="modalMateriais">
-                                    <i class="fa-solid fa-download"></i>
-                                    Acessar materiais
-                                </button>
+                            <a href="#como-participar" class="btn btn--outline">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>Entender campanha</span>
+                            </a>
 
-                                <a href="#como-participar" class="btn btn--outline">
-                                    <i class="fa-solid fa-circle-info"></i>
-                                    Entender campanha
-                                </a>
+                        </div>
 
-                            </div>
-
+                        <div class="hero__meta" aria-label="Dados da campanha">
                             <div class="info-card">
                                 <span class="info-card__label">CUPOM</span>
-                                <strong class="info-card__value highlight">BULLCAR</strong>
+                                <strong class="info-card__value info-card__value--accent">BULLCAR</strong>
                             </div>
 
                             <div class="info-card">
                                 <span class="info-card__label">DEPÓSITO MÍN.</span>
-                                <strong class="info-card__value">R$ 150</strong>
+                                <strong class="info-card__value">R$150</strong>
                             </div>
 
                             <div class="info-card">
                                 <span class="info-card__label">PRÊMIO</span>
                                 <strong class="info-card__value">HAVAL H6 GT 0km</strong>
                             </div>
+                        </div>
 
+                        <p class="hero__focus">
+                            <span>FOCO RECOMENDADO</span>
+                            Retenção · Reativação · Aquisição de novos usuários
+                        </p>
+
+                    </div>
+
+                    <div class="hero__visual">
+
+                        <div class="hero__badges">
+                            <span class="hero__badge">
+                                TERMINA <strong>03 SET 23d 09h</strong>
+                            </span>
+                            <span class="hero__badge hero__badge--status">
+                                DESTAQUE · ATIVA
+                            </span>
+                        </div>
+
+                        <img src="images/post.png" alt="Campanha BULLCAR — HAVAL H6 GT">
+
+                        <div class="hero__visual-caption">
+                            <strong>BULLCAR</strong>
+                            <span>O GT dos traders pode ser seu.</span>
                         </div>
 
                     </div>
 
-                    <!-- Imagem -->
-                    <div class="hero__image">
-                        <img src="images/post.png" alt="Campanha">
-                    </div>
-
                 </div>
 
-                <!-- Stats — valores virão do banco/API -->
-                <section class="stats" aria-label="Indicadores da plataforma">
+            </div>
 
+        </section>
+
+        <!-- Stats — valores via API (fora do primeiro viewport) -->
+        <section class="stats" aria-label="Indicadores da plataforma">
+            <div class="container">
+                <div class="stats__grid">
                     <div class="stat-card">
                         <strong id="campanhas">0</strong>
-                        <span>CAMPANHAS ATIVAS</span>
+                        <span>Campanhas ativas</span>
                     </div>
 
                     <div class="stat-card">
                         <strong id="materiais">0</strong>
-                        <span>MATERIAIS</span>
+                        <span>Materiais</span>
                     </div>
 
                     <div class="stat-card">
-
                         <strong id="copies-count">0</strong>
-
-                        <span>COPIES PRONTAS</span>
-
+                        <span>Copies prontas</span>
                     </div>
 
                     <div class="stat-card">
                         <strong id="videos">0</strong>
-                        <span>VÍDEOS</span>
+                        <span>Vídeos</span>
                     </div>
-
-                </section>
-
+                </div>
             </div>
-
         </section>
 <!-- ==========================
     DESTAQUE DO DIA — dados via banco/API
@@ -197,33 +230,27 @@
 
         <header class="highlight__header">
 
+            <span class="highlight__eyebrow">OPERAÇÃO DO DIA</span>
+
             <h2>
                 O que divulgar hoje
             </h2>
 
             <p>
-                Uma sugestão rápida para você colocar a campanha na rua
+                Uma sugestão rápida para você colocar a campanha na rua.
             </p>
 
         </header>
 
-
-
         <article class="highlight__card">
-
 
             <div class="highlight__content">
 
-
                 <span class="highlight__tag" id="highlightTag"></span>
-
 
                 <h3 id="highlightTitle"></h3>
 
-
                 <p class="highlight__description" id="highlightDescription"></p>
-
-
 
                 <div class="highlight__copy-box">
 
@@ -231,59 +258,39 @@
                         COPY RECOMENDADA
                     </span>
 
-
                     <p id="highlightCopy"></p>
 
                 </div>
 
-
-
                 <div class="highlight__actions">
 
-
-                    <button 
-                        type="button" 
-                        class="btn" 
+                    <button
+                        type="button"
+                        class="btn"
                         id="highlightCopyBtn">
-
                         <i class="fa-regular fa-copy"></i>
-
-                        Copiar texto
-
+                        <span>Copiar texto</span>
                     </button>
 
-
-
-                    <a 
-                        class="btn" 
-                        id="highlightDownloadStory" 
+                    <a
+                        class="btn"
+                        id="highlightDownloadStory"
                         href="#">
-
                         <i class="fa-solid fa-download"></i>
-
-                        Baixar story
-
+                        <span>Baixar story</span>
                     </a>
 
-
-
-                    <button 
-                        type="button" 
-                        class="btn" 
+                    <button
+                        type="button"
+                        class="btn btn--outline"
                         id="openKitModal">
-
                         <i class="fa-solid fa-box-open"></i>
-
-                        Ver kit completo
-
+                        <span>Ver kit completo</span>
                     </button>
-
 
                 </div>
 
-
             </div>
-
 
             <div class="highlight__media">
 
@@ -294,21 +301,15 @@
                 >
 
                 <div class="highlight__media-caption">
-
                     <strong id="highlightMediaLabel"></strong>
-
                     <span id="highlightMediaCaption"></span>
-
                 </div>
 
             </div>
 
-
         </article>
 
-
     </div>
-
 
 </section>
 
@@ -489,104 +490,69 @@
         </div>
 
 
-        <section class="calendar-section">
+        <section class="calendar-section" id="oportunidades">
 
+            <div class="container">
 
-            <!-- CARD DA CAMPANHA ATUAL -->
+                <header class="calendar-section__header">
+                    <span class="calendar-section__eyebrow">PLANEJAMENTO</span>
+                    <h2>Calendário de oportunidades</h2>
+                    <p id="calendar-subtitle">Campanhas de Ago — navegue pelas setas.</p>
+                </header>
 
-            <div class="campaign-card">
+                <div class="calendar-panel">
 
+                    <!-- CARD DA CAMPANHA ATUAL -->
+                    <div class="campaign-card">
 
-                <img id="campaign-image" src="" alt="Imagem da campanha">
+                        <img id="campaign-image" src="" alt="Imagem da campanha">
 
+                        <div class="campaign-card__overlay">
 
+                            <div class="campaign-card__date">
+                                <strong id="calendar-selected-day">—</strong>
+                                <span id="calendar-selected-weekday"></span>
+                            </div>
 
-                <div class="campaign-info">
+                            <div class="campaign-info">
+                                <span class="campaign-card__kicker">CAMPANHA</span>
+                                <b id="campaign-coupon"></b>
 
+                                <!-- Campos mantidos para compatibilidade com o JS existente -->
+                                <h2 id="campaign-title" class="u-sr-only"></h2>
+                                <h3 id="campaign-name" class="u-sr-only"></h3>
+                                <strong id="campaign-value" class="u-sr-only"></strong>
 
-                    <h2 id="campaign-title">
-                    </h2>
+                                <button id="campaign-button" class="btn-abrir-campanha" type="button">
+                                    Conferir campanha
+                                </button>
+                            </div>
 
-
-                    <h3 id="campaign-name">
-                    </h3>
-
-
-
-                    <p>
-                        Ganhe
-                        <strong id="campaign-value"></strong>
-                        garantido
-                    </p>
-
-
-
-                    <span>
-                        Use o cupom
-                        <b id="campaign-coupon"></b>
-                    </span>
-
-
-                </div>
-
-
-
-                <button id="campaign-button" class="btn-abrir-campanha">
-
-                    Ver campanha
-
-                </button>
-
-
-            </div>
-
-
-
-
-
-            <!-- CALENDÁRIO -->
-
-            <div class="calendar" id="calendar">
-
-
-                <div class="calendar-header">
-
-
-                    <div class="calendar-nav">
-
-                        <button id="prev-month" type="button" aria-label="Mês anterior">
-                            ‹
-                        </button>
-
-
-                        <button id="next-month" type="button" aria-label="Próximo mês">
-                            ›
-                        </button>
-
+                        </div>
 
                     </div>
 
+                    <!-- CALENDÁRIO -->
+                    <div class="calendar" id="calendar">
 
+                        <div class="calendar-header">
 
-                    <div class="calendar-campaign-label" id="calendar-campaign-label">
+                            <div class="calendar-nav">
+                                <button id="prev-month" type="button" aria-label="Mês anterior">‹</button>
+                                <button id="next-month" type="button" aria-label="Próximo mês">›</button>
+                            </div>
 
-                        —
+                            <div class="calendar-campaign-label" id="calendar-campaign-label">—</div>
+
+                        </div>
+
+                        <div class="calendar-grid" id="calendar-days"></div>
 
                     </div>
 
-
                 </div>
-
-
-
-                <div class="calendar-grid" id="calendar-days">
-
-                </div>
-
 
             </div>
-
-
 
         </section>
 
@@ -1001,6 +967,7 @@
             </div>
 
             <!-- JavaScript -->
+            <script src="js/loader.js"></script>
             <script src="js/api.js"></script>
             <script src="js/navbar.js"></script>
             <script src="js/stats.js"></script>
