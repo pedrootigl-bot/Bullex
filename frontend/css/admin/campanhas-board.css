@@ -864,6 +864,53 @@
     border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.campaigns-expand-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 42px;
+    padding: 0.55rem 1.1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(104, 218, 0, 0.35);
+    background: rgba(104, 218, 0, 0.1);
+    color: #9cff5c;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.campaigns-expand-btn:hover {
+    background: rgba(104, 218, 0, 0.18);
+    border-color: rgba(104, 218, 0, 0.55);
+    color: #fff;
+}
+
+.campaigns-expand-btn__count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.6rem;
+    height: 1.35rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: rgba(104, 218, 0, 0.2);
+    color: #9cff5c;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.campaigns-expand-btn.is-expanded {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e5e7eb;
+}
+
+.campaigns-expand-btn[hidden] {
+    display: none !important;
+}
+
 .campaigns-panel__footer a {
     color: #68da00;
     text-decoration: none;

@@ -153,7 +153,6 @@ button[onclick*="campanha-form"] {
 .stat-card span,
 .login-box > p,
 .form-section__header p,
-.detail-content p,
 .campaign-card p,
 .campaign-card span {
     color: var(--admin-muted) !important;
@@ -309,6 +308,129 @@ select:focus {
 
 .detail-content {
     padding: 1.5rem;
+}
+
+/* ======================================================
+   DETALHES DA CAMPANHA — textos brancos (contraste)
+====================================================== */
+
+.page-campanha-detalhes,
+.page-campanha-detalhes body {
+    color: #ffffff;
+}
+
+.page-campanha-detalhes .admin-header h1,
+.page-campanha-detalhes #pageTitle {
+    color: #ffffff !important;
+}
+
+.page-campanha-detalhes .campaign-detail-card,
+.page-campanha-detalhes .campaign-detail-card * {
+    color: #ffffff;
+}
+
+.page-campanha-detalhes .campaign-detail-card {
+    color: #ffffff !important;
+}
+
+.page-campanha-detalhes #detail-category {
+    background: rgba(104, 218, 0, 0.16) !important;
+    color: #9cff5c !important;
+    border: 1px solid rgba(104, 218, 0, 0.35);
+}
+
+.page-campanha-detalhes #detail-title,
+.page-campanha-detalhes .detail-content h1 {
+    color: #ffffff !important;
+}
+
+.page-campanha-detalhes #detail-description,
+.page-campanha-detalhes .detail-content p,
+.page-campanha-detalhes .detail-info p,
+.page-campanha-detalhes .detail-info span,
+.page-campanha-detalhes .detail-info strong,
+.page-campanha-detalhes #detail-objective,
+.page-campanha-detalhes #detail-prize,
+.page-campanha-detalhes #detail-coupon,
+.page-campanha-detalhes #detail-minimum,
+.page-campanha-detalhes #detail-start,
+.page-campanha-detalhes #detail-end,
+.page-campanha-detalhes #detail-status {
+    color: #ffffff !important;
+}
+
+.page-campanha-detalhes .detail-info p {
+    border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.page-campanha-detalhes .section-header h2,
+.page-campanha-detalhes .section-header p,
+.page-campanha-detalhes .campaign-rules,
+.page-campanha-detalhes .campaign-materials,
+.page-campanha-detalhes .campaign-copies,
+.page-campanha-detalhes .campaign-angles,
+.page-campanha-detalhes .campaign-kit {
+    color: #ffffff !important;
+}
+
+.page-campanha-detalhes .section-header p {
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.page-campanha-detalhes .rule-item {
+    background: rgba(11, 20, 14, 0.88) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28) !important;
+}
+
+.page-campanha-detalhes .rule-content h3,
+.page-campanha-detalhes .rule-content p,
+.page-campanha-detalhes .rules-container,
+.page-campanha-detalhes .rules-container p,
+.page-campanha-detalhes .loading-rules,
+.page-campanha-detalhes .empty-rules,
+.page-campanha-detalhes .error-rules {
+    color: #ffffff !important;
+}
+
+.page-campanha-detalhes .rule-number {
+    color: #071000 !important;
+}
+
+.page-campanha-detalhes .copies-container,
+.page-campanha-detalhes .angles-container,
+.page-campanha-detalhes .kit-container,
+.page-campanha-detalhes .materials-container,
+.page-campanha-detalhes .copies-container p,
+.page-campanha-detalhes .angles-container p,
+.page-campanha-detalhes .kit-container p,
+.page-campanha-detalhes .loading-materials,
+.page-campanha-detalhes .empty-materials,
+.page-campanha-detalhes .loading-angles,
+.page-campanha-detalhes .empty-angles,
+.page-campanha-detalhes .error-angles,
+.page-campanha-detalhes .angle-card__content h3,
+.page-campanha-detalhes .angle-card__content p,
+.page-campanha-detalhes .angle-card__number {
+    color: #ffffff !important;
+}
+
+.page-campanha-detalhes .material-card,
+.page-campanha-detalhes .material-content,
+.page-campanha-detalhes .material-content h3,
+.page-campanha-detalhes .material-content p,
+.page-campanha-detalhes .angle-card,
+.page-campanha-detalhes .angle-card h3,
+.page-campanha-detalhes .angle-card p,
+.page-campanha-detalhes .copy-card,
+.page-campanha-detalhes .copy-card h3,
+.page-campanha-detalhes .copy-card p {
+    color: #ffffff !important;
+}
+
+.page-campanha-detalhes .error-materials,
+.page-campanha-detalhes .admin-message.error {
+    color: #fecaca !important;
 }
 
 /* Form — Nova Campanha */
