@@ -143,8 +143,15 @@ async function preencherDestaqueComCampanha(campanha) {
     }
 
     if (imagem) {
-        imagem.src = imagemSrc;
-        imagem.alt = campanha.titulo || "Campanha em destaque";
+        if (imagemSrc) {
+            imagem.hidden = false;
+            imagem.src = imagemSrc;
+            imagem.alt = campanha.titulo || "Campanha em destaque";
+        } else {
+            imagem.removeAttribute("src");
+            imagem.hidden = true;
+            imagem.alt = "";
+        }
     }
 
     if (copy) {
