@@ -112,6 +112,34 @@ router.get("/kit/:campanha_id", async (req, res) => {
             });
         }
 
+        // Baixa buffers ANTES de abrir a resposta ZIP
+        // (evita Content-Type application/zip com corpo vazio/corrompido)
+        const entradas = [];
+
+        for (let i = 0; i < arquivos.length; i++) {
+            const item = arquivos[i];
+            const buffer = await baixarBufferItem(item);
+
+            if (!buffer) {
+                console.log(
+                    "Erro ao baixar item do kit:",
+                    item.url || item.arquivo
+                );
+                continue;
+            }
+
+            entradas.push({
+                buffer,
+                name: nomeArquivoItem(item, i + 1)
+            });
+        }
+
+        if (!entradas.length) {
+            return res.status(404).json({
+                erro: "Nenhum arquivo pôde ser baixado"
+            });
+        }
+
         res.setHeader("Content-Type", "application/zip");
         res.setHeader(
             "Content-Disposition",
@@ -131,33 +159,10 @@ router.get("/kit/:campanha_id", async (req, res) => {
 
         zip.pipe(res);
 
-        let adicionados = 0;
-
-        for (let i = 0; i < arquivos.length; i++) {
-            const item = arquivos[i];
-            const buffer = await baixarBufferItem(item);
-
-            if (!buffer) {
-                console.log(
-                    "Erro ao baixar item do kit:",
-                    item.url || item.arquivo
-                );
-                continue;
-            }
-
-            zip.append(buffer, {
-                name: nomeArquivoItem(item, i + 1)
+        for (const entrada of entradas) {
+            zip.append(entrada.buffer, {
+                name: entrada.name
             });
-            adicionados += 1;
-        }
-
-        if (!adicionados) {
-            if (!res.headersSent) {
-                return res.status(404).json({
-                    erro: "Nenhum arquivo pôde ser baixado"
-                });
-            }
-            return;
         }
 
         await zip.finalize();
