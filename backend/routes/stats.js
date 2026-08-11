@@ -78,9 +78,9 @@ router.get("/", async (req, res) => {
 
 
 
-        console.log("Materiais encontrados:", listaMateriais);
+        console.log("Materiais encontrados:", listaMateriais.length);
 
-        console.log("Kits encontrados:", listaKits);
+        console.log("Kits encontrados:", listaKits.length);
 
         console.log("Total de vídeos:", videos);
 
@@ -112,7 +112,7 @@ router.get("/", async (req, res) => {
 
         res.status(500).json({
 
-            erro: error.message
+            erro: "Erro interno do servidor"
 
         });
 

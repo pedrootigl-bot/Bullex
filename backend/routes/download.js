@@ -81,17 +81,23 @@ async function baixarBufferItem(item) {
 // Download do kit completo da campanha
 router.get("/kit/:campanha_id", async (req, res) => {
     try {
-        const { campanha_id } = req.params;
+        const campanhaId = Number(req.params.campanha_id);
+
+        if (!campanhaId) {
+            return res.status(400).json({
+                erro: "campanha_id inválido"
+            });
+        }
 
         const { data: materiais, error: erroMateriais } = await supabase
             .from("materiais")
             .select("*")
-            .eq("campanha_id", campanha_id);
+            .eq("campanha_id", campanhaId);
 
         const { data: kits, error: erroKits } = await supabase
             .from("kits")
             .select("*")
-            .eq("campanha_id", campanha_id);
+            .eq("campanha_id", campanhaId);
 
         if (erroMateriais || erroKits) {
             console.log("Erro materiais:", erroMateriais);
@@ -143,7 +149,7 @@ router.get("/kit/:campanha_id", async (req, res) => {
         res.setHeader("Content-Type", "application/zip");
         res.setHeader(
             "Content-Disposition",
-            `attachment; filename=kit-${campanha_id}.zip`
+            `attachment; filename=kit-${campanhaId}.zip`
         );
 
         const zip = archiver("zip", {
@@ -171,7 +177,7 @@ router.get("/kit/:campanha_id", async (req, res) => {
 
         if (!res.headersSent) {
             res.status(500).json({
-                erro: error.message
+                erro: "Erro interno do servidor"
             });
         }
     }
@@ -181,6 +187,18 @@ router.get("/kit/:campanha_id", async (req, res) => {
 router.get("/:arquivo", async (req, res) => {
     try {
         const arquivo = req.params.arquivo;
+
+        // Bloqueia path traversal
+        if (
+            !arquivo
+            || arquivo.includes("..")
+            || arquivo.includes("\\")
+            || arquivo.includes("/")
+        ) {
+            return res.status(400).json({
+                erro: "Nome de arquivo inválido"
+            });
+        }
 
         let data = null;
         let error = null;
@@ -215,8 +233,9 @@ router.get("/:arquivo", async (req, res) => {
         );
         res.send(buffer);
     } catch (error) {
+        console.error("Erro download arquivo:", error);
         res.status(500).json({
-            erro: error.message
+            erro: "Erro ao baixar arquivo"
         });
     }
 });

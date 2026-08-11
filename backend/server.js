@@ -17,9 +17,29 @@ const angulosRoutes = require("./routes/angulosRoutes");
 
 const app = express();
 
+const corsOrigins = String(
+    process.env.CORS_ORIGINS
+    || "http://localhost:5500,http://127.0.0.1:5500,http://localhost:3000,http://localhost:55434,http://127.0.0.1:55434"
+)
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+    origin(origin, callback) {
+        // Permite ferramentas locais sem Origin (curl/Postman)
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        if (corsOrigins.includes("*") || corsOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error("Origin não permitida pelo CORS"));
+    }
+}));
+app.use(express.json({ limit: "2mb" }));
 
 
 

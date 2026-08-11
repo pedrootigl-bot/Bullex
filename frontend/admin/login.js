@@ -1,15 +1,3 @@
-const SUPABASE_URL = "https://trakfklbjqynwonqyrfh.supabase.co";
-
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYWtma2xianF5bndvbnF5cmZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5OTk1OTgsImV4cCI6MjEwMTU3NTU5OH0.k5KZ32_zVKlB_VU3FqqCo48_X3h7pZHQ-_57bEKNslQ";
-
-
-const supabaseClient = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
-
-
-
 const form = document.querySelector("#loginForm");
 
 const mensagem = document.querySelector("#loginMessage");
@@ -25,20 +13,9 @@ if(form){
         e.preventDefault();
 
 
-        console.log("Formulário enviado");
-
-
-
         const email = document.querySelector("#email").value.trim();
 
         const password = document.querySelector("#password").value;
-
-
-
-        console.log(
-            "Email informado:",
-            email
-        );
 
 
 
@@ -63,14 +40,6 @@ if(form){
 
 
 
-            console.log(
-                "Resposta Supabase:",
-                data,
-                error
-            );
-
-
-
             if(error){
 
 
@@ -87,13 +56,6 @@ if(form){
                 return;
 
             }
-
-
-
-            console.log(
-                "Usuário autenticado:",
-                data.user.email
-            );
 
 
 

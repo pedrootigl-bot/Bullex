@@ -3,6 +3,8 @@ const express = require("express");
 const router = express.Router();
 
 const supabase = require("../config/supabase");
+const requireAuth = require("../middleware/requireAuth");
+const { responderErroInterno } = require("../utils/httpErrors");
 
 
 // ======================================================
@@ -11,7 +13,7 @@ const supabase = require("../config/supabase");
 // Campos reais da tabela: campanha_id, nome, tipo, url
 // ======================================================
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
 
     try {
 
@@ -22,8 +24,9 @@ router.post("/", async (req, res) => {
             url
         } = req.body;
 
+        const campanhaId = Number(campanha_id);
 
-        if (!campanha_id) {
+        if (!campanhaId) {
 
             return res.status(400).json({
                 erro: "O campanha_id é obrigatório"
@@ -43,7 +46,7 @@ router.post("/", async (req, res) => {
 
         const novoMaterial = {
 
-            campanha_id: Number(campanha_id),
+            campanha_id: campanhaId,
 
             nome: String(nome).trim(),
 
@@ -65,11 +68,11 @@ router.post("/", async (req, res) => {
 
         if (error) {
 
-            console.error("Erro ao criar material:", error);
-
-            return res.status(500).json({
-                erro: error.message
-            });
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao criar material"
+            );
 
         }
 
@@ -85,11 +88,11 @@ router.post("/", async (req, res) => {
 
     } catch (error) {
 
-        console.error("Erro interno ao criar material:", error);
-
-        return res.status(500).json({
-            erro: "Erro interno do servidor"
-        });
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao criar material"
+        );
 
     }
 
@@ -105,16 +108,19 @@ router.get("/:campanha_id", async (req, res) => {
 
     try {
 
-        const { campanha_id } = req.params;
+        const campanhaId = Number(req.params.campanha_id);
+
+        if (!campanhaId) {
+            return res.status(400).json({
+                erro: "campanha_id inválido"
+            });
+        }
 
 
         const { data, error } = await supabase
             .from("materiais")
             .select("*")
-            .eq(
-                "campanha_id",
-                Number(campanha_id)
-            )
+            .eq("campanha_id", campanhaId)
             .order(
                 "created_at",
                 {
@@ -125,11 +131,11 @@ router.get("/:campanha_id", async (req, res) => {
 
         if (error) {
 
-            return res.status(500).json({
-
-                erro: error.message
-
-            });
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao buscar materiais"
+            );
 
         }
 
@@ -139,17 +145,11 @@ router.get("/:campanha_id", async (req, res) => {
 
     } catch (error) {
 
-        console.error(
-            "Erro ao buscar materiais:",
-            error
+        return responderErroInterno(
+            res,
+            error,
+            "Erro ao buscar materiais"
         );
-
-
-        res.status(500).json({
-
-            erro: error.message
-
-        });
 
     }
 

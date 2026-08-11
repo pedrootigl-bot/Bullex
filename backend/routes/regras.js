@@ -3,6 +3,8 @@ const express = require("express");
 const router = express.Router();
 
 const supabase = require("../config/supabase");
+const requireAuth = require("../middleware/requireAuth");
+const { responderErroInterno } = require("../utils/httpErrors");
 
 
 // ======================================================
@@ -10,7 +12,7 @@ const supabase = require("../config/supabase");
 // POST /api/regras
 // ======================================================
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
 
     try {
 
@@ -21,8 +23,9 @@ router.post("/", async (req, res) => {
             ordem
         } = req.body;
 
+        const campanhaId = Number(campanha_id);
 
-        if (!campanha_id) {
+        if (!campanhaId) {
 
             return res.status(400).json({
                 erro: "O campanha_id é obrigatório"
@@ -42,7 +45,7 @@ router.post("/", async (req, res) => {
 
         const novaRegra = {
 
-            campanha_id: Number(campanha_id),
+            campanha_id: campanhaId,
 
             titulo: String(titulo).trim(),
 
@@ -68,11 +71,11 @@ router.post("/", async (req, res) => {
 
         if (error) {
 
-            console.error("Erro ao criar regra:", error);
-
-            return res.status(500).json({
-                erro: error.message
-            });
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao criar regra"
+            );
 
         }
 
@@ -88,11 +91,11 @@ router.post("/", async (req, res) => {
 
     } catch (error) {
 
-        console.error("Erro interno ao criar regra:", error);
-
-        return res.status(500).json({
-            erro: "Erro interno do servidor"
-        });
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao criar regra"
+        );
 
     }
 
@@ -106,37 +109,45 @@ router.post("/", async (req, res) => {
 
 router.get("/:campanha_id", async (req, res) => {
 
-    const { campanha_id } = req.params;
+    try {
+
+        const campanhaId = Number(req.params.campanha_id);
+
+        if (!campanhaId) {
+            return res.status(400).json({
+                erro: "campanha_id inválido"
+            });
+        }
+
+        const { data, error } = await supabase
+            .from("regras")
+            .select("*")
+            .eq("campanha_id", campanhaId)
+            .order("ordem", { ascending: true });
 
 
-    console.log("Campanha recebida regras:", campanha_id);
+        if (error) {
+
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao buscar regras"
+            );
+
+        }
 
 
-    const { data, error } = await supabase
-        .from("regras")
-        .select("*")
-        .eq("campanha_id", Number(campanha_id))
-        .order("ordem", { ascending: true });
+        res.json(data);
 
+    } catch (error) {
 
-    console.log("Primeira regra:", data);
-    console.log("Erro:", error);
-
-
-    console.log("Dados regras:", data);
-    console.log("Erro regras:", error);
-
-
-    if (error) {
-
-        return res.status(500).json({
-            erro: error.message
-        });
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao buscar regras"
+        );
 
     }
-
-
-    res.json(data);
 
 });
 

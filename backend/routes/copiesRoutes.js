@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const supabase = require("../config/supabase");
+const requireAuth = require("../middleware/requireAuth");
+const { responderErroInterno } = require("../utils/httpErrors");
 
 // ======================================================
 // CRIAR COPY
 // POST /api/copies
 // ======================================================
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
     try {
         const {
             campanha_id,
@@ -18,7 +20,9 @@ router.post("/", async (req, res) => {
             ordem
         } = req.body;
 
-        if (!campanha_id) {
+        const campanhaId = Number(campanha_id);
+
+        if (!campanhaId) {
             return res.status(400).json({
                 erro: "O campanha_id é obrigatório"
             });
@@ -37,7 +41,7 @@ router.post("/", async (req, res) => {
         }
 
         const novaCopy = {
-            campanha_id: Number(campanha_id),
+            campanha_id: campanhaId,
             titulo: String(titulo).trim(),
             texto: String(texto).trim(),
             canal: canal?.trim() || null,
@@ -57,10 +61,11 @@ router.post("/", async (req, res) => {
             .single();
 
         if (error) {
-            console.error("Erro ao criar copy:", error);
-            return res.status(500).json({
-                erro: error.message
-            });
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao criar copy"
+            );
         }
 
         return res.status(201).json({
@@ -68,10 +73,11 @@ router.post("/", async (req, res) => {
             copy: data
         });
     } catch (error) {
-        console.error("Erro interno ao criar copy:", error);
-        return res.status(500).json({
-            erro: "Erro interno do servidor"
-        });
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao criar copy"
+        );
     }
 });
 
@@ -82,26 +88,35 @@ router.post("/", async (req, res) => {
 
 router.get("/:campanha_id", async (req, res) => {
     try {
-        const { campanha_id } = req.params;
+        const campanhaId = Number(req.params.campanha_id);
+
+        if (!campanhaId) {
+            return res.status(400).json({
+                erro: "campanha_id inválido"
+            });
+        }
 
         const { data, error } = await supabase
             .from("copies")
             .select("*")
-            .eq("campanha_id", campanha_id)
+            .eq("campanha_id", campanhaId)
             .order("ordem", { ascending: true });
 
         if (error) {
-            return res.status(500).json({
-                erro: error.message
-            });
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao buscar copies"
+            );
         }
 
         res.json(data);
     } catch (error) {
-        console.error("Erro interno ao buscar copies:", error);
-        res.status(500).json({
-            erro: "Erro interno do servidor"
-        });
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao buscar copies"
+        );
     }
 });
 

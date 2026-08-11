@@ -3,6 +3,8 @@ const express = require("express");
 const router = express.Router();
 
 const supabase = require("../config/supabase");
+const requireAuth = require("../middleware/requireAuth");
+const { responderErroInterno } = require("../utils/httpErrors");
 
 
 // ======================================================
@@ -24,9 +26,11 @@ router.get("/", async (req, res) => {
 
             console.error("Erro ao buscar campanhas:", error);
 
-            return res.status(500).json({
-                erro: error.message
-            });
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao buscar campanhas"
+            );
 
         }
 
@@ -35,11 +39,7 @@ router.get("/", async (req, res) => {
 
     } catch (error) {
 
-        console.error("Erro interno:", error);
-
-        res.status(500).json({
-            erro: "Erro interno do servidor"
-        });
+        return responderErroInterno(res, error, "Erro interno");
 
     }
 
@@ -56,12 +56,19 @@ router.get("/:id", async (req, res) => {
     try {
 
         const { id } = req.params;
+        const campanhaId = Number(id);
+
+        if (!campanhaId) {
+            return res.status(400).json({
+                erro: "ID da campanha inválido"
+            });
+        }
 
 
         const { data, error } = await supabase
             .from("campanhas")
             .select("*")
-            .eq("id", id)
+            .eq("id", campanhaId)
             .single();
 
 
@@ -80,11 +87,7 @@ router.get("/:id", async (req, res) => {
 
     } catch (error) {
 
-        console.error("Erro interno:", error);
-
-        res.status(500).json({
-            erro: "Erro interno do servidor"
-        });
+        return responderErroInterno(res, error, "Erro interno");
 
     }
 
@@ -96,7 +99,7 @@ router.get("/:id", async (req, res) => {
 // POST /api/campanhas
 // ======================================================
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
 
     try {
 
@@ -202,14 +205,11 @@ router.post("/", async (req, res) => {
 
         if (error) {
 
-            console.error(
-                "Erro ao criar campanha:",
-                error
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao criar campanha"
             );
-
-            return res.status(500).json({
-                erro: error.message
-            });
 
         }
 
@@ -229,16 +229,11 @@ router.post("/", async (req, res) => {
 
     } catch (error) {
 
-        console.error(
-            "Erro interno ao criar campanha:",
-            error
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao criar campanha"
         );
-
-        return res.status(500).json({
-
-            erro: "Erro interno do servidor"
-
-        });
 
     }
 
@@ -249,11 +244,18 @@ router.post("/", async (req, res) => {
 // PUT /api/campanhas/:id
 // ======================================================
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
 
     try {
 
         const { id } = req.params;
+        const campanhaId = Number(id);
+
+        if (!campanhaId) {
+            return res.status(400).json({
+                erro: "ID da campanha inválido"
+            });
+        }
 
         const {
             titulo,
@@ -351,21 +353,18 @@ router.put("/:id", async (req, res) => {
         const { data, error } = await supabase
             .from("campanhas")
             .update(campanhaAtualizada)
-            .eq("id", id)
+            .eq("id", campanhaId)
             .select()
             .single();
 
 
         if (error) {
 
-            console.error(
-                "Erro ao atualizar campanha:",
-                error
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao atualizar campanha"
             );
-
-            return res.status(500).json({
-                erro: error.message
-            });
 
         }
 
@@ -385,16 +384,11 @@ router.put("/:id", async (req, res) => {
 
     } catch (error) {
 
-        console.error(
-            "Erro interno ao atualizar campanha:",
-            error
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao atualizar campanha"
         );
-
-        return res.status(500).json({
-
-            erro: "Erro interno do servidor"
-
-        });
 
     }
 
@@ -406,7 +400,7 @@ router.put("/:id", async (req, res) => {
 // DELETE /api/campanhas/:id
 // ======================================================
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
 
     try {
 
@@ -467,16 +461,11 @@ router.delete("/:id", async (req, res) => {
 
                 if (!tabelaInexistente) {
 
-                    console.error(
-                        `Erro ao excluir ${tabela}:`,
-                        erroRelacionado
+                    return responderErroInterno(
+                        res,
+                        erroRelacionado,
+                        `Erro ao excluir ${tabela}`
                     );
-
-                    return res.status(500).json({
-                        erro:
-                            erroRelacionado.message ||
-                            `Erro ao excluir registros de ${tabela}`
-                    });
 
                 }
 
@@ -493,14 +482,11 @@ router.delete("/:id", async (req, res) => {
 
         if (erroCampanha) {
 
-            console.error(
-                "Erro ao excluir campanha:",
-                erroCampanha
+            return responderErroInterno(
+                res,
+                erroCampanha,
+                "Erro ao excluir campanha"
             );
-
-            return res.status(500).json({
-                erro: erroCampanha.message
-            });
 
         }
 
@@ -513,14 +499,11 @@ router.delete("/:id", async (req, res) => {
 
     } catch (error) {
 
-        console.error(
-            "Erro interno ao excluir campanha:",
-            error
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao excluir campanha"
         );
-
-        return res.status(500).json({
-            erro: "Erro interno do servidor"
-        });
 
     }
 

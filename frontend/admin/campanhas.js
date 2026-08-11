@@ -225,7 +225,8 @@ async function carregarCampanhas() {
                                 await fetch(
                                     `${API}/api/campanhas/${id}`,
                                     {
-                                        method: "DELETE"
+                                        method: "DELETE",
+                                        headers: await getAuthHeaders()
                                     }
                                 );
 
@@ -376,8 +377,11 @@ if (novaCampanha) {
 // INICIAR
 // ======================================================
 
-if (container) {
+(async () => {
+    const session = await requireAdminSession();
+    if (!session) return;
 
-    carregarCampanhas();
-
-}
+    if (container) {
+        carregarCampanhas();
+    }
+})();

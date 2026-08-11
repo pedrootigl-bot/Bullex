@@ -11,3 +11,38 @@ const supabaseClient = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
+
+/**
+ * Redireciona para login se não houver sessão.
+ */
+async function requireAdminSession() {
+    const {
+        data: { session }
+    } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+        window.location.href = "login.html";
+        return null;
+    }
+
+    return session;
+}
+
+/**
+ * Headers JSON com Bearer token da sessão admin.
+ */
+async function getAuthHeaders(extra = {}) {
+    const {
+        data: { session }
+    } = await supabaseClient.auth.getSession();
+
+    const headers = {
+        ...extra
+    };
+
+    if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+    }
+
+    return headers;
+}

@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
 
         res.status(500).json({
 
-            erro: error.message
+            erro: "Erro interno do servidor"
 
         });
 

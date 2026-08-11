@@ -1,16 +1,14 @@
 const { createClient } = require("@supabase/supabase-js");
 
-
-console.log(
-    "SUPABASE URL:",
-    process.env.SUPABASE_URL
-);
-
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error(
+        "Variáveis SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórias."
+    );
+}
 
 const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
 );
-
 
 module.exports = supabase;

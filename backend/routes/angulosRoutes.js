@@ -13,16 +13,18 @@ router.get("/:campanha_id", async (req, res) => {
     try {
 
         const { campanha_id } = req.params;
+        const campanhaId = Number(campanha_id);
 
-        console.log(
-            "Buscando ângulos da campanha:",
-            campanha_id
-        );
+        if (!campanhaId) {
+            return res.status(400).json({
+                erro: "campanha_id inválido"
+            });
+        }
 
         const { data, error } = await supabase
             .from("angulos_divulgacao")
             .select("*")
-            .eq("campanha_id", Number(campanha_id))
+            .eq("campanha_id", campanhaId)
             .order("id", { ascending: true });
 
 
@@ -34,7 +36,7 @@ router.get("/:campanha_id", async (req, res) => {
             );
 
             return res.status(500).json({
-                erro: error.message
+                erro: "Erro interno do servidor"
             });
 
         }

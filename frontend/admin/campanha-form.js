@@ -1,6 +1,9 @@
 const API = "http://localhost:3000";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const session = await requireAdminSession();
+    if (!session) return;
+
     const form = document.getElementById("campanhaForm");
     const copiesContainer = document.getElementById("copiesContainer");
     const adicionarCopyBtn = document.getElementById("adicionarCopyBtn");
@@ -212,6 +215,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    const {
+        data: { session }
+    } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+        setStatusUpload(
+            "Faça login para enviar imagens.",
+            "is-error"
+        );
+        return;
+    }
+
     uploadImagemEmAndamento = true;
 
     if (imagemCardDropzone) {
@@ -233,14 +248,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // gerarNomeUnicoArquivo() já retorna o caminho completo:
         // imagens/cards/NOME-UNICO.ext
       const caminho = gerarNomeUnicoArquivo(file);
-
-console.log("Upload do arquivo:", caminho);
-
-const { data: authData, error: authError } =
-    await supabaseClient.auth.getSession();
-
-console.log("Sessão Supabase:", authData?.session);
-console.log("Erro da sessão:", authError);
 
 const { error } = await supabaseClient.storage
     .from("campanhas")
@@ -674,6 +681,19 @@ const { error } = await supabaseClient.storage
             return;
         }
 
+        const {
+            data: { session }
+        } = await supabaseClient.auth.getSession();
+
+        if (!session) {
+            setStatusUploadMaterial(
+                item,
+                "Faça login para enviar arquivos.",
+                "is-error"
+            );
+            return;
+        }
+
         const dropzone = item.querySelector(".material-upload-dropzone");
         const tipoInput = item.querySelector(".material-tipo");
         const nomeInput = item.querySelector(".material-nome");
@@ -686,8 +706,6 @@ const { error } = await supabaseClient.storage
 
         try {
             const caminho = gerarCaminhoMaterial(file);
-
-            console.log("Upload do material:", caminho);
 
             const { error } = await supabaseClient.storage
                 .from("campanhas")
@@ -1080,9 +1098,9 @@ const { error } = await supabaseClient.storage
 
             const resposta = await fetch(`${API}/api/copies`, {
                 method: "POST",
-                headers: {
+                headers: await getAuthHeaders({
                     "Content-Type": "application/json"
-                },
+                }),
                 body: JSON.stringify({
                     campanha_id: Number(campanhaCriadaId),
                     titulo: copy.titulo,
@@ -1111,9 +1129,9 @@ const { error } = await supabaseClient.storage
 
             const resposta = await fetch(`${API}/api/regras`, {
                 method: "POST",
-                headers: {
+                headers: await getAuthHeaders({
                     "Content-Type": "application/json"
-                },
+                }),
                 body: JSON.stringify({
                     campanha_id: Number(campanhaCriadaId),
                     titulo: regra.titulo,
@@ -1140,9 +1158,9 @@ const { error } = await supabaseClient.storage
 
             const resposta = await fetch(`${API}/api/materiais`, {
                 method: "POST",
-                headers: {
+                headers: await getAuthHeaders({
                     "Content-Type": "application/json"
-                },
+                }),
                 body: JSON.stringify({
                     campanha_id: Number(campanhaCriadaId),
                     nome: material.nome,
@@ -1367,9 +1385,9 @@ const { error } = await supabaseClient.storage
 
             const response = await fetch(url, {
                 method,
-                headers: {
+                headers: await getAuthHeaders({
                     "Content-Type": "application/json"
-                },
+                }),
                 body: JSON.stringify(dados)
             });
 
