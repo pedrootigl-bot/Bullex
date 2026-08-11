@@ -117,7 +117,7 @@ A mesma lógica existe em `destaque.js` e `calendario.js` (duplicação a tratar
 
 ## COMMIT
 
-A ser registrado após `git commit` desta camada.
+`a26a766` — fix: corrige filtro de kits e resposta ZIP inválida
 
 ---
 
