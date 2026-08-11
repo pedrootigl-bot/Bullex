@@ -151,9 +151,35 @@ function atualizarCardCampanha(campanha){
 function escolherCampanhaPadrao(){
     const hoje = inicioDoDia(new Date());
 
+    // 1) Campanha vigente hoje: data_inicio <= hoje <= data_fim
     const ativasHoje = campanhasDoDia(hoje);
-    if(ativasHoje.length > 0) return ativasHoje[0];
 
+    if(ativasHoje.length > 0){
+        return (
+            ativasHoje.find((campanha) =>
+                String(campanha.status || "").toLowerCase() === "ativa"
+            )
+            || ativasHoje[0]
+        );
+    }
+
+    // 2) Próxima campanha futura com data_inicio mais próxima
+    const futuras = campanhasCalendario
+        .filter((campanha) => {
+            const inicio = parseDataLocal(campanha.data_inicio);
+            return inicio && inicio.getTime() > hoje.getTime();
+        })
+        .sort((a, b) => {
+            const inicioA = parseDataLocal(a.data_inicio)?.getTime() ?? 0;
+            const inicioB = parseDataLocal(b.data_inicio)?.getTime() ?? 0;
+            return inicioA - inicioB;
+        });
+
+    if(futuras.length > 0){
+        return futuras[0];
+    }
+
+    // 3) Fallback atual
     const marcadaAtiva = campanhasCalendario.find(
         campanha => String(campanha.status || "").toLowerCase() === "ativa"
     );
@@ -323,10 +349,18 @@ async function carregarCalendario(){
         }
 
         const dados = await resposta.json();
-
-        campanhasCalendario = Array.isArray(dados)
+        const lista = Array.isArray(dados)
             ? dados
             : (dados.campanhas ?? []);
+
+        const hoje = inicioDoDia(new Date());
+
+        // Oculta campanhas a partir do dia de vencimento (data_fim)
+        campanhasCalendario = lista.filter((campanha) => {
+            const fim = parseDataLocal(campanha.data_fim);
+            if(!fim) return true;
+            return hoje.getTime() < fim.getTime();
+        });
 
         if(!campanhaExibida){
             atualizarCardCampanha(escolherCampanhaPadrao());

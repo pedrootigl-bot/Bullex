@@ -200,7 +200,13 @@ function iniciarKitMateriais(){
 
 
     // Se modal.js já controla #openKitModal, não duplica
-    if(botao.id === "openKitModal" && typeof abrirKitModal === "function"){
+    if(
+        botao.id === "openKitModal"
+        && (
+            typeof abrirKitModal === "function"
+            || typeof abrirModal === "function"
+        )
+    ){
         return;
     }
 
@@ -213,33 +219,24 @@ function iniciarKitMateriais(){
         evento.preventDefault();
 
 
+        const campanhaId =
+            botao.dataset.campanhaId
+            || window.campanhaDestaqueAtual?.id
+            || null;
+
+
         if(typeof abrirModal === "function"){
 
-            abrirModal();
+            abrirModal(campanhaId);
 
             return;
 
         }
 
 
-        const campanhaId = 1;
-
-
-        const kit = document.querySelector("#kit");
-
-
-        if(kit){
-
-            kit.classList.add("active");
-
-            kit.scrollIntoView({
-                behavior:"smooth"
-            });
-
+        if(campanhaId){
+            carregarMateriaisSecao(campanhaId);
         }
-
-
-        carregarMateriaisSecao(campanhaId);
 
 
     }

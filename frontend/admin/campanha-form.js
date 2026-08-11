@@ -922,11 +922,37 @@ const { error } = await supabaseClient.storage
         return materiais;
     }
 
+    function pegarCategoriasSelecionadas() {
+        const checks = document.querySelectorAll(
+            '#categoriaGroup input[name="categoria"]:checked'
+        );
+
+        return Array.from(checks)
+            .map((input) => input.value.trim())
+            .filter(Boolean);
+    }
+
+    function preencherCategorias(categoriaValor) {
+        const checks = document.querySelectorAll(
+            '#categoriaGroup input[name="categoria"]'
+        );
+
+        const selecionadas = String(categoriaValor || "")
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        checks.forEach((input) => {
+            input.checked = selecionadas.includes(input.value);
+        });
+    }
+
     function pegarDadosCampanha() {
         return {
             titulo: document.getElementById("titulo")?.value.trim() || "",
             descricao: document.getElementById("descricao")?.value.trim() || "",
-            categoria: document.getElementById("categoria")?.value.trim() || "",
+            // Mantém o campo string no banco; múltiplas categorias separadas por vírgula
+            categoria: pegarCategoriasSelecionadas().join(", "),
             objetivo: document.getElementById("objetivo")?.value.trim() || "",
             premio: document.getElementById("premio")?.value.trim() || "",
             cupom: document.getElementById("cupom")?.value.trim() || "",
@@ -942,7 +968,6 @@ const { error } = await supabaseClient.storage
         const campos = [
             "titulo",
             "descricao",
-            "categoria",
             "objetivo",
             "premio",
             "cupom",
@@ -958,6 +983,8 @@ const { error } = await supabaseClient.storage
             if (!el || campanha[campo] == null) return;
             el.value = campanha[campo];
         });
+
+        preencherCategorias(campanha.categoria);
 
         if (campanha.imagem_card) {
             mostrarPreviewImagemCard(campanha.imagem_card);

@@ -10,66 +10,127 @@ const modalError = document.getElementById("modalError");
 const modalErrorMessage = document.getElementById("modalErrorMessage");
 const modalBody = document.getElementById("modalBody");
 const modalRetry = document.getElementById("modalRetry");
-
-/** ID da campanha ativa — trocar quando vier do backend */
-const CAMPANHA_ID = "bullcar";
+let campanhaModalAtualId = null;
 
 /**
- * Mock local — espelha o formato esperado do banco/API.
- * Quando integrar, remova o mock e use apenas a resposta do endpoint.
+ * Resolve o ID da campanha do destaque ("O que divulgar hoje").
+ * Prioridade: id informado → campanhaDestaqueAtual → obterCampanhaParaDestaque → campanhaExibida
  */
-const campanhaMock = {
-    id: "bullcar",
-    status: "ATIVA",
-    titulo: "BULLCAR",
-    descricao: "O GT dos traders pode ser seu.",
-    periodo: "03/08 • 03/09",
-    subtitulo: "Materiais organizados por formato para acelerar sua divulgação.",
-    banner: "assets/images/post.png",
-    kit: "#",
-    abas: [
-        { id: "materiais", label: "Materiais" },
-        { id: "visao-geral", label: "Visão Geral" },
-        { id: "copies", label: "Copies" },
-        { id: "regras", label: "Regras" }
-    ],
-   
-    visaoGeral: {
-        titulo: "Sobre a campanha",
-        texto: "Campanha voltada para engajamento, movimentação nas redes sociais, reativação de traders, incentivo ao redépósito e aumento do número de operações."
-    },
-    copies: [
-        {
-            id: "copy-1",
-            titulo: "Post principal",
-            texto: "O GT dos traders pode ser seu. Participe da campanha BULLCAR e concorra ao HAVAL H6 GT."
+async function resolverCampanhaModalId(idOpcional) {
+    const idDireto = Number(idOpcional);
+    if (Number.isFinite(idDireto) && idDireto > 0) {
+        return idDireto;
+    }
+
+    const idDestaque = Number(window.campanhaDestaqueAtual?.id);
+    if (Number.isFinite(idDestaque) && idDestaque > 0) {
+        return idDestaque;
+    }
+
+    if (typeof obterCampanhaParaDestaque === "function") {
+        try {
+            const campanha = await obterCampanhaParaDestaque();
+            if (campanha?.id != null) {
+                window.campanhaDestaqueAtual = campanha;
+                return Number(campanha.id);
+            }
+        } catch (error) {
+            console.error("Erro ao obter campanha do destaque:", error);
         }
-    ],
-    regras: [
-        "Divulgue os materiais oficiais da campanha nas redes sociais.",
-        "Utilize as copies sugeridas ou adapte mantendo a mensagem principal.",
-        "Acompanhe o período oficial: 03/08 a 03/09."
-    ]
-};
+    }
+
+    if (
+        typeof campanhaExibida !== "undefined"
+        && campanhaExibida
+        && campanhaExibida.id != null
+    ) {
+        return Number(campanhaExibida.id);
+    }
+
+    return null;
+}
+
+function formatarPeriodoCampanha(campanha) {
+    const inicio = String(campanha?.data_inicio || "").slice(0, 10);
+    const fim = String(campanha?.data_fim || "").slice(0, 10);
+
+    const formatar = (valor) => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return valor || "";
+        const [ano, mes, dia] = valor.split("-");
+        return `${dia}/${mes}/${ano}`;
+    };
+
+    const ini = formatar(inicio);
+    const end = formatar(fim);
+
+    if (ini && end) return `${ini} • ${end}`;
+    return ini || end || "";
+}
+
+async function fetchJsonLista(url) {
+    try {
+        const resposta = await fetch(url);
+        if (!resposta.ok) return [];
+        const dados = await resposta.json();
+        return Array.isArray(dados) ? dados : [];
+    } catch (error) {
+        console.error(`Erro ao buscar ${url}:`, error);
+        return [];
+    }
+}
 
 /**
- * Busca os dados da campanha.
- * Futuro: trocar o corpo por fetch da API/banco.
- *
- * Exemplo:
- *   const response = await fetch(`/api/campanhas/${id}`);
- *   if (!response.ok) throw new Error("Falha ao carregar campanha");
- *   return response.json();
+ * Busca campanha + materiais + copies + regras da campanha ativa do destaque.
  */
-async function obterCampanha(id = CAMPANHA_ID) {
-    // Simula latência de rede — remover ao integrar
-    await new Promise((resolve) => setTimeout(resolve, 300));
+async function obterCampanha(id) {
+    const campanhaId = await resolverCampanhaModalId(id);
 
-    if (!campanhaMock || campanhaMock.id !== id) {
+    if (!campanhaId) {
+        throw new Error("Nenhuma campanha disponível para o destaque.");
+    }
+
+    const resposta = await fetch(
+        `http://localhost:3000/api/campanhas/${campanhaId}`
+    );
+
+    if (!resposta.ok) {
         throw new Error("Campanha não encontrada.");
     }
 
-    return campanhaMock;
+    const campanha = await resposta.json();
+
+    const [materiais, copies, regras] = await Promise.all([
+        fetchJsonLista(`http://localhost:3000/api/materiais/${campanhaId}`),
+        fetchJsonLista(`http://localhost:3000/api/copies/${campanhaId}`),
+        fetchJsonLista(`http://localhost:3000/api/regras/${campanhaId}`)
+    ]);
+
+    return {
+        id: campanha.id,
+        status: campanha.status || "",
+        titulo: campanha.titulo || "",
+        descricao: campanha.descricao || "",
+        periodo: formatarPeriodoCampanha(campanha),
+        subtitulo: "Materiais organizados por formato para acelerar sua divulgação.",
+        banner: campanha.imagem_card || campanha.banner || "",
+        abas: [
+            { id: "materiais", label: "Materiais" },
+            { id: "visao-geral", label: "Visão Geral" },
+            { id: "copies", label: "Copies" },
+            { id: "regras", label: "Regras" }
+        ],
+        materiais,
+        copies: copies
+            .slice()
+            .sort((a, b) => (a.ordem || 0) - (b.ordem || 0)),
+        regras: regras
+            .slice()
+            .sort((a, b) => (a.ordem || 0) - (b.ordem || 0)),
+        visaoGeral: {
+            titulo: "Sobre a campanha",
+            texto: campanha.objetivo || campanha.descricao || ""
+        }
+    };
 }
 
 function setModalState({ loading = false, error = null, ready = false } = {}) {
@@ -82,13 +143,15 @@ function setModalState({ loading = false, error = null, ready = false } = {}) {
     }
 }
 
-function abrirModal() {
+function abrirModal(campanhaId) {
+    if (!modal) return;
+
     modal.hidden = false;
     requestAnimationFrame(() => {
         modal.classList.add("is-open", "active");
     });
     document.body.style.overflow = "hidden";
-    carregarCampanhaNoModal();
+    carregarCampanhaNoModal(campanhaId);
 }
 
 function fecharModal() {
@@ -110,12 +173,21 @@ function fecharModal() {
     }, 400);
 }
 
-async function carregarCampanhaNoModal() {
+async function carregarCampanhaNoModal(campanhaId) {
     setModalState({ loading: true });
 
     try {
-        const campanha = await obterCampanha(CAMPANHA_ID);
+        const campanha = await obterCampanha(
+            campanhaId ?? campanhaModalAtualId
+        );
+        campanhaModalAtualId = campanha.id;
         popularCampanha(campanha);
+
+        // Kit completo da mesma campanha do destaque
+        if (campanha.id != null) {
+            carregarKit(campanha.id);
+        }
+
         setModalState({ ready: true });
     } catch (err) {
         console.error(err);
@@ -361,50 +433,38 @@ function renderizarCopies(copies) {
 }
 
 function renderizarRegras(regras) {
-
-    const container = document.getElementById("modal-rules");
-
+    const container =
+        document.getElementById("regrasContent")
+        || document.getElementById("modal-rules");
 
     if (!container) {
         console.warn("Container de regras não encontrado");
         return;
     }
 
+    const lista = Array.isArray(regras) ? regras : [];
 
-    if (!regras.length) {
-
-        container.innerHTML = `
-            <p>Regras em breve.</p>
-        `;
-
+    if (!lista.length) {
+        container.innerHTML = "<p>Regras em breve.</p>";
         return;
     }
 
-
     container.innerHTML = `
-
         <ul>
+            ${lista.map((regra) => {
+                if (typeof regra === "string") {
+                    return `<li><p>${escapeHtml(regra)}</p></li>`;
+                }
 
-            ${regras.map((regra) => `
-
-                <li>
-
-                    <strong>
-                        ${regra.titulo}
-                    </strong>
-
-                    <p>
-                        ${regra.descricao}
-                    </p>
-
-                </li>
-
-            `).join("")}
-
+                return `
+                    <li>
+                        <strong>${escapeHtml(regra.titulo || "Regra")}</strong>
+                        <p>${escapeHtml(regra.descricao || "")}</p>
+                    </li>
+                `;
+            }).join("")}
         </ul>
-
     `;
-
 }
 
 function slugify(texto) {
@@ -432,7 +492,11 @@ function escapeHtml(valor) {
 if (openModalBtn) {
     openModalBtn.addEventListener("click", (event) => {
         event.preventDefault();
-        abrirModal();
+        const idDestaque =
+            openModalBtn.dataset.campanhaId
+            || window.campanhaDestaqueAtual?.id
+            || null;
+        abrirModal(idDestaque);
     });
 }
 
@@ -531,64 +595,13 @@ if(openKitModalBtn){
 
         event.preventDefault();
 
-        abrirKitModal();
+        // Sempre usa a campanha ativa em "O que divulgar hoje"
+        const idDestaque =
+            openKitModalBtn.dataset.campanhaId
+            || window.campanhaDestaqueAtual?.id
+            || null;
 
-        // Usa o ID numérico da campanha (nunca o slug/cupom "bullcar")
-        let campanha = null;
-
-        if(
-            typeof campanhaExibida !== "undefined"
-            && campanhaExibida
-            && campanhaExibida.id != null
-        ){
-            campanha = campanhaExibida;
-        }else{
-
-            try{
-
-                const resposta = await fetch(
-                    "http://localhost:3000/api/campanhas"
-                );
-
-                const lista = await resposta.json();
-                const arr = Array.isArray(lista) ? lista : [];
-
-                campanha =
-                    arr.find(item =>
-                        String(item.status || "").toLowerCase() === "ativa"
-                    )
-                    || arr[0]
-                    || null;
-
-            }catch(error){
-
-                console.error(
-                    "Erro ao buscar campanha para o kit:",
-                    error
-                );
-
-            }
-
-        }
-
-        if(!campanha || campanha.id == null){
-            console.error(
-                "campanha.id não encontrado para carregar o kit"
-            );
-            return;
-        }
-
-        const downloadKit = document.getElementById("downloadKit");
-
-        if(downloadKit){
-            downloadKit.href =
-                `http://localhost:3000/api/download/kit/${campanha.id}`;
-            downloadKit.removeAttribute("target");
-            downloadKit.removeAttribute("rel");
-            downloadKit.setAttribute("download", "");
-        }
-
-        carregarKit(campanha.id);
+        abrirModal(idDestaque);
 
     });
 
