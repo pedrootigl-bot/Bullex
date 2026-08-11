@@ -13,7 +13,7 @@
 
     padding:clamp(48px, 8vw, 80px) clamp(16px, 5vw, 60px);
 
-    background:#050706;
+    background:transparent;
 
     color:#fff;
 
@@ -41,9 +41,9 @@
 .calendar-section .campaign-card{
 
 
-    background:#0c100e;
+    background:linear-gradient(160deg,#1a2420,#0d1210);
 
-    border:1px solid rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.1);
 
     border-radius:clamp(16px, 2vw, 24px);
 
@@ -56,6 +56,8 @@
     min-width:0;
 
     height:100%;
+
+    transition:border-color .28s ease, box-shadow .28s ease, transform .28s cubic-bezier(.22,1,.36,1);
 
 }
 
@@ -117,7 +119,7 @@
 .campaign-info h3{
 
 
-    color:#55ff00;
+    color:#68da00;
 
     font-size:clamp(.9rem, 1.5vw, 1rem);
 
@@ -145,7 +147,7 @@
 .campaign-info strong{
 
 
-    color:#55ff00;
+    color:#68da00;
 
 }
 
@@ -188,7 +190,7 @@
 
     border-radius:12px;
 
-    background:#55ff00;
+    background:#68da00;
 
     color:#000;
 
@@ -215,9 +217,9 @@
 .calendar{
 
 
-    background:#0c100e;
+    background:linear-gradient(160deg,#1a2420,#0d1210);
 
-    border:1px solid rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.1);
 
     border-radius:clamp(16px, 2vw, 24px);
 
@@ -315,7 +317,7 @@
 .calendar-header button:hover{
 
 
-    color:#55ff00;
+    color:#68da00;
 
 }
 
@@ -489,7 +491,7 @@
 
     color:#fff;
 
-    background:rgba(85,255,0,.08);
+    background:rgba(104,218,0,.08);
 
 }
 
@@ -498,9 +500,9 @@
 .day.has-campaign{
 
 
-    color:#55ff00;
+    color:#68da00;
 
-    border-color:#55ff00;
+    border-color:#68da00;
 
     background:transparent;
 
@@ -511,15 +513,15 @@
 .day.is-selected{
 
 
-    background:#55ff00;
+    background:#68da00;
 
-    border-color:#55ff00;
+    border-color:#68da00;
 
     color:#0a0a0a;
 
     font-weight:700;
 
-    box-shadow:0 0 18px rgba(85,255,0,.55);
+    box-shadow:0 0 18px rgba(104,218,0,.55);
 
 }
 
@@ -807,7 +809,7 @@
 
     .day.is-selected{
 
-        box-shadow:0 0 12px rgba(85,255,0,.45);
+        box-shadow:0 0 12px rgba(104,218,0,.45);
 
     }
 
@@ -1207,7 +1209,7 @@
 
     .day.has-campaign:hover:not(.is-selected){
 
-        color:#55ff00;
+        color:#68da00;
 
     }
 

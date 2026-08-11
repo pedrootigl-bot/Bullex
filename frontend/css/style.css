@@ -3,8 +3,36 @@
 ================================================== */
 
 @import url("abstracts/reset.css");
-@import url("abstracts/variables.css");
+@import url("abstracts/variable.css");
 @import url("abstracts/animations.css");
+
+/* ==================================================
+   BASE
+================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(104, 218, 0, 0.08), transparent 55%),
+        linear-gradient(180deg, #070908 0%, #0a0d0b 40%, #070908 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+}
+
+::selection {
+    background: rgba(104, 218, 0, 0.35);
+    color: #fff;
+}
 
 /* ==================================================
    LAYOUT
@@ -21,7 +49,6 @@
 @import url("components/navbar.css");
 @import url("components/button.css");
 @import url("components/card.css");
-@import url("components/slider.css");
 @import url("components/modal.css");
 
 /* ==================================================
@@ -31,17 +58,7 @@
 @import url("sections/hero.css");
 @import url("sections/stats.css");
 @import url("sections/highlight.css");
-@import url("sections/about.css");
-@import url("sections/benefits.css");
-@import url("sections/how-it-works.css");
-@import url("sections/gallery.css");
-@import url("sections/testimonials.css");
-@import url("sections/prize.css");
-@import url("sections/conversion.css");
-@import url("sections/faq.css");
-@import url("sections/cta.css");
 @import url("sections/campaign.css");
-@import url("sections/campanha.css");
 @import url("sections/calendar.css");
 @import url("sections/support.css");
 

@@ -190,7 +190,7 @@
 .modal-close:hover{
 
 
-    background:#5dff00;
+    background:#68da00;
 
 
     color:#020402;
@@ -322,7 +322,7 @@
 #modal-coupon{
 
 
-    color:#5dff00;
+    color:#68da00;
 
 
     font-weight:800;
@@ -1211,7 +1211,7 @@
 
     transform:translateY(-3px);
 
-    border-color:#76E000;
+    border-color:#68da00;
 
 }
 
@@ -1227,7 +1227,7 @@
 
     border-radius:20px;
 
-    background:#76E000;
+    background:#68da00;
 
     color:#111;
 
@@ -1291,9 +1291,9 @@
 
     cursor:pointer;
 
-    background:#5dff00;
+    background:#68da00;
 
-    color:#02040A;
+    color:#070908;
 
     font-weight:700;
 

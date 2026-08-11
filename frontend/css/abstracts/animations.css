@@ -1,0 +1,21 @@
+/* Partner Hub — motion tokens */
+
+@keyframes borderGlow {
+    from { background-position: 0% 50%; }
+    to { background-position: 300% 50%; }
+}
+
+@keyframes glow-rotate {
+    to { transform: scale(1.05) translateY(-44px) rotate(360deg) translateZ(0); }
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

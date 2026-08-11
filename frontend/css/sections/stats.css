@@ -6,11 +6,12 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     width: 100%;
-    margin-top: 48px;
-    border-radius: 14px;
-    background: #141414;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 2.5rem;
+    border-radius: var(--radius);
+    background: linear-gradient(160deg, #1a2420, #0d1210);
+    border: 1px solid var(--border);
     overflow: hidden;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
 }
 
 .stat-card {
@@ -18,10 +19,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 22px 16px;
+    gap: 0.5rem;
+    padding: 1.35rem 1rem;
     text-align: center;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid var(--border);
 }
 
 .stat-card:last-child {
@@ -29,24 +30,24 @@
 }
 
 .stat-card strong {
-    font-size: clamp(1.6rem, 2.5vw, 2rem);
+    font-size: clamp(1.5rem, 2.4vw, 1.9rem);
     font-weight: 800;
     line-height: 1;
-    color: #fff;
+    color: var(--primary);
 }
 
 .stat-card span {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 @media (max-width: 768px) {
     .stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        margin-top: 32px;
+        margin-top: 1.75rem;
     }
 
     .stat-card:nth-child(2) {
@@ -54,7 +55,7 @@
     }
 
     .stat-card:nth-child(-n + 2) {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border);
     }
 }
 
@@ -65,11 +66,11 @@
 
     .stat-card {
         border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border);
     }
 
     .stat-card:nth-child(-n + 2) {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border);
     }
 
     .stat-card:last-child {

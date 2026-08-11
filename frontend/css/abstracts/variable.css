@@ -1,21 +1,36 @@
 :root {
-    /* Cores — paleta verde Bullex */
-    --primary: #76E000;
-    --secondary: #5dff00;
-    --accent: #98ff42;
-    --primary-dark: #5aa600;
-    --background: #02040A;
-    --surface: #0c100e;
-    --text: #D8DCE5;
-    --white: #FFFFFF;
+    /* Cores — Partner Hub */
+    --primary: #68da00;
+    --secondary: #9cff5c;
+    --accent: #c8ff8a;
+    --primary-dark: #4fad00;
+    --primary-soft: rgba(104, 218, 0, 0.14);
+    --primary-glow: rgba(104, 218, 0, 0.28);
+
+    --background: #070908;
+    --background-deep: #0a0d0b;
+    --surface: #0b110e;
+    --surface-elevated: #101614;
+    --surface-hover: #122018;
+
+    --text: #d8e0da;
+    --text-muted: #8f969f;
+    --white: #ffffff;
+    --border: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.16);
+
+    /* Tipografia */
+    --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    --font-display: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
 
     /* Layout */
-    --container: 1280px;
+    --container: 1200px;
     --header-height: 82px;
-
-    /* Bordas */
     --radius: 16px;
+    --radius-sm: 12px;
+    --radius-lg: 24px;
 
-    /* Transições */
-    --transition: .3s ease;
+    /* Motion */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --transition: 0.3s var(--ease-out);
 }
