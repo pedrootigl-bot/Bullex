@@ -263,7 +263,7 @@ Com layouts adaptáveis para facilitar o acesso aos usuários.
 
 Projeto desenvolvido por:
 
-**Pedro Tiago**
+**Pedro Henrique Sá Pinheiro**
 
 ---
 
