@@ -106,7 +106,7 @@ Buckets `materiais`, `vídeos`, `kits` **não existem** no projeto (uploads usam
 
 ## COMMIT
 
-A ser registrado após o commit desta camada.
+`2eba098` — fix: reforça autenticação da API e remove .env do Git
 
 ---
 
