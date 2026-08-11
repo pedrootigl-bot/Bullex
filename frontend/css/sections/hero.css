@@ -52,9 +52,9 @@
 
     border-radius:999px;
 
-    background:rgba(24,185,255,.12);
+    background:rgba(93,255,0,.12);
 
-    color:#18B9FF;
+    color:#5dff00;
 
     font-size:.9rem;
 
@@ -80,7 +80,7 @@
 
 .hero__content h1 span {
 
-    color:#18B9FF;
+    color:#5dff00;
 
     display:block;
 
@@ -191,7 +191,7 @@
 
     transform:translateY(-5px);
 
-    border-color:rgba(24,185,255,.5);
+    border-color:rgba(93,255,0,.5);
 
 }
 
@@ -205,7 +205,7 @@
 
     letter-spacing:1.5px;
 
-    color:#8b98ad;
+    color:#8f969f;
 
 }
 
@@ -225,9 +225,9 @@
 
 .info-card__value.highlight {
 
-    color:#18B9FF;
+    color:#5dff00;
 
-    text-shadow:0 0 20px rgba(24,185,255,.5);
+    text-shadow:0 0 20px rgba(93,255,0,.5);
 
 }
 
@@ -316,7 +316,7 @@
 
     display:block;
 
-    color:#18B9FF;
+    color:#5dff00;
 
     font-size:2rem;
 
@@ -328,7 +328,7 @@
 
 .stat-card span {
 
-    color:#8b98ad;
+    color:#8f969f;
 
     font-size:.75rem;
 

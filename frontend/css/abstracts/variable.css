@@ -1,9 +1,11 @@
 :root {
-    /* Cores */
-    --primary: #0E5EFF;
-    --secondary: #18B9FF;
+    /* Cores — paleta verde Bullex */
+    --primary: #76E000;
+    --secondary: #5dff00;
+    --accent: #98ff42;
+    --primary-dark: #5aa600;
     --background: #02040A;
-    --surface: #08111F;
+    --surface: #0c100e;
     --text: #D8DCE5;
     --white: #FFFFFF;
 

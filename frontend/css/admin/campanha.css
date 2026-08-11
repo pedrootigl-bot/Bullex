@@ -68,8 +68,8 @@
     background:
         linear-gradient(
             90deg,
-            #2563eb,
-            #60a5fa
+            #76E000,
+            #98ff42
         );
 }
 
@@ -83,7 +83,7 @@
         translateY(-5px);
 
     border-color:
-        #dbeafe;
+        #d9f7b8;
 
     box-shadow:
         0 18px 40px rgba(15, 23, 42, 0.11);
@@ -264,24 +264,24 @@
 
 #campanhasContainer .btn-visualizar {
     background:
-        #eff6ff;
+        #f3ffe8;
 
     border-color:
-        #dbeafe;
+        #d9f7b8;
 
     color:
-        #2563eb;
+        #76E000;
 }
 
 #campanhasContainer .btn-visualizar:hover {
     background:
-        #2563eb;
+        #76E000;
 
     border-color:
-        #2563eb;
+        #76E000;
 
     color:
-        #ffffff;
+        #111;
 
     transform:
         translateY(-1px);
@@ -449,16 +449,16 @@
         9px 18px;
 
     border:
-        1px solid #bfdbfe;
+        1px solid #c6f59a;
 
     border-radius:
         9px;
 
     background:
-        #eff6ff;
+        #f3ffe8;
 
     color:
-        #2563eb;
+        #76E000;
 
     font-weight:
         700;
@@ -472,7 +472,7 @@
 
 #campanhasContainer #tentarNovamente:hover {
     background:
-        #2563eb;
+        #76E000;
 
     color:
         #ffffff;

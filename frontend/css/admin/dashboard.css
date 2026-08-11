@@ -220,8 +220,8 @@ body {
     background:
         linear-gradient(
             90deg,
-            #2563eb,
-            #60a5fa
+            #76E000,
+            #98ff42
         );
 }
 
@@ -242,7 +242,7 @@ body {
     border-radius: 50%;
 
     background:
-        rgba(37, 99, 235, 0.04);
+        rgba(118, 224, 0, 0.04);
 
     pointer-events: none;
 }
@@ -251,7 +251,7 @@ body {
     transform: translateY(-4px);
 
     border-color:
-        #dbeafe;
+        #d9f7b8;
 
     box-shadow:
         0 15px 35px rgba(15, 23, 42, 0.1);
@@ -421,7 +421,7 @@ body {
     background:
         linear-gradient(
             135deg,
-            rgba(37, 99, 235, 0.04),
+            rgba(118, 224, 0, 0.04),
             transparent 60%
         );
 
@@ -441,7 +441,7 @@ body {
 
     right: 20px;
 
-    color: #2563eb;
+    color: #76E000;
 
     font-size: 21px;
 
@@ -461,16 +461,16 @@ body {
         translateY(-4px);
 
     border-color:
-        #bfdbfe;
+        #c6f59a;
 
     background:
         #f8fbff;
 
     color:
-        #2563eb;
+        #76E000;
 
     box-shadow:
-        0 15px 35px rgba(37, 99, 235, 0.1);
+        0 15px 35px rgba(118, 224, 0, 0.1);
 }
 
 
@@ -499,7 +499,7 @@ body {
 .admin-menu button:focus-visible {
     outline:
         3px solid
-        rgba(37, 99, 235, 0.25);
+        rgba(118, 224, 0, 0.25);
 
     outline-offset: 3px;
 }

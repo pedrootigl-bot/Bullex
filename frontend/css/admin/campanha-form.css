@@ -129,9 +129,9 @@ body {
 #voltarBtn:hover {
     background: #f8fafc;
 
-    border-color: #2563eb;
+    border-color: #76E000;
 
-    color: #2563eb;
+    color: #76E000;
 
     transform: translateY(-1px);
 }
@@ -274,8 +274,8 @@ main.dashboard > #voltarBtn {
 }
 
 .checkbox-option:hover {
-    border-color: #2563eb;
-    background: #eff6ff;
+    border-color: #76E000;
+    background: #f3ffe8;
 }
 
 .checkbox-option input {
@@ -283,14 +283,14 @@ main.dashboard > #voltarBtn {
     height: 16px;
     min-height: 16px;
     margin: 0;
-    accent-color: #2563eb;
+    accent-color: #76E000;
     cursor: pointer;
 }
 
 .checkbox-option:has(input:checked) {
-    border-color: #2563eb;
-    background: #eff6ff;
-    color: #1d4ed8;
+    border-color: #76E000;
+    background: #f3ffe8;
+    color: #5aa600;
 }
 
 .form-actions {
@@ -401,11 +401,11 @@ main.dashboard > #voltarBtn {
 #campanhaForm textarea:focus,
 #campanhaForm select:focus {
 
-    border-color: #2563eb;
+    border-color: #76E000;
 
     box-shadow:
         0 0 0 3px
-        rgba(37, 99, 235, 0.12);
+        rgba(118, 224, 0, 0.12);
 
     background: #ffffff;
 }
@@ -490,11 +490,11 @@ main.dashboard > #voltarBtn {
     background:
         linear-gradient(
             135deg,
-            #2563eb,
-            #1d4ed8
+            #76E000,
+            #5aa600
         );
 
-    color: #ffffff;
+    color: #111;
 
     font-size: 15px;
 
@@ -504,7 +504,7 @@ main.dashboard > #voltarBtn {
 
     box-shadow:
         0 6px 15px
-        rgba(37, 99, 235, 0.22);
+        rgba(118, 224, 0, 0.22);
 
     transition:
         transform 0.2s ease,
@@ -519,7 +519,7 @@ main.dashboard > #voltarBtn {
 
     box-shadow:
         0 10px 22px
-        rgba(37, 99, 235, 0.28);
+        rgba(118, 224, 0, 0.28);
 }
 
 #campanhaForm button[type="submit"]:active {
@@ -586,7 +586,7 @@ main.dashboard > #voltarBtn {
 
     outline:
         3px solid
-        rgba(37, 99, 235, 0.2);
+        rgba(118, 224, 0, 0.2);
 
     outline-offset: 2px;
 }
@@ -716,9 +716,9 @@ main.dashboard > #voltarBtn {
 }
 
 .upload-dropzone.is-dragover {
-    border-color: #2563eb;
-    background: #eff6ff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: #76E000;
+    background: #f3ffe8;
+    box-shadow: 0 0 0 3px rgba(118, 224, 0, 0.12);
 }
 
 .upload-dropzone.is-uploading {
@@ -751,7 +751,7 @@ main.dashboard > #voltarBtn {
 
 .upload-dropzone__empty i {
     font-size: 28px;
-    color: #2563eb;
+    color: #76E000;
     margin-bottom: 4px;
 }
 
@@ -813,7 +813,7 @@ main.dashboard > #voltarBtn {
 }
 
 .upload-dropzone__status.is-loading {
-    color: #2563eb;
+    color: #76E000;
 }
 
 .upload-dropzone__status.is-success {

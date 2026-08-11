@@ -106,18 +106,18 @@ select {
 }
 
 .btn-primary {
-    background: #2563eb;
-    color: #ffffff;
+    background: #76E000;
+    color: #111;
 
     box-shadow:
-        0 4px 12px rgba(37, 99, 235, 0.2);
+        0 4px 12px rgba(118, 224, 0, 0.2);
 }
 
 .btn-primary:hover {
-    background: #1d4ed8;
+    background: #5aa600;
 
     box-shadow:
-        0 6px 18px rgba(37, 99, 235, 0.25);
+        0 6px 18px rgba(118, 224, 0, 0.25);
 }
 
 .btn-secondary {
@@ -287,8 +287,8 @@ select {
 }
 
 .btn-visualizar {
-    background: #2563eb;
-    color: #ffffff;
+    background: #76E000;
+    color: #111;
 }
 
 .btn-editar {
@@ -364,10 +364,10 @@ select {
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-    border-color: #2563eb;
+    border-color: #76E000;
 
     box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.1);
+        0 0 0 3px rgba(118, 224, 0, 0.1);
 }
 
 .form-group textarea {
@@ -439,8 +439,8 @@ select {
 
     border-radius: 999px;
 
-    background: #eff6ff;
-    color: #2563eb;
+    background: #f3ffe8;
+    color: #76E000;
 
     font-size: 13px;
     font-weight: 700;
@@ -552,8 +552,8 @@ select {
 
     border-radius: 50%;
 
-    background: #2563eb;
-    color: #ffffff;
+    background: #76E000;
+    color: #111;
 
     font-weight: 700;
 }
@@ -775,7 +775,7 @@ select {
 }
 
 .materials-modal__close:focus-visible {
-    outline: 2px solid #60a5fa;
+    outline: 2px solid #98ff42;
     outline-offset: 2px;
 }
 
@@ -860,7 +860,7 @@ select {
     transform: translateY(-3px);
 
     border-color:
-        rgba(96, 165, 250, 0.35);
+        rgba(152, 255, 66, 0.35);
 
     box-shadow:
         0 12px 30px rgba(0, 0, 0, 0.25);
@@ -959,9 +959,9 @@ select {
     border-radius: 999px;
 
     background:
-        rgba(37, 99, 235, 0.14);
+        rgba(118, 224, 0, 0.14);
 
-    color: #93c5fd;
+    color: #b8ff7a;
 
     font-size: 12px;
     font-weight: 600;
@@ -981,9 +981,9 @@ select {
 
     border-radius: 8px;
 
-    background: #2563eb;
+    background: #76E000;
 
-    color: #ffffff;
+    color: #111;
 
     text-decoration: none;
 
@@ -996,7 +996,7 @@ select {
 }
 
 .btn-material:hover {
-    background: #1d4ed8;
+    background: #5aa600;
 
     transform: translateY(-1px);
 }

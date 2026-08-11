@@ -30,12 +30,12 @@ body {
     background:
         radial-gradient(
             circle at top left,
-            rgba(37, 99, 235, 0.12),
+            rgba(118, 224, 0, 0.12),
             transparent 35%
         ),
         radial-gradient(
             circle at bottom right,
-            rgba(96, 165, 250, 0.12),
+            rgba(152, 255, 66, 0.12),
             transparent 35%
         ),
         linear-gradient(
@@ -202,12 +202,12 @@ body {
 }
 
 #loginForm input:focus {
-    border-color: #2563eb;
+    border-color: #76E000;
 
     background: #ffffff;
 
     box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.12);
+        0 0 0 3px rgba(118, 224, 0, 0.12);
 }
 
 
@@ -232,11 +232,11 @@ body {
     background:
         linear-gradient(
             135deg,
-            #2563eb,
-            #1d4ed8
+            #76E000,
+            #5aa600
         );
 
-    color: #ffffff;
+    color: #111;
 
     font-size: 15px;
     font-weight: 700;
@@ -244,7 +244,7 @@ body {
     cursor: pointer;
 
     box-shadow:
-        0 6px 16px rgba(37, 99, 235, 0.22);
+        0 6px 16px rgba(118, 224, 0, 0.22);
 
     transition:
         transform 0.2s ease,
@@ -256,7 +256,7 @@ body {
     transform: translateY(-1px);
 
     box-shadow:
-        0 9px 22px rgba(37, 99, 235, 0.3);
+        0 9px 22px rgba(118, 224, 0, 0.3);
 }
 
 #loginForm button:active {
@@ -265,7 +265,7 @@ body {
 
 #loginForm button:focus-visible {
     outline:
-        3px solid rgba(37, 99, 235, 0.25);
+        3px solid rgba(118, 224, 0, 0.25);
 
     outline-offset: 3px;
 }

@@ -992,7 +992,7 @@
     max-width:100%;
 
 
-    color:#8b98ad;
+    color:#8f969f;
 
 
     font-size:0.75rem;
@@ -1185,7 +1185,7 @@
 
 .copy-card{
 
-    background:#08111F;
+    background:#0c100e;
 
     border:1px solid rgba(255,255,255,.08);
 
@@ -1211,7 +1211,7 @@
 
     transform:translateY(-3px);
 
-    border-color:#0E5EFF;
+    border-color:#76E000;
 
 }
 
@@ -1227,9 +1227,9 @@
 
     border-radius:20px;
 
-    background:#0E5EFF;
+    background:#76E000;
 
-    color:#fff;
+    color:#111;
 
     font-size:.75rem;
 
@@ -1291,7 +1291,7 @@
 
     cursor:pointer;
 
-    background:#18B9FF;
+    background:#5dff00;
 
     color:#02040A;
 
