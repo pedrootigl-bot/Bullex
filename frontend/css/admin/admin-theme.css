@@ -433,6 +433,34 @@ select:focus {
     color: #fecaca !important;
 }
 
+/* Entrada animada ao vir da busca (Enter) */
+.page-campanha-detalhes.from-search .admin-header,
+.page-campanha-detalhes.from-search .campaign-detail-card,
+.page-campanha-detalhes.from-search .campaign-sections {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: detalhes-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.page-campanha-detalhes.from-search .admin-header {
+    animation-delay: 0.05s;
+}
+
+.page-campanha-detalhes.from-search .campaign-detail-card {
+    animation-delay: 0.12s;
+}
+
+.page-campanha-detalhes.from-search .campaign-sections {
+    animation-delay: 0.22s;
+}
+
+@keyframes detalhes-enter {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Form — Nova Campanha */
 .admin-main {
     width: min(980px, 92%);

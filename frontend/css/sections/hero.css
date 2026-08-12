@@ -10,6 +10,85 @@
     padding: 7.5rem clamp(1rem, 3vw, 2rem) 3.75rem;
     overflow: hidden;
     background: #000;
+    opacity: 0;
+}
+
+.hero.hero--loaded,
+.hero.is-visible.hero--loaded {
+    animation: hero-fade-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero.hero--loaded .hero__intro,
+.hero.hero--loaded .hero__visual,
+.hero.hero--loaded .hero__details {
+    opacity: 0;
+    animation: hero-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero.hero--loaded .hero__intro {
+    animation-delay: 0.08s;
+}
+
+.hero.hero--loaded .hero__visual {
+    animation-delay: 0.18s;
+}
+
+.hero.hero--loaded .hero__details {
+    animation-delay: 0.28s;
+}
+
+@keyframes hero-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes hero-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero,
+    .hero.hero--loaded,
+    .hero.hero--loaded .hero__intro,
+    .hero.hero--loaded .hero__visual,
+    .hero.hero--loaded .hero__details {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .hero__visual-card,
+    .hero__visual-card:hover,
+    .hero__visual-media img,
+    .hero__visual-card img,
+    #heroImage,
+    .hero__visual-card:hover .hero__visual-media img,
+    .hero__visual-card:hover #heroImage {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    .hero__visual-card:hover {
+        box-shadow:
+            0 24px 60px rgba(0, 0, 0, 0.45),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .hero__visual-card:hover::after {
+        opacity: 0;
+    }
 }
 
 .hero > .container {
@@ -21,12 +100,17 @@
 .hero__grid {
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-areas:
+        "intro visual"
+        "details visual";
     align-items: center;
-    gap: clamp(2rem, 4.5vw, 3.75rem);
+    column-gap: clamp(1.1rem, 2.8vw, 2.1rem);
+    row-gap: 0.85rem;
     width: 100%;
 }
 
-.hero__content {
+.hero__intro {
+    grid-area: intro;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -34,6 +118,29 @@
     max-width: 36rem;
 }
 
+.hero__details {
+    grid-area: details;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    max-width: 36rem;
+    align-self: start;
+}
+
+.hero__visual {
+    grid-area: visual;
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    margin-left: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-self: center;
+}
+
+.hero__intro h1,
 .hero__content h1 {
     margin: 0;
     font-size: clamp(2.35rem, 4.6vw, 3.35rem);
@@ -108,7 +215,7 @@
     gap: 0.5rem;
     width: 100%;
     max-width: 34rem;
-    margin-top: 0.25rem;
+    margin-top: 0;
 }
 
 .hero__meta .info-card {
@@ -172,23 +279,88 @@
 }
 
 /* Card visual direita */
-.hero__visual {
+.hero__visual-card {
     position: relative;
+    width: 100%;
     overflow: hidden;
     border-radius: 22px;
-    background: #111;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    min-height: min(100dvh - 10rem, 560px);
+    background:
+        linear-gradient(160deg, rgba(18, 28, 20, 0.95) 0%, rgba(8, 12, 10, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
     aspect-ratio: 4 / 5;
+    min-height: min(100dvh - 12rem, 480px);
     max-height: 620px;
+    transform: translateY(0) scale(1);
+    transition:
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.45s ease;
+    will-change: transform;
+    cursor: pointer;
 }
 
-.hero__visual img {
+.hero__visual-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(
+        145deg,
+        rgba(104, 218, 0, 0.12) 0%,
+        transparent 42%,
+        transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 0.45s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .hero__visual-card:hover {
+        transform: translateY(-10px) scale(1.015);
+        border-color: rgba(104, 218, 0, 0.35);
+        box-shadow:
+            0 32px 72px rgba(0, 0, 0, 0.55),
+            0 0 0 1px rgba(104, 218, 0, 0.12),
+            0 18px 48px rgba(104, 218, 0, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .hero__visual-card:hover::after {
+        opacity: 1;
+    }
+
+    .hero__visual-card:hover .hero__visual-media img,
+    .hero__visual-card:hover #heroImage {
+        transform: scale(1.08);
+    }
+}
+
+.hero__visual-media {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #0a0f0c;
+}
+
+.hero__visual-media img,
+.hero__visual-card img,
+#heroImage {
     display: block;
     width: 100%;
     height: 100%;
+    max-width: none;
     object-fit: cover;
-    object-position: center;
+    object-position: center center;
+    transform: scale(1.02);
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .hero__badges {
@@ -233,6 +405,7 @@
 .hero__visual-caption {
     position: absolute;
     left: 1.15rem;
+    right: 1.15rem;
     bottom: 1.15rem;
     z-index: 2;
     display: flex;
@@ -264,23 +437,31 @@
 
     .hero__grid {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        grid-template-areas:
+            "intro"
+            "visual"
+            "details";
+        gap: 1.5rem;
+    }
+
+    .hero__intro,
+    .hero__details {
+        max-width: none;
+        width: 100%;
+        text-align: center;
+        align-items: center;
     }
 
     .hero__visual {
-        order: -1;
         width: 100%;
-        max-width: 560px;
+        max-width: 520px;
         margin: 0 auto;
+    }
+
+    .hero__visual-card {
         aspect-ratio: 4 / 5;
         min-height: 0;
         max-height: none;
-    }
-
-    .hero__content {
-        max-width: none;
-        text-align: center;
-        align-items: center;
     }
 
     .hero__lead {
@@ -301,11 +482,12 @@
         padding: 5.5rem 0 2rem;
     }
 
-    .hero__content {
+    .hero__intro,
+    .hero__details {
         gap: 1rem;
     }
 
-    .hero__content h1 {
+    .hero__intro h1 {
         font-size: clamp(1.9rem, 8vw, 2.4rem);
     }
 
@@ -337,8 +519,11 @@
     }
 
     .hero__visual {
+        max-width: 100%;
+    }
+
+    .hero__visual-card {
         border-radius: 18px;
-        max-width: none;
         aspect-ratio: 3 / 4;
     }
 

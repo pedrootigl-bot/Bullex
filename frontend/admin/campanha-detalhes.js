@@ -9,6 +9,11 @@ const params = new URLSearchParams(
 );
 
 const campanhaId = params.get("id");
+const veioDaBusca = params.get("from") === "search";
+
+if (veioDaBusca) {
+    document.body.classList.add("from-search");
+}
 
 console.log(
     "Campanha ID:",
@@ -865,6 +870,146 @@ async function carregarAngulos() {
 }
 
 
+function escaparHtmlDetalhe(valor) {
+    return String(valor ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+}
+
+
+async function carregarCopies() {
+    const copiesContainer =
+        document.querySelector("#copiesContainer");
+
+    if (!copiesContainer) return;
+
+    try {
+        copiesContainer.innerHTML = `
+            <p class="detail-empty">Carregando copies...</p>
+        `;
+
+        const resposta = await fetch(
+            `${API}/api/copies/${campanhaId}`
+        );
+        const copies = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                copies.erro || copies.error || "Erro ao carregar copies."
+            );
+        }
+
+        if (!Array.isArray(copies) || copies.length === 0) {
+            copiesContainer.innerHTML = `
+                <p class="detail-empty">
+                    Nenhuma copy cadastrada para esta campanha.
+                </p>
+            `;
+            return;
+        }
+
+        copies.sort(
+            (a, b) => (a.ordem ?? 0) - (b.ordem ?? 0)
+        );
+
+        copiesContainer.innerHTML = "";
+
+        copies.forEach((copy) => {
+            const card = document.createElement("article");
+            card.className = "copy-card";
+            card.innerHTML = `
+                <div class="copy-card__body">
+                    <h3>${escaparHtmlDetalhe(copy.titulo || "Copy")}</h3>
+                    <p>${escaparHtmlDetalhe(copy.texto || "")}</p>
+                    <div class="copy-card__meta">
+                        <span>Canal: ${escaparHtmlDetalhe(copy.canal || "—")}</span>
+                        <span>Tipo: ${escaparHtmlDetalhe(copy.tipo || "—")}</span>
+                        <span>Ordem: ${escaparHtmlDetalhe(copy.ordem ?? "—")}</span>
+                    </div>
+                </div>
+            `;
+            copiesContainer.appendChild(card);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar copies:", error);
+        copiesContainer.innerHTML = `
+            <p class="detail-empty error-materials">
+                Não foi possível carregar as copies.
+            </p>
+        `;
+    }
+}
+
+
+async function carregarKit() {
+    const kitContainer =
+        document.querySelector("#kitContainer");
+    const btnDownloadKit =
+        document.querySelector("#btnDownloadKit");
+
+    if (btnDownloadKit) {
+        btnDownloadKit.href =
+            `${API}/api/download/kit/${campanhaId}`;
+    }
+
+    if (!kitContainer) return;
+
+    try {
+        kitContainer.innerHTML = `
+            <p class="detail-empty">Carregando kit...</p>
+        `;
+
+        const resposta = await fetch(
+            `${API}/api/kits/${campanhaId}`
+        );
+        const kits = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                kits.error || kits.erro || "Erro ao carregar kit."
+            );
+        }
+
+        if (!Array.isArray(kits) || kits.length === 0) {
+            kitContainer.innerHTML = `
+                <p class="detail-empty">
+                    Nenhum item de kit cadastrado. Você ainda pode baixar o pacote completo.
+                </p>
+            `;
+            return;
+        }
+
+        kitContainer.innerHTML = "";
+
+        kits.forEach((item) => {
+            const card = document.createElement("article");
+            card.className = "kit-item";
+            const nome =
+                item.nome || item.titulo || item.arquivo || "Arquivo do kit";
+            card.innerHTML = `
+                <div class="kit-item__icon">
+                    <i class="fa-solid fa-file-zipper"></i>
+                </div>
+                <div class="kit-item__body">
+                    <h3>${escaparHtmlDetalhe(nome)}</h3>
+                    <p>${escaparHtmlDetalhe(item.tipo || item.descricao || "Item do kit")}</p>
+                </div>
+            `;
+            kitContainer.appendChild(card);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar kit:", error);
+        kitContainer.innerHTML = `
+            <p class="detail-empty">
+                Não foi possível listar o kit. Tente baixar o pacote completo.
+            </p>
+        `;
+    }
+}
+
+
 // ======================================================
 // MODAL DE MATERIAIS
 // ======================================================
@@ -981,5 +1126,8 @@ if (campanhaId) {
 
     carregarAngulos();
 
+    carregarCopies();
+
+    carregarKit();
 
 }

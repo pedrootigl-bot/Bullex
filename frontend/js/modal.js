@@ -127,8 +127,12 @@ async function obterCampanha(id) {
             .slice()
             .sort((a, b) => (a.ordem || 0) - (b.ordem || 0)),
         visaoGeral: {
-            titulo: "Sobre a campanha",
-            texto: campanha.objetivo || campanha.descricao || ""
+            titulo: "Visão Geral",
+            texto:
+                campanha.visao_geral
+                || campanha.objetivo
+                || campanha.descricao
+                || ""
         }
     };
 }
@@ -143,8 +147,15 @@ function setModalState({ loading = false, error = null, ready = false } = {}) {
     }
 }
 
-function abrirModal(campanhaId) {
+let modalAbaInicial = "materiais";
+
+function abrirModal(campanhaId, opcoes = {}) {
     if (!modal) return;
+
+    modalAbaInicial =
+        opcoes.abaInicial
+        || opcoes.aba
+        || "materiais";
 
     modal.hidden = false;
     requestAnimationFrame(() => {
@@ -228,7 +239,8 @@ function popularCampanha(campanha) {
     renderizarVisaoGeral(campanha.visaoGeral);
     renderizarCopies(campanha.copies || []);
     renderizarRegras(campanha.regras || []);
-    ativarAba("materiais");
+    ativarAba(modalAbaInicial || "materiais");
+    modalAbaInicial = "materiais";
 }
 
 function renderizarAbas(abas) {
@@ -381,15 +393,25 @@ function renderizarMateriais(materiais) {
 }
 function renderizarVisaoGeral(visaoGeral) {
     const container = document.getElementById("visaoGeralContent");
+    if (!container) return;
 
-    if (!visaoGeral) {
-        container.innerHTML = "<p>Conteúdo em breve.</p>";
+    const texto = String(visaoGeral?.texto || "").trim();
+
+    if (!texto) {
+        container.innerHTML = `
+            <div class="modal__visao-geral">
+                <h3>Visão Geral</h3>
+                <p>A visão geral desta campanha ainda não foi cadastrada.</p>
+            </div>
+        `;
         return;
     }
 
     container.innerHTML = `
-        <h3>${escapeHtml(visaoGeral.titulo || "Visão Geral")}</h3>
-        <p>${escapeHtml(visaoGeral.texto || "")}</p>
+        <div class="modal__visao-geral">
+            <h3>${escapeHtml(visaoGeral.titulo || "Visão Geral")}</h3>
+            <p>${escapeHtml(texto)}</p>
+        </div>
     `;
 }
 
@@ -496,7 +518,24 @@ if (openModalBtn) {
             openModalBtn.dataset.campanhaId
             || window.campanhaDestaqueAtual?.id
             || null;
-        abrirModal(idDestaque);
+        abrirModal(idDestaque, { abaInicial: "materiais" });
+    });
+}
+
+const openEntenderCampanhaBtn =
+    document.getElementById("openEntenderCampanha");
+
+if (openEntenderCampanhaBtn) {
+    openEntenderCampanhaBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        const idDestaque =
+            openEntenderCampanhaBtn.dataset.campanhaId
+            || openModalBtn?.dataset.campanhaId
+            || window.campanhaDestaqueAtual?.id
+            || null;
+
+        abrirModal(idDestaque, { abaInicial: "visao-geral" });
     });
 }
 

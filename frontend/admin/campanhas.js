@@ -590,9 +590,49 @@ function aplicarFiltros() {
         ?.classList.toggle("is-active", buscaAtiva);
 }
 
-function abrirDetalhesCampanha(campanha) {
+function abrirDetalhesCampanha(campanha, opcoes = {}) {
     if (!campanha?.id) return;
-    window.location.href = `campanha-detalhes.html?id=${campanha.id}`;
+
+    const comTransicao = Boolean(opcoes.comTransicao);
+    const url =
+        `campanha-detalhes.html?id=${campanha.id}`
+        + (comTransicao ? "&from=search" : "");
+
+    if (!comTransicao) {
+        window.location.href = url;
+        return;
+    }
+
+    navegarComTransicao(url, campanha);
+}
+
+function navegarComTransicao(url, campanha) {
+    const overlay = document.querySelector("#pageTransition");
+    const tituloOverlay = document.querySelector("#pageTransitionTitle");
+    const board = document.querySelector(".admin-board");
+
+    if (tituloOverlay) {
+        tituloOverlay.textContent =
+            campanha?.titulo || campanha?.nome || "Abrindo campanha...";
+    }
+
+    if (!overlay) {
+        window.location.href = url;
+        return;
+    }
+
+    overlay.hidden = false;
+    overlay.setAttribute("aria-hidden", "false");
+
+    // força reflow para a animação iniciar
+    void overlay.offsetWidth;
+
+    overlay.classList.add("is-visible");
+    board?.classList.add("is-leaving");
+
+    window.setTimeout(() => {
+        window.location.href = url;
+    }, 480);
 }
 
 /**
@@ -633,7 +673,7 @@ function abrirCampanhaDaBusca() {
         return;
     }
 
-    abrirDetalhesCampanha(campanha);
+    abrirDetalhesCampanha(campanha, { comTransicao: true });
 }
 
 function ligarBuscaCampanhas() {

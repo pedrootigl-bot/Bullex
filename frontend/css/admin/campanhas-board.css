@@ -323,17 +323,34 @@
 }
 
 .admin-stat-card__icon {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: rgba(104, 218, 0, 0.12);
-    color: #68da00;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    background: rgba(104, 218, 0, 0.14);
+    border: 1px solid rgba(104, 218, 0, 0.28);
+    color: #68da00;
+    box-shadow: inset 0 0 0 1px rgba(104, 218, 0, 0.08);
 }
 
-.admin-stat-card span {
+.admin-stat-card__icon i {
+    display: block;
+    font-size: 1.05rem;
+    line-height: 1;
+    width: 1em;
+    height: 1em;
+    text-align: center;
+    color: #9cff5c;
+}
+
+.admin-stat-card > div {
+    min-width: 0;
+}
+
+.admin-stat-card > div span {
     display: block;
     color: #8f969f;
     font-size: 0.78rem;
@@ -349,8 +366,9 @@
 }
 
 .admin-stat-card small {
+    display: block;
     color: #68da00;
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
@@ -752,6 +770,160 @@
 
 .campaigns-table-wrap {
     overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(104, 218, 0, 0.55) rgba(255, 255, 255, 0.06);
+}
+
+.campaigns-table-wrap::-webkit-scrollbar {
+    height: 8px;
+}
+
+.campaigns-table-wrap::-webkit-scrollbar-track {
+    margin: 0 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.campaigns-table-wrap::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background:
+        linear-gradient(90deg, #4fad00 0%, #68da00 50%, #9cff5c 100%);
+    background-clip: padding-box;
+    box-shadow: 0 0 10px rgba(104, 218, 0, 0.25);
+}
+
+.campaigns-table-wrap::-webkit-scrollbar-thumb:hover {
+    background:
+        linear-gradient(90deg, #68da00 0%, #9cff5c 100%);
+    background-clip: padding-box;
+}
+
+.campaigns-table-wrap::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* ======================================================
+   TRANSIÇÃO → detalhes da campanha (busca + Enter)
+====================================================== */
+
+.page-transition {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(0);
+    transition:
+        opacity 0.35s ease,
+        visibility 0.35s ease,
+        backdrop-filter 0.45s ease;
+}
+
+.page-transition[hidden] {
+    display: none !important;
+}
+
+.page-transition.is-visible {
+    pointer-events: all;
+    opacity: 1;
+    visibility: visible;
+    backdrop-filter: blur(8px);
+}
+
+.page-transition__panel {
+    position: relative;
+    width: min(420px, 88vw);
+    padding: 1.6rem 1.4rem;
+    border-radius: 18px;
+    border: 1px solid rgba(104, 218, 0, 0.35);
+    background:
+        linear-gradient(160deg, rgba(12, 22, 14, 0.96) 0%, rgba(4, 10, 5, 0.98) 100%);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.45),
+        0 0 40px rgba(104, 218, 0, 0.12);
+    transform: translateY(18px) scale(0.96);
+    opacity: 0;
+    transition:
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.35s ease;
+    overflow: hidden;
+}
+
+.page-transition.is-visible .page-transition__panel {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.page-transition__glow {
+    position: absolute;
+    inset: -40% -20% auto;
+    height: 120%;
+    background: radial-gradient(circle, rgba(104, 218, 0, 0.22), transparent 65%);
+    animation: page-transition-glow 1.4s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+.page-transition__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    text-align: center;
+}
+
+.page-transition__content i {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 0.35rem;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #7ae600, #68da00);
+    color: #071000;
+    font-size: 1.1rem;
+    animation: page-transition-pulse 1s ease-in-out infinite;
+}
+
+.page-transition__content strong {
+    color: #f8fafc;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.page-transition__content small {
+    color: #9ca3af;
+    font-size: 0.85rem;
+}
+
+.admin-board.is-leaving {
+    animation: page-leave 0.45s ease forwards;
+}
+
+@keyframes page-transition-glow {
+    from { opacity: 0.55; transform: translateY(0); }
+    to { opacity: 1; transform: translateY(8px); }
+}
+
+@keyframes page-transition-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+}
+
+@keyframes page-leave {
+    to {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.985);
+        filter: blur(2px);
+    }
 }
 
 .campaigns-table {

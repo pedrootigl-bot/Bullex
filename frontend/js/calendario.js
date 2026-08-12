@@ -408,8 +408,16 @@ async function carregarCalendario(){
 
         const hoje = inicioDoDia(new Date());
 
-        // Oculta campanhas a partir do dia de vencimento (data_fim)
+        // Oculta campanhas inativas e a partir do dia de vencimento (data_fim)
         campanhasCalendario = lista.filter((campanha) => {
+            const status = String(campanha.status || "")
+                .toLowerCase()
+                .trim();
+
+            if (status === "inativa") {
+                return false;
+            }
+
             const fim = parseDataLocal(campanha.data_fim);
             if(!fim) return true;
             return hoje.getTime() < fim.getTime();

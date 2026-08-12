@@ -51,7 +51,68 @@
     border-radius: 14px;
     background: #121212;
     border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: none;
+    box-shadow: 0 0 0 transparent;
+    transform: translateY(0) scale(1);
+    transition:
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.45s ease;
+    will-change: transform;
+}
+
+.highlight__card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(
+        125deg,
+        rgba(104, 218, 0, 0.1) 0%,
+        transparent 40%,
+        transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 0.45s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .highlight__card:hover {
+        transform: translateY(-8px) scale(1.01);
+        border-color: rgba(104, 218, 0, 0.32);
+        box-shadow:
+            0 28px 56px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(104, 218, 0, 0.1),
+            0 14px 36px rgba(104, 218, 0, 0.16);
+    }
+
+    .highlight__card:hover::before {
+        opacity: 1;
+    }
+
+    .highlight__card:hover .highlight__media img {
+        transform: scale(1.06);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .highlight__card,
+    .highlight__card:hover,
+    .highlight__media img,
+    .highlight__card:hover .highlight__media img {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    .highlight__card:hover {
+        box-shadow: none;
+        border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .highlight__card:hover::before {
+        opacity: 0;
+    }
 }
 
 .highlight__content {
@@ -202,6 +263,8 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
+    transform: scale(1);
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .highlight__media-caption {

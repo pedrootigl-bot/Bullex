@@ -25,49 +25,241 @@ function parseDataDestaque(valor) {
 }
 
 /**
- * Regras:
- * 1) Campanha com data_inicio <= hoje <= data_fim
- * 2) Senão, próxima futura (data_inicio mais próxima)
- * 3) Senão, null (usa fallback da API /destaque)
+ * Ordena do mais antigo para o mais novo (ordem de cadastro).
+ * Usa created_at quando existir; senão usa o id crescente.
+ */
+function ordenarCampanhasMaisAntigasPrimeiro(campanhas = []) {
+    return (Array.isArray(campanhas) ? campanhas.slice() : []).sort((a, b) => {
+        const createdA = a?.created_at ? new Date(a.created_at).getTime() : NaN;
+        const createdB = b?.created_at ? new Date(b.created_at).getTime() : NaN;
+
+        const temCreatedA = Number.isFinite(createdA);
+        const temCreatedB = Number.isFinite(createdB);
+
+        if (temCreatedA && temCreatedB && createdA !== createdB) {
+            return createdA - createdB;
+        }
+
+        const idA = Number(a?.id) || 0;
+        const idB = Number(b?.id) || 0;
+        return idA - idB;
+    });
+}
+
+function campanhaNaoExpirada(campanha, hoje = inicioDoDiaDestaque(new Date())) {
+    const fim = parseDataDestaque(campanha?.data_fim);
+    if (!fim) return false;
+    return hoje.getTime() <= fim.getTime();
+}
+
+function campanhaJaIniciou(campanha, hoje = inicioDoDiaDestaque(new Date())) {
+    const inicio = parseDataDestaque(campanha?.data_inicio);
+    if (!inicio) return true;
+    return hoje.getTime() >= inicio.getTime();
+}
+
+function ehCampanhaAtiva(campanha) {
+    return String(campanha?.status || "").toLowerCase().trim() === "ativa";
+}
+
+/**
+ * Regras do hero / destaque:
+ * 1) Entre campanhas ativas e ainda dentro da data limite, usa a mais antiga.
+ * 2) Se a mais antiga expirar ou for excluída, passa para a próxima mais antiga.
+ * 3) Se nenhuma estiver vigente hoje, usa a próxima futura mais antiga.
+ * 4) Senão, null (fallback da API /destaque).
  */
 function escolherCampanhaPostDoDia(campanhas = []) {
     const hoje = inicioDoDiaDestaque(new Date());
-    const lista = Array.isArray(campanhas) ? campanhas : [];
+    const lista = ordenarCampanhasMaisAntigasPrimeiro(campanhas);
 
-    const vigentesHoje = lista.filter((campanha) => {
-        const inicio = parseDataDestaque(campanha.data_inicio);
-        const fim = parseDataDestaque(campanha.data_fim);
-        if (!inicio || !fim) return false;
+    const ativasNaoExpiradas = lista.filter((campanha) =>
+        ehCampanhaAtiva(campanha) && campanhaNaoExpirada(campanha, hoje)
+    );
 
-        const t = hoje.getTime();
-        return t >= inicio.getTime() && t <= fim.getTime();
-    });
+    const vigentesHoje = ativasNaoExpiradas.filter((campanha) =>
+        campanhaJaIniciou(campanha, hoje)
+    );
 
     if (vigentesHoje.length > 0) {
-        return (
-            vigentesHoje.find((campanha) =>
-                String(campanha.status || "").toLowerCase() === "ativa"
-            )
-            || vigentesHoje[0]
-        );
+        return vigentesHoje[0];
     }
 
-    const futuras = lista
-        .filter((campanha) => {
-            const inicio = parseDataDestaque(campanha.data_inicio);
-            return inicio && inicio.getTime() > hoje.getTime();
-        })
-        .sort((a, b) => {
-            const inicioA = parseDataDestaque(a.data_inicio)?.getTime() ?? 0;
-            const inicioB = parseDataDestaque(b.data_inicio)?.getTime() ?? 0;
-            return inicioA - inicioB;
-        });
+    if (ativasNaoExpiradas.length > 0) {
+        return ativasNaoExpiradas[0];
+    }
+
+    const futuras = lista.filter((campanha) => {
+        if (!ehCampanhaAtiva(campanha)) return false;
+        const inicio = parseDataDestaque(campanha.data_inicio);
+        return inicio && inicio.getTime() > hoje.getTime();
+    });
 
     if (futuras.length > 0) {
         return futuras[0];
     }
 
     return null;
+}
+
+function formatarMesCurtoHero(mes) {
+    const meses = [
+        "JAN", "FEV", "MAR", "ABR", "MAI", "JUN",
+        "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"
+    ];
+    return meses[mes] || "";
+}
+
+function formatarDataHero(valor) {
+    const data = parseDataDestaque(valor);
+    if (!data) return "";
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = formatarMesCurtoHero(data.getMonth());
+    return `${dia} DE ${mes}`;
+}
+
+function formatarPeriodoHero(campanha) {
+    const inicio = formatarDataHero(campanha?.data_inicio);
+    const fim = formatarDataHero(campanha?.data_fim);
+    if (inicio && fim) return `${inicio} — ${fim}`;
+    return inicio || fim || "—";
+}
+
+function formatarDepositoHero(valor) {
+    if (valor === null || valor === undefined || valor === "") return "—";
+
+    const numero = Number(
+        String(valor).replace(/[^\d.,-]/g, "").replace(",", ".")
+    );
+
+    if (!Number.isFinite(numero)) {
+        return String(valor);
+    }
+
+    return numero.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        maximumFractionDigits: 0
+    });
+}
+
+function formatarCountdownHero(dataFim) {
+    const fim = parseDataDestaque(dataFim);
+    if (!fim) return "—";
+
+    // Considera o fim do dia
+    const fimDia = new Date(
+        fim.getFullYear(),
+        fim.getMonth(),
+        fim.getDate(),
+        23,
+        59,
+        59
+    );
+
+    const agora = new Date();
+    const diff = fimDia.getTime() - agora.getTime();
+
+    const diaLabel = formatarDataHero(dataFim).replace(" DE ", " ");
+
+    if (diff <= 0) {
+        return `${diaLabel} encerrada`;
+    }
+
+    const totalHoras = Math.floor(diff / (1000 * 60 * 60));
+    const dias = Math.floor(totalHoras / 24);
+    const horas = totalHoras % 24;
+
+    return `${diaLabel} ${dias}d ${String(horas).padStart(2, "0")}h`;
+}
+
+function formatarStatusHero(status) {
+    const s = String(status || "").trim().toLowerCase();
+    if (s === "ativa") return "DESTAQUE · ATIVA";
+    if (!s) return "DESTAQUE";
+    return `DESTAQUE · ${s.toUpperCase()}`;
+}
+
+function formatarFocoHero(categoria) {
+    const partes = String(categoria || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+    if (!partes.length) return "—";
+    return partes.join(" · ");
+}
+
+function imagemCampanhaHero(campanha) {
+    return (
+        campanha?.imagem_card
+        || campanha?.banner
+        || campanha?.imagem
+        || campanha?.story_url
+        || "images/post.png"
+    );
+}
+
+function preencherHeroComCampanha(campanha) {
+    const hero = document.querySelector("#hero");
+    if (!hero || !campanha) return;
+
+    const titulo = campanha.titulo || "Campanha ativa";
+    const descricao =
+        campanha.descricao
+        || campanha.objetivo
+        || campanha.visao_geral
+        || "";
+    const cupom = campanha.cupom || "—";
+    const imagemSrc = imagemCampanhaHero(campanha);
+
+    const elTitulo = document.querySelector("#heroTitle");
+    const elLead = document.querySelector("#heroLead");
+    const elPeriod = document.querySelector("#heroPeriod");
+    const elCupom = document.querySelector("#heroCupom");
+    const elDeposito = document.querySelector("#heroDeposito");
+    const elPremio = document.querySelector("#heroPremio");
+    const elFocus = document.querySelector("#heroFocusText");
+    const elCountdown = document.querySelector("#heroCountdown");
+    const elStatus = document.querySelector("#heroBadgeStatus");
+    const elImage = document.querySelector("#heroImage");
+    const elCaptionCupom = document.querySelector("#heroCaptionCupom");
+    const elCaptionTitulo = document.querySelector("#heroCaptionTitulo");
+
+    if (elTitulo) elTitulo.textContent = titulo;
+    if (elLead) elLead.textContent = descricao || "Campanha ativa no momento.";
+    if (elPeriod) elPeriod.textContent = formatarPeriodoHero(campanha);
+    if (elCupom) elCupom.textContent = cupom;
+    if (elDeposito) {
+        elDeposito.textContent = formatarDepositoHero(campanha.deposito_minimo);
+    }
+    if (elPremio) {
+        elPremio.textContent = campanha.premio || campanha.valor || "—";
+    }
+    if (elFocus) elFocus.textContent = formatarFocoHero(campanha.categoria);
+    if (elCountdown) elCountdown.textContent = formatarCountdownHero(campanha.data_fim);
+    if (elStatus) elStatus.textContent = formatarStatusHero(campanha.status);
+
+    if (elImage) {
+        elImage.src = imagemSrc;
+        elImage.alt = `${titulo}${cupom && cupom !== "—" ? ` — ${cupom}` : ""}`;
+    }
+
+    if (elCaptionCupom) elCaptionCupom.textContent = cupom;
+    if (elCaptionTitulo) elCaptionTitulo.textContent = titulo;
+
+    hero.dataset.campanhaId = String(campanha.id || "");
+    revelarHeroFadeIn();
+}
+
+function revelarHeroFadeIn() {
+    const hero = document.querySelector("#hero");
+    if (!hero) return;
+
+    hero.classList.remove("hero--loaded");
+    // força reinício da animação
+    void hero.offsetWidth;
+    hero.classList.add("hero--loaded", "is-visible");
 }
 
 async function buscarCopiesCampanha(campanhaId) {
@@ -185,8 +377,16 @@ async function preencherDestaqueComCampanha(campanha) {
         openModalBtn.dataset.campanhaId = String(campanha.id);
     }
 
+    const openEntenderBtn = document.querySelector("#openEntenderCampanha");
+    if (openEntenderBtn) {
+        openEntenderBtn.dataset.campanhaId = String(campanha.id);
+    }
+
     // Mantém referência global para modal/kit/materiais/copies/regras
     window.campanhaDestaqueAtual = campanha;
+
+    // Hero: título, textos, datas, cupom, prêmio e imagem da campanha ativa
+    preencherHeroComCampanha(campanha);
 }
 
 async function carregarDestaqueFallbackApi() {
@@ -226,6 +426,8 @@ async function carregarDestaqueFallbackApi() {
     if (downloadStory && destaque.story_url) {
         downloadStory.href = destaque.story_url;
     }
+
+    revelarHeroFadeIn();
 }
 
 /**

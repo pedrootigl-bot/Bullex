@@ -119,16 +119,47 @@
 
                 <div class="hero__grid">
 
-                    <div class="hero__content">
+                    <div class="hero__intro">
+                        <h1 id="heroTitle">Carregando campanha...</h1>
 
-                        <h1>O GT dos traders pode ser seu.</h1>
-
-                        <p class="hero__lead">
-                            Campanha voltada para engajamento, movimentação nas redes sociais,
-                            reativação de traders, incentivo ao redépósito e aumento do número de operações.
+                        <p class="hero__lead" id="heroLead">
+                            Buscando a campanha ativa do momento.
                         </p>
+                    </div>
 
-                        <p class="hero__period">03 DE AGO — 03 DE SET</p>
+                    <div class="hero__visual">
+
+                        <article class="hero__visual-card">
+
+                            <div class="hero__badges">
+                                <span class="hero__badge" id="heroBadgeTermina">
+                                    TERMINA <strong id="heroCountdown">—</strong>
+                                </span>
+                                <span class="hero__badge hero__badge--status" id="heroBadgeStatus">
+                                    —
+                                </span>
+                            </div>
+
+                            <div class="hero__visual-media">
+                                <img
+                                    id="heroImage"
+                                    src="images/post.png"
+                                    alt="Campanha ativa"
+                                >
+                            </div>
+
+                            <div class="hero__visual-caption">
+                                <strong id="heroCaptionCupom">—</strong>
+                                <span id="heroCaptionTitulo">—</span>
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                    <div class="hero__details">
+
+                        <p class="hero__period" id="heroPeriod">—</p>
 
                         <div class="hero__actions-buttons">
 
@@ -138,54 +169,40 @@
                                 <span>Acessar materiais</span>
                             </button>
 
-                            <a href="#como-participar" class="btn btn--outline">
+                            <button
+                                type="button"
+                                class="btn btn--outline"
+                                id="openEntenderCampanha"
+                                aria-haspopup="dialog"
+                                aria-controls="modalMateriais"
+                            >
                                 <i class="fa-solid fa-circle-info"></i>
                                 <span>Entender campanha</span>
-                            </a>
+                            </button>
 
                         </div>
 
                         <div class="hero__meta" aria-label="Dados da campanha">
                             <div class="info-card">
                                 <span class="info-card__label">CUPOM</span>
-                                <strong class="info-card__value info-card__value--accent">BULLCAR</strong>
+                                <strong class="info-card__value info-card__value--accent" id="heroCupom">—</strong>
                             </div>
 
                             <div class="info-card">
                                 <span class="info-card__label">DEPÓSITO MÍN.</span>
-                                <strong class="info-card__value">R$150</strong>
+                                <strong class="info-card__value" id="heroDeposito">—</strong>
                             </div>
 
                             <div class="info-card">
                                 <span class="info-card__label">PRÊMIO</span>
-                                <strong class="info-card__value">HAVAL H6 GT 0km</strong>
+                                <strong class="info-card__value" id="heroPremio">—</strong>
                             </div>
                         </div>
 
-                        <p class="hero__focus">
+                        <p class="hero__focus" id="heroFocus">
                             <span>FOCO RECOMENDADO</span>
-                            Retenção · Reativação · Aquisição de novos usuários
+                            <span id="heroFocusText">—</span>
                         </p>
-
-                    </div>
-
-                    <div class="hero__visual">
-
-                        <div class="hero__badges">
-                            <span class="hero__badge">
-                                TERMINA <strong>03 SET 23d 09h</strong>
-                            </span>
-                            <span class="hero__badge hero__badge--status">
-                                DESTAQUE · ATIVA
-                            </span>
-                        </div>
-
-                        <img src="images/post.png" alt="Campanha BULLCAR — HAVAL H6 GT">
-
-                        <div class="hero__visual-caption">
-                            <strong>BULLCAR</strong>
-                            <span>O GT dos traders pode ser seu.</span>
-                        </div>
 
                     </div>
 
@@ -971,7 +988,7 @@
             <script src="js/api.js"></script>
             <script src="js/navbar.js"></script>
             <script src="js/stats.js"></script>
-            <script src="js/destaque.js"></script>
+            <script src="js/destaque.js?v=20260812c"></script>
             <script src="js/campanha.js"></script>
             <script src="js/calendario.js"></script>
             <script src="js/campanha-modal.js"></script>
