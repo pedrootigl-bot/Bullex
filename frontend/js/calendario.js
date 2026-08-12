@@ -98,37 +98,85 @@ function campanhasDoDia(dataDia){
 
 function rotuloCampanha(campanha){
     return (
-        campanha.cupom
-        || campanha.titulo
-        || "CAMPANHA"
-    ).toString().toUpperCase();
+        campanha?.titulo
+        || campanha?.nome
+        || campanha?.cupom
+        || "Campanha"
+    ).toString().trim();
+}
+
+function rotuloCampanhaCurto(campanha){
+    return rotuloCampanha(campanha).toUpperCase();
 }
 
 
 
-function atualizarLabelCampanha(campanha){
+function atualizarLabelCampanha(campanha, listaContexto = null){
     const label = document.querySelector("#calendar-campaign-label");
     if(!label) return;
 
-    if(!campanha || campanhasCalendario.length === 0){
+    if(!campanha){
         label.textContent = "—";
         return;
     }
 
-    const indice = Math.max(
-        0,
-        campanhasCalendario.findIndex(item => item.id === campanha.id)
+    const lista = Array.isArray(listaContexto) && listaContexto.length > 0
+        ? listaContexto
+        : campanhasCalendario;
+
+    if(!lista.length){
+        label.textContent = rotuloCampanhaCurto(campanha);
+        return;
+    }
+
+    const indice = lista.findIndex((item) =>
+        String(item.id) === String(campanha.id)
     );
 
+    const posicao = indice >= 0 ? indice + 1 : 1;
+
     label.textContent =
-        `${rotuloCampanha(campanha)}  ${indice + 1}/${campanhasCalendario.length}`;
+        `${rotuloCampanhaCurto(campanha)} ${posicao}/${lista.length}`;
 }
 
 
 
-function atualizarCardCampanha(campanha){
+function escolherCampanhaDoDia(lista, ano, mes, dia){
+    if(!Array.isArray(lista) || lista.length === 0){
+        return null;
+    }
+
+    // Prioriza campanha que começa neste dia
+    const queComecaHoje = lista.find((campanha) => {
+        const inicio = parseDataLocal(campanha.data_inicio);
+        if(!inicio) return false;
+        return (
+            inicio.getFullYear() === ano
+            && inicio.getMonth() === mes
+            && inicio.getDate() === dia
+        );
+    });
+
+    if(queComecaHoje) return queComecaHoje;
+
+    // Se já havia uma campanha exibida e ela ainda vale neste dia, mantém
+    if(
+        campanhaExibida
+        && lista.some((item) => String(item.id) === String(campanhaExibida.id))
+    ){
+        return lista.find(
+            (item) => String(item.id) === String(campanhaExibida.id)
+        );
+    }
+
+    return lista[0];
+}
+
+
+
+function atualizarCardCampanha(campanha, listaContexto = null){
     campanhaExibida = campanha || null;
-    atualizarLabelCampanha(campanhaExibida);
+    atualizarLabelCampanha(campanhaExibida, listaContexto);
 
     const imagem = document.querySelector("#campaign-image");
     const titulo = document.querySelector("#campaign-title");
@@ -139,18 +187,19 @@ function atualizarCardCampanha(campanha){
 
     if(!campanha){
 
-    if(imagem) imagem.removeAttribute("src");
-    if(titulo) titulo.textContent = "";
-    if(nome) nome.textContent = "";
-    if(cupom) cupom.textContent = "";
-    if(valor) valor.textContent = "";
+        if(imagem) imagem.removeAttribute("src");
+        if(titulo) titulo.textContent = "";
+        if(nome) nome.textContent = "";
+        if(cupom) cupom.textContent = "";
+        if(valor) valor.textContent = "";
 
-    if(botao){
-        botao.removeAttribute("data-campanha-id");
+        if(botao){
+            botao.removeAttribute("data-campanha-id");
+        }
+
+        return;
     }
 
-    return;
-}
     if(botao){
         botao.dataset.campanhaId = String(campanha.id);
     }
@@ -161,7 +210,7 @@ function atualizarCardCampanha(campanha){
             ?? campanha.banner
             ?? "images/default.jpg";
 
-        if(imagem.src !== src){
+        if(imagem.getAttribute("src") !== src){
             imagem.style.opacity = "0.35";
             imagem.onload = () => {
                 imagem.style.opacity = "1";
@@ -178,8 +227,9 @@ function atualizarCardCampanha(campanha){
         nome.textContent = campanha.categoria ?? "";
     }
 
+    // Nome dinâmico da campanha ativa (não cupom fixo)
     if(cupom){
-        cupom.textContent = rotuloCampanha(campanha);
+        cupom.textContent = rotuloCampanhaCurto(campanha);
     }
 
     if(valor){
@@ -237,10 +287,10 @@ function selecionarDia(ano, mes, dia, campanhas){
     atualizarDiaSelecionadoUI(ano, mes, dia);
 
     const lista = campanhas || campanhasDoDia(new Date(ano, mes, dia));
+    const campanhaDoDia = escolherCampanhaDoDia(lista, ano, mes, dia);
 
-    if(lista.length > 0){
-        atualizarCardCampanha(lista[0]);
-    }
+    // Sempre atualiza o card/label com a campanha do dia clicado
+    atualizarCardCampanha(campanhaDoDia, lista.length ? lista : null);
 
     renderizarCalendario();
 }
