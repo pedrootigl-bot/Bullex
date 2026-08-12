@@ -13,6 +13,7 @@ const {
 const {
     sincronizarNotificacoesCampanhas
 } = require("../services/notificacoes.service");
+const { validarCampanha } = require("../services/campanhaValidacao.service");
 
 
 // ======================================================
@@ -314,6 +315,17 @@ router.post("/", requireAuth, async (req, res) => {
 
         }
 
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(data.id);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após criação"
+            );
+        }
 
         // ==================================================
         // RESPOSTA
@@ -323,7 +335,12 @@ router.post("/", requireAuth, async (req, res) => {
 
             mensagem: "Campanha criada com sucesso",
 
-            campanha: data
+            campanha: {
+                ...data,
+                pronta_publicacao: validacao.pronta
+            },
+
+            validacao
 
         });
 
@@ -492,6 +509,17 @@ router.put("/:id", requireAuth, async (req, res) => {
 
         }
 
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(campanhaId);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após atualização"
+            );
+        }
 
         // ==============================================
         // RESPOSTA
@@ -501,7 +529,12 @@ router.put("/:id", requireAuth, async (req, res) => {
 
             mensagem: "Campanha atualizada com sucesso",
 
-            campanha: data
+            campanha: {
+                ...data,
+                pronta_publicacao: validacao.pronta
+            },
+
+            validacao
 
         });
 

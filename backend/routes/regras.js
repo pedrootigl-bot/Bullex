@@ -5,6 +5,7 @@ const router = express.Router();
 const supabase = require("../config/supabase");
 const requireAuth = require("../middleware/requireAuth");
 const { responderErroInterno } = require("../utils/httpErrors");
+const { validarCampanha } = require("../services/campanhaValidacao.service");
 
 
 function normalizarRegrasPayload(lista = []) {
@@ -75,9 +76,22 @@ router.put("/por-campanha/:campanha_id", requireAuth, async (req, res) => {
         }
 
         if (regras.length === 0) {
+            let validacaoVazia;
+
+            try {
+                validacaoVazia = await validarCampanha(campanhaId);
+            } catch (erroValidacao) {
+                return responderErroInterno(
+                    res,
+                    erroValidacao,
+                    "Erro ao validar campanha após limpar regras"
+                );
+            }
+
             return res.json({
                 mensagem: "Regras sincronizadas",
-                regras: []
+                regras: [],
+                validacao: validacaoVazia
             });
         }
 
@@ -115,15 +129,41 @@ router.put("/por-campanha/:campanha_id", requireAuth, async (req, res) => {
                 salvas.push(tentativa.data);
             }
 
+            let validacaoFallback;
+
+            try {
+                validacaoFallback = await validarCampanha(campanhaId);
+            } catch (erroValidacao) {
+                return responderErroInterno(
+                    res,
+                    erroValidacao,
+                    "Erro ao validar campanha após sincronizar regras"
+                );
+            }
+
             return res.json({
                 mensagem: "Regras sincronizadas",
-                regras: salvas
+                regras: salvas,
+                validacao: validacaoFallback
             });
+        }
+
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(campanhaId);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após sincronizar regras"
+            );
         }
 
         return res.json({
             mensagem: "Regras sincronizadas",
-            regras: data || []
+            regras: data || [],
+            validacao
         });
 
     } catch (error) {
@@ -204,12 +244,25 @@ router.post("/", requireAuth, async (req, res) => {
 
         }
 
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(campanhaId);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após criar regra"
+            );
+        }
 
         return res.status(201).json({
 
             mensagem: "Regra criada com sucesso",
 
-            regra: data
+            regra: data,
+
+            validacao
 
         });
 

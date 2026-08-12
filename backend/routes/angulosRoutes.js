@@ -4,6 +4,7 @@ const router = express.Router();
 const supabase = require("../config/supabase");
 const requireAuth = require("../middleware/requireAuth");
 const { responderErroInterno } = require("../utils/httpErrors");
+const { validarCampanha } = require("../services/campanhaValidacao.service");
 
 function normalizarAngulosPayload(lista = []) {
     const origem = Array.isArray(lista) ? lista : [];
@@ -63,9 +64,22 @@ router.put("/:campanha_id", requireAuth, async (req, res) => {
         }
 
         if (angulos.length === 0) {
+            let validacaoVazia;
+
+            try {
+                validacaoVazia = await validarCampanha(campanhaId);
+            } catch (erroValidacao) {
+                return responderErroInterno(
+                    res,
+                    erroValidacao,
+                    "Erro ao validar campanha após limpar ângulos"
+                );
+            }
+
             return res.json({
                 mensagem: "Ângulos sincronizados",
-                angulos: []
+                angulos: [],
+                validacao: validacaoVazia
             });
         }
 
@@ -103,9 +117,22 @@ router.put("/:campanha_id", requireAuth, async (req, res) => {
                     );
                 }
 
+                let validacaoRetry;
+
+                try {
+                    validacaoRetry = await validarCampanha(campanhaId);
+                } catch (erroValidacao) {
+                    return responderErroInterno(
+                        res,
+                        erroValidacao,
+                        "Erro ao validar campanha após sincronizar ângulos"
+                    );
+                }
+
                 return res.json({
                     mensagem: "Ângulos sincronizados",
-                    angulos: retry.data || []
+                    angulos: retry.data || [],
+                    validacao: validacaoRetry
                 });
             }
 
@@ -116,9 +143,22 @@ router.put("/:campanha_id", requireAuth, async (req, res) => {
             );
         }
 
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(campanhaId);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após sincronizar ângulos"
+            );
+        }
+
         return res.json({
             mensagem: "Ângulos sincronizados",
-            angulos: data || []
+            angulos: data || [],
+            validacao
         });
 
     } catch (error) {
@@ -202,9 +242,22 @@ router.post("/", requireAuth, async (req, res) => {
             );
         }
 
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(campanhaId);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após criar ângulo"
+            );
+        }
+
         return res.status(201).json({
             mensagem: "Ângulo criado com sucesso",
-            angulo: data
+            angulo: data,
+            validacao
         });
 
     } catch (error) {

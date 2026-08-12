@@ -3,6 +3,7 @@ const router = express.Router();
 const supabase = require("../config/supabase");
 const requireAuth = require("../middleware/requireAuth");
 const { responderErroInterno } = require("../utils/httpErrors");
+const { validarCampanha } = require("../services/campanhaValidacao.service");
 
 function normalizarCopiesPayload(lista = []) {
     const origem = Array.isArray(lista) ? lista : [];
@@ -64,9 +65,22 @@ router.put("/por-campanha/:campanha_id", requireAuth, async (req, res) => {
         }
 
         if (copies.length === 0) {
+            let validacaoVazia;
+
+            try {
+                validacaoVazia = await validarCampanha(campanhaId);
+            } catch (erroValidacao) {
+                return responderErroInterno(
+                    res,
+                    erroValidacao,
+                    "Erro ao validar campanha após limpar copies"
+                );
+            }
+
             return res.json({
                 mensagem: "Copies sincronizadas",
-                copies: []
+                copies: [],
+                validacao: validacaoVazia
             });
         }
 
@@ -92,9 +106,22 @@ router.put("/por-campanha/:campanha_id", requireAuth, async (req, res) => {
             );
         }
 
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(campanhaId);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após sincronizar copies"
+            );
+        }
+
         return res.json({
             mensagem: "Copies sincronizadas",
-            copies: data || []
+            copies: data || [],
+            validacao
         });
     } catch (error) {
         return responderErroInterno(
@@ -169,9 +196,22 @@ router.post("/", requireAuth, async (req, res) => {
             );
         }
 
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(campanhaId);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após criar copy"
+            );
+        }
+
         return res.status(201).json({
             mensagem: "Copy criada com sucesso",
-            copy: data
+            copy: data,
+            validacao
         });
     } catch (error) {
         return responderErroInterno(
@@ -278,9 +318,24 @@ router.put("/:id", requireAuth, async (req, res) => {
             );
         }
 
+        let validacao = null;
+
+        if (data?.campanha_id) {
+            try {
+                validacao = await validarCampanha(data.campanha_id);
+            } catch (erroValidacao) {
+                return responderErroInterno(
+                    res,
+                    erroValidacao,
+                    "Erro ao validar campanha após atualizar copy"
+                );
+            }
+        }
+
         return res.json({
             mensagem: "Copy atualizada com sucesso",
-            copy: data
+            copy: data,
+            validacao
         });
     } catch (error) {
         return responderErroInterno(
@@ -306,6 +361,18 @@ router.delete("/:id", requireAuth, async (req, res) => {
             });
         }
 
+        const { data: copy, error: erroBusca } = await supabase
+            .from("copies")
+            .select("id, campanha_id")
+            .eq("id", copyId)
+            .single();
+
+        if (erroBusca || !copy) {
+            return res.status(404).json({
+                erro: "Copy não encontrada"
+            });
+        }
+
         const { error } = await supabase
             .from("copies")
             .delete()
@@ -319,8 +386,23 @@ router.delete("/:id", requireAuth, async (req, res) => {
             );
         }
 
+        let validacao = null;
+
+        if (copy.campanha_id) {
+            try {
+                validacao = await validarCampanha(copy.campanha_id);
+            } catch (erroValidacao) {
+                return responderErroInterno(
+                    res,
+                    erroValidacao,
+                    "Erro ao validar campanha após excluir copy"
+                );
+            }
+        }
+
         return res.json({
-            mensagem: "Copy excluída com sucesso"
+            mensagem: "Copy excluída com sucesso",
+            validacao
         });
     } catch (error) {
         return responderErroInterno(

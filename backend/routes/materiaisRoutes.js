@@ -5,6 +5,7 @@ const router = express.Router();
 const supabase = require("../config/supabase");
 const requireAuth = require("../middleware/requireAuth");
 const { responderErroInterno } = require("../utils/httpErrors");
+const { validarCampanha } = require("../services/campanhaValidacao.service");
 
 const FORMATOS_VALIDOS = new Set([
     "stories",
@@ -143,12 +144,25 @@ router.post("/", requireAuth, async (req, res) => {
 
         }
 
+        let validacao;
+
+        try {
+            validacao = await validarCampanha(campanhaId);
+        } catch (erroValidacao) {
+            return responderErroInterno(
+                res,
+                erroValidacao,
+                "Erro ao validar campanha após criar material"
+            );
+        }
 
         return res.status(201).json({
 
             mensagem: "Material criado com sucesso",
 
-            material: data
+            material: data,
+
+            validacao
 
         });
 
@@ -270,9 +284,24 @@ router.put("/:id", requireAuth, async (req, res) => {
             );
         }
 
+        let validacao = null;
+
+        if (data?.campanha_id) {
+            try {
+                validacao = await validarCampanha(data.campanha_id);
+            } catch (erroValidacao) {
+                return responderErroInterno(
+                    res,
+                    erroValidacao,
+                    "Erro ao validar campanha após atualizar material"
+                );
+            }
+        }
+
         return res.json({
             mensagem: "Material atualizado com sucesso",
-            material: data
+            material: data,
+            validacao
         });
 
     } catch (error) {
@@ -305,6 +334,18 @@ router.delete("/:id", requireAuth, async (req, res) => {
             });
         }
 
+        const { data: material, error: erroBusca } = await supabase
+            .from("materiais")
+            .select("id, campanha_id")
+            .eq("id", materialId)
+            .single();
+
+        if (erroBusca || !material) {
+            return res.status(404).json({
+                erro: "Material não encontrado"
+            });
+        }
+
         const { error } = await supabase
             .from("materiais")
             .delete()
@@ -318,8 +359,23 @@ router.delete("/:id", requireAuth, async (req, res) => {
             );
         }
 
+        let validacao = null;
+
+        if (material.campanha_id) {
+            try {
+                validacao = await validarCampanha(material.campanha_id);
+            } catch (erroValidacao) {
+                return responderErroInterno(
+                    res,
+                    erroValidacao,
+                    "Erro ao validar campanha após excluir material"
+                );
+            }
+        }
+
         return res.json({
-            mensagem: "Material excluído com sucesso"
+            mensagem: "Material excluído com sucesso",
+            validacao
         });
 
     } catch (error) {
