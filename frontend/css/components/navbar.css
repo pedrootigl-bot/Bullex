@@ -20,16 +20,15 @@
     overflow: hidden;
     isolation: isolate;
     transition:
-        box-shadow 0.35s var(--ease-out),
-        transform 0.35s var(--ease-out),
-        border-color 0.35s ease;
+        box-shadow 0.3s var(--ease-out),
+        border-color 0.3s ease;
     z-index: 999;
 }
 
 .navbar::before {
     content: "";
     position: absolute;
-    inset: -2px;
+    inset: 0;
     border-radius: inherit;
     padding: 1px;
     background: linear-gradient(
@@ -49,10 +48,10 @@
         linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
+    z-index: 0;
 }
 
 .navbar:hover {
-    transform: translateX(-50%) translateY(-1px);
     border-color: rgba(104, 218, 0, 0.24);
     box-shadow:
         inset 0 1px rgba(255, 255, 255, 0.06),
@@ -67,12 +66,17 @@
 
 .navbar__content {
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
+    gap: 12px;
     height: 100%;
-    padding: 0 18px;
     width: 100%;
+    margin: 0;
+    padding: 0 18px;
+    padding-inline: 18px;
     box-sizing: border-box;
+    z-index: 1;
 }
 
 .logo {
@@ -80,6 +84,7 @@
     align-items: center;
     text-decoration: none;
     z-index: 2;
+    flex-shrink: 0;
 }
 
 .logo img {
@@ -87,55 +92,63 @@
     display: block;
 }
 
+/*
+  Menu no centro da coluna do meio (não usa translateX(-50%) absoluto).
+  Assim o item pode crescer e EMPURRAR os vizinhos sem recentrar a barra.
+*/
 .menu {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
+    left: auto;
+    transform: none;
     display: flex;
     align-items: center;
+    justify-content: center;
+    justify-self: center;
     gap: 6px;
+    height: 44px;
+    max-width: 100%;
+    min-width: 0;
+    z-index: 2;
 }
 
 .menu a {
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    flex: 0 0 44px;
-    width: 44px;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    width: auto;
     min-width: 44px;
     max-width: 44px;
     height: 44px;
-    padding: 0;
+    padding: 0 13px;
+    gap: 0;
     border-radius: 999px;
-    overflow: visible;
+    overflow: hidden;
     white-space: nowrap;
     text-decoration: none;
     background: transparent;
     color: #b7beb8;
     z-index: 1;
-    transition: color 0.25s ease;
+    transition:
+        max-width 0.32s var(--ease-out),
+        padding 0.32s var(--ease-out),
+        gap 0.28s var(--ease-out),
+        background-color 0.22s ease,
+        color 0.2s ease,
+        box-shadow 0.22s ease;
 }
 
-.menu a::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 44px;
-    width: 44px;
-    border-radius: 999px;
-    background: transparent;
-    transition:
-        width 0.28s var(--ease-out),
-        background-color 0.25s ease;
-    z-index: -1;
-    pointer-events: none;
+.menu a::before,
+.menu a::after {
+    content: none;
+    display: none;
 }
 
 .menu a i {
     position: relative;
     min-width: 18px;
+    width: 18px;
     text-align: center;
     font-size: 17px;
     flex-shrink: 0;
@@ -143,61 +156,58 @@
 }
 
 .menu a span {
-    position: absolute;
-    left: 40px;
-    top: 50%;
-    transform: translateY(-50%);
+    position: static;
+    display: inline-block;
     max-width: 0;
-    margin-left: 0;
+    margin: 0;
     opacity: 0;
     overflow: hidden;
     white-space: nowrap;
     font-size: 13px;
     font-weight: 600;
-    z-index: 1;
+    line-height: 1;
+    color: inherit;
     pointer-events: none;
     transition:
-        max-width 0.28s var(--ease-out),
+        max-width 0.32s var(--ease-out),
         opacity 0.2s ease;
 }
 
-.menu a:hover,
+@media (hover: hover) and (pointer: fine) {
+    .menu a:hover,
+    .menu a:focus-visible {
+        max-width: 158px;
+        padding: 0 16px 0 14px;
+        gap: 8px;
+        color: var(--primary);
+        background: var(--primary-soft);
+        box-shadow: inset 0 0 0 1px rgba(104, 218, 0, 0.18);
+        z-index: 3;
+    }
+
+    .menu a:hover span,
+    .menu a:focus-visible span {
+        max-width: 110px;
+        opacity: 1;
+    }
+
+    .menu:hover a:not(:hover):not(:focus-visible) {
+        color: rgba(183, 190, 184, 0.62);
+    }
+}
+
 .menu a:focus-visible {
-    color: var(--primary);
-    z-index: 5;
-}
-
-.menu a:hover::before,
-.menu a:focus-visible::before {
-    width: 148px;
-    background: var(--primary-soft);
-}
-
-/* Mantém o hover estável sobre o texto expandido */
-.menu a:hover::after,
-.menu a:focus-visible::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 148px;
-    height: 44px;
-    border-radius: 999px;
-    z-index: 0;
-}
-
-.menu a:hover span,
-.menu a:focus-visible span {
-    max-width: 100px;
-    opacity: 1;
+    outline: none;
 }
 
 .navbar__actions {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-left: auto;
+    margin-left: 0;
     z-index: 3;
+    flex-shrink: 0;
+    justify-self: end;
 }
 
 .navbar__login {
@@ -250,7 +260,10 @@
     height: 2px;
     background: #fff;
     border-radius: 10px;
-    transition: 0.3s ease;
+    transition:
+        transform 0.28s var(--ease-out),
+        opacity 0.2s ease;
+    transform-origin: center;
 }
 
 .menu-toggle.active span:nth-child(1) {
@@ -273,8 +286,10 @@
     }
 
     .navbar__content {
+        display: flex;
         padding: 0 14px;
         justify-content: space-between;
+        gap: 10px;
     }
 
     .menu-toggle {
@@ -299,6 +314,8 @@
         left: 0;
         right: 0;
         width: 100%;
+        height: auto;
+        max-width: none;
         padding: 14px;
         background: rgba(10, 13, 11, 0.96);
         border: 1px solid var(--border);
@@ -307,15 +324,17 @@
         display: flex;
         flex-direction: column;
         align-items: stretch;
+        justify-content: flex-start;
+        justify-self: stretch;
         gap: 8px;
-        transform: translateY(-8px);
+        transform: translateY(-6px);
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
         transition:
-            opacity 0.3s ease,
-            transform 0.3s ease,
-            visibility 0.3s ease;
+            opacity 0.28s ease,
+            transform 0.28s var(--ease-out),
+            visibility 0.28s ease;
         z-index: 1000;
     }
 
@@ -334,45 +353,43 @@
         height: 46px;
         justify-content: flex-start;
         padding: 0 16px;
+        gap: 12px;
         border-radius: var(--radius-sm);
         overflow: hidden;
-        background: transparent;
-    }
-
-    .menu a::before {
-        width: 100%;
-        height: 100%;
-        border-radius: var(--radius-sm);
     }
 
     .menu a span {
-        position: static;
-        left: auto;
-        top: auto;
-        transform: none;
         max-width: none;
         opacity: 1;
-        margin-left: 12px;
         pointer-events: auto;
     }
 
     .menu a:hover,
     .menu a:focus-visible {
+        max-width: none;
+        color: var(--primary);
         background: var(--primary-soft);
+        box-shadow: none;
     }
 
-    .menu a:hover::before,
-    .menu a:focus-visible::before {
-        width: 100%;
-        background: transparent;
-    }
-
-    .menu a:hover::after,
-    .menu a:focus-visible::after {
-        display: none;
+    .menu:hover a:not(:hover):not(:focus-visible) {
+        color: #b7beb8;
     }
 
     .navbar:hover {
         transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .navbar,
+    .navbar::before,
+    .menu,
+    .menu a,
+    .menu a span,
+    .menu-toggle span,
+    .navbar__login {
+        transition: none !important;
+        animation: none !important;
     }
 }
