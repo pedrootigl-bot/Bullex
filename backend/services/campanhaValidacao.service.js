@@ -1,6 +1,7 @@
 /**
  * Validação automática de campanhas para publicação.
  * Atualiza a coluna existente: campanhas.pronta_publicacao (boolean).
+ * Em transição real de pronta_publicacao, cria notificação na tabela notificacoes.
  *
  * Requisitos (nomes reais do projeto):
  * - campanhas: titulo, data_inicio, data_fim, imagem_card (ou banner), resumo
@@ -9,6 +10,9 @@
  */
 
 const supabase = require("../config/supabase");
+const {
+    notificarMudancaProntaPublicacao
+} = require("./notificacoes.service");
 
 function textoPreenchido(valor) {
     return Boolean(String(valor || "").trim());
@@ -58,8 +62,10 @@ async function forcarProntaPublicacaoFalse(campanhaId) {
  * Valida se a campanha está completa para publicação e atualiza
  * campanhas.pronta_publicacao.
  *
+ * Detecta transição false↔true e notifica o admin (sem duplicar em true→true / false→false).
+ *
  * @param {number|string} campanhaId
- * @returns {Promise<{ pronta: boolean, pendencias: string[] }>}
+ * @returns {Promise<{ pronta: boolean, pendencias: string[], notificacaoCriada: boolean }>}
  */
 async function validarCampanha(campanhaId) {
     const id = Number(campanhaId);
@@ -89,6 +95,9 @@ async function validarCampanha(campanhaId) {
             erro.statusCode = 404;
             throw erro;
         }
+
+        // Valor anterior ANTES do update — base da detecção de mudança
+        const prontaAnterior = Boolean(campanha.pronta_publicacao);
 
         const pendencias = [];
 
@@ -157,9 +166,28 @@ async function validarCampanha(campanhaId) {
             );
         }
 
+        let notificacaoCriada = false;
+
+        try {
+            const notif = await notificarMudancaProntaPublicacao({
+                campanhaId: id,
+                tituloCampanha: campanha.titulo,
+                prontaAnterior,
+                prontaAtual: pronta
+            });
+            notificacaoCriada = Boolean(notif?.criada);
+        } catch (erroNotif) {
+            // Não reverte a validação: a coluna já foi atualizada.
+            console.error(
+                `[VALIDAÇÃO] Campanha ${id} — falha ao criar notificação de prontidão:`,
+                erroNotif?.message || erroNotif
+            );
+        }
+
         return {
             pronta,
-            pendencias
+            pendencias,
+            notificacaoCriada
         };
     } catch (error) {
         console.error(

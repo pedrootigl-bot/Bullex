@@ -13,9 +13,10 @@ const kitsRoutes = require("./routes/kits");
 const angulosRoutes = require("./routes/angulosRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const notificacoesRoutes = require("./routes/notificacoesRoutes");
-
-
-
+const {
+    iniciarScheduler,
+    pararScheduler
+} = require("./jobs");
 
 const app = express();
 
@@ -43,8 +44,6 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "2mb" }));
 
-
-
 // Rotas
 
 app.use(
@@ -52,23 +51,20 @@ app.use(
     campanhasRoutes
 );
 
-
 app.use(
     "/api/materiais",
     materiaisRoutes
 );
 
-
 app.use(
     "/api/copies",
-     copiesRoutes
+    copiesRoutes
 );
 
 app.use(
     "/api/regras",
     regrasRoutes
 );
-
 
 app.use(
     "/api/stats",
@@ -87,10 +83,11 @@ app.use(
 
 app.use(
     "/api/kits",
-     kitsRoutes
+    kitsRoutes
 );
 
-app.use("/api/angulos", 
+app.use(
+    "/api/angulos",
     angulosRoutes
 );
 
@@ -105,23 +102,33 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-
     res.json({
         mensagem: "API Bullex funcionando!"
     });
-
 });
-
-
-
 
 const PORT = process.env.PORT || 3000;
 
-
-app.listen(PORT, () => {
-
-    console.log(
-        `Servidor rodando na porta ${PORT}`
-    );
-
+const server = app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+    iniciarScheduler();
 });
+
+function encerrarServidor(sinal) {
+    console.log(`[SERVER] Recebido ${sinal} — encerrando...`);
+    pararScheduler();
+
+    server.close(() => {
+        console.log("[SERVER] HTTP encerrado");
+        process.exit(0);
+    });
+
+    // Failsafe se conexões travarem o close
+    setTimeout(() => {
+        console.error("[SERVER] Encerramento forçado após timeout");
+        process.exit(1);
+    }, 10000).unref();
+}
+
+process.on("SIGINT", () => encerrarServidor("SIGINT"));
+process.on("SIGTERM", () => encerrarServidor("SIGTERM"));

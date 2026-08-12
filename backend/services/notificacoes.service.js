@@ -18,7 +18,9 @@ const {
 const TIPOS = Object.freeze({
     INICIADA: "campanha_iniciada",
     ENCERRANDO: "campanha_encerrando",
-    ENCERRADA: "campanha_encerrada"
+    ENCERRADA: "campanha_encerrada",
+    PRONTA: "campanha_pronta",
+    PENDENTE: "campanha_pendente"
 });
 
 function nomeCampanha(campanha) {
@@ -132,6 +134,59 @@ async function criarSeNaoExistir(evento) {
 
     const notificacao = await criarNotificacao(evento);
     return { criada: true, notificacao };
+}
+
+/**
+ * Notifica o admin apenas quando pronta_publicacao muda de fato.
+ * Deduplicação = comparação do valor anterior vs o novo (não por tipo eterno).
+ */
+async function notificarMudancaProntaPublicacao({
+    campanhaId,
+    tituloCampanha,
+    prontaAnterior,
+    prontaAtual
+}) {
+    const id = Number(campanhaId);
+    if (!id) {
+        return { criada: false, motivo: "campanha_id_invalido" };
+    }
+
+    const antes = Boolean(prontaAnterior);
+    const depois = Boolean(prontaAtual);
+
+    if (antes === depois) {
+        return { criada: false, motivo: "sem_mudanca" };
+    }
+
+    const nome = String(tituloCampanha || "Campanha").trim() || "Campanha";
+
+    const evento = (!antes && depois)
+        ? {
+            campanhaId: id,
+            tipo: TIPOS.PRONTA,
+            titulo: "Campanha pronta para publicação",
+            mensagem:
+                `A campanha "${nome}" está completa e pronta para publicação.`
+        }
+        : {
+            campanhaId: id,
+            tipo: TIPOS.PENDENTE,
+            titulo: "Campanha possui pendências",
+            mensagem:
+                `A campanha "${nome}" possui pendências e não está pronta para publicação.`
+        };
+
+    const notificacao = await criarNotificacao(evento);
+
+    console.log(
+        `[NOTIFICAÇÃO] Campanha ${id}: pronta_publicacao ${antes} → ${depois} (${evento.tipo})`
+    );
+
+    return {
+        criada: true,
+        notificacao,
+        transicao: { de: antes, para: depois }
+    };
 }
 
 function eventosDaCampanha(campanha, hoje = hojeISO()) {
@@ -252,6 +307,7 @@ module.exports = {
     existeNotificacao,
     criarNotificacao,
     criarSeNaoExistir,
+    notificarMudancaProntaPublicacao,
     eventosDaCampanha,
     sincronizarNotificacoesCampanhas
 };

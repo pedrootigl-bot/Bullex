@@ -44,6 +44,46 @@ function rotuloStatus(status) {
     return status || "—";
 }
 
+/**
+ * Fonte de verdade: campanha.pronta_publicacao (backend).
+ * true | false | null (ausente/neutro)
+ */
+function normalizarProntaPublicacao(valor) {
+    if (valor === true || valor === false) return valor;
+    if (valor === "true" || valor === 1 || valor === "1") return true;
+    if (valor === "false" || valor === 0 || valor === "0") return false;
+    return null;
+}
+
+function htmlStatusPublicacao(campanha) {
+    const pronta = normalizarProntaPublicacao(campanha?.pronta_publicacao);
+
+    if (pronta === true) {
+        return `
+            <span class="campanha-publicacao-status campanha-publicacao-status--pronta">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <span>PRONTA PARA PUBLICAÇÃO</span>
+            </span>
+        `;
+    }
+
+    if (pronta === false) {
+        return `
+            <span class="campanha-publicacao-status campanha-publicacao-status--pendente">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                <span>CAMPANHA INCOMPLETA</span>
+            </span>
+        `;
+    }
+
+    return `
+        <span class="campanha-publicacao-status campanha-publicacao-status--indisponivel">
+            <i class="fa-regular fa-circle" aria-hidden="true"></i>
+            <span>STATUS INDISPONÍVEL</span>
+        </span>
+    `;
+}
+
 function imagemCampanha(campanha) {
     return (
         campanha?.imagem_card
@@ -138,6 +178,7 @@ function atualizarFeatured(campanha) {
     const status = document.querySelector("#featuredStatus");
     const periodo = document.querySelector("#featuredPeriodo");
     const premio = document.querySelector("#featuredPremio");
+    const publicacao = document.querySelector("#featuredPublicacao");
 
     card?.classList.remove("is-switching");
     // force reflow for animation restart
@@ -151,6 +192,7 @@ function atualizarFeatured(campanha) {
         if (status) status.textContent = "—";
         if (periodo) periodo.textContent = "—";
         if (premio) premio.textContent = "—";
+        if (publicacao) publicacao.innerHTML = "";
         return;
     }
 
@@ -162,6 +204,7 @@ function atualizarFeatured(campanha) {
         periodo.textContent = `${formatarData(campanha.data_inicio)} — ${formatarData(campanha.data_fim)}`;
     }
     if (premio) premio.textContent = campanha.premio || campanha.valor || "—";
+    if (publicacao) publicacao.innerHTML = htmlStatusPublicacao(campanha);
 }
 
 function irParaFeatured(index) {
@@ -478,9 +521,10 @@ function renderizarTabela(campanhas) {
             <td>
                 <div class="campaign-cell">
                     <img src="${escaparHtml(imagemCampanha(campanha))}" alt="">
-                    <div>
+                    <div class="campaign-cell__info">
                         <strong>${escaparHtml(campanha.titulo || "Sem título")}</strong>
                         <small>#${escaparHtml(campanha.id)} ${campanha.cupom ? "· " + escaparHtml(campanha.cupom) : ""}</small>
+                        ${htmlStatusPublicacao(campanha)}
                     </div>
                 </div>
             </td>

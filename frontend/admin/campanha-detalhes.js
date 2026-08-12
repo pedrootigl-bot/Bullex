@@ -344,6 +344,13 @@ async function carregarCampanha() {
 
 
         // ==================================================
+        // PRONTIDÃO PARA PUBLICAÇÃO
+        // ==================================================
+
+        renderProntidaoPublicacao(campanha);
+
+
+        // ==================================================
         // IMAGEM
         // ==================================================
 
@@ -413,14 +420,195 @@ async function carregarCampanha() {
 
 
 // ======================================================
-// INICIAR
+// INDICADOR DE PRONTIDÃO PARA PUBLICAÇÃO
+// Fonte de verdade: campanha.pronta_publicacao (backend)
 // ======================================================
 
-if (campanhaId) {
+const PRONTIDAO_ITENS = [
+    { id: "informacoes", label: "Informações" },
+    { id: "visao_geral", label: "Visão geral" },
+    { id: "copies", label: "Copies" },
+    { id: "regras", label: "Regras" },
+    { id: "materiais", label: "Materiais" },
+    { id: "angulos", label: "Ângulos" }
+];
 
-    carregarCampanha();
-
+function escaparHtmlProntidao(valor) {
+    return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
+
+/**
+ * Normaliza o flag vindo da API.
+ * true / false → boolean
+ * ausente / null / undefined → null (status indisponível)
+ */
+function normalizarProntaPublicacao(valor) {
+    if (valor === true || valor === false) {
+        return valor;
+    }
+
+    if (valor === "true" || valor === 1 || valor === "1") {
+        return true;
+    }
+
+    if (valor === "false" || valor === 0 || valor === "0") {
+        return false;
+    }
+
+    return null;
+}
+
+/**
+ * Pendências individuais só se a API já enviar.
+ * Não inventa validação no frontend.
+ */
+function extrairPendenciasProntidao(campanha) {
+    const origem =
+        campanha?.pendencias_publicacao
+        || campanha?.pendencias
+        || campanha?.validacao?.pendencias
+        || null;
+
+    if (!Array.isArray(origem)) {
+        return [];
+    }
+
+    return origem
+        .map((item) => String(item || "").trim())
+        .filter(Boolean);
+}
+
+function renderProntidaoPublicacao(campanha) {
+    const root = document.querySelector("#campanhaProntidao");
+    const titleEl = document.querySelector("#prontidaoTitle");
+    const badgeEl = document.querySelector("#prontidaoBadge");
+    const messageEl = document.querySelector("#prontidaoMessage");
+    const checklistEl = document.querySelector("#prontidaoChecklist");
+    const pendenciasBox = document.querySelector("#prontidaoPendencias");
+    const pendenciasText = document.querySelector("#prontidaoPendenciasText");
+    const pendenciasList = document.querySelector("#prontidaoPendenciasList");
+
+    if (!root || !titleEl || !badgeEl) {
+        return;
+    }
+
+    const pronta = normalizarProntaPublicacao(
+        campanha?.pronta_publicacao
+    );
+
+    root.classList.remove(
+        "campanha-prontidao--pronta",
+        "campanha-prontidao--pendente",
+        "campanha-prontidao--indisponivel"
+    );
+
+    if (pronta === true) {
+        root.classList.add("campanha-prontidao--pronta");
+        titleEl.textContent = "PRONTA PARA PUBLICAÇÃO";
+        badgeEl.textContent = "PRONTA";
+
+        if (messageEl) {
+            messageEl.hidden = true;
+            messageEl.textContent = "";
+        }
+
+        if (checklistEl) {
+            checklistEl.hidden = false;
+            checklistEl.innerHTML = PRONTIDAO_ITENS.map((item) => `
+                <div class="prontidao-item prontidao-item--ok" data-item="${escaparHtmlProntidao(item.id)}">
+                    <span class="prontidao-item__icon" aria-hidden="true">
+                        <i class="fa-solid fa-check"></i>
+                    </span>
+                    <span class="prontidao-item__label">${escaparHtmlProntidao(item.label)}</span>
+                </div>
+            `).join("");
+        }
+
+        if (pendenciasBox) pendenciasBox.hidden = true;
+        if (pendenciasList) {
+            pendenciasList.hidden = true;
+            pendenciasList.innerHTML = "";
+        }
+        return;
+    }
+
+    if (pronta === false) {
+        root.classList.add("campanha-prontidao--pendente");
+        titleEl.textContent = "CAMPANHA INCOMPLETA";
+        badgeEl.textContent = "PENDENTE";
+
+        if (messageEl) {
+            messageEl.hidden = false;
+            messageEl.textContent =
+                "Existem itens que precisam ser preenchidos antes da publicação.";
+        }
+
+        // Sem estados individuais da API: checklist preparado, estado geral "a revisar"
+        if (checklistEl) {
+            checklistEl.hidden = false;
+            checklistEl.innerHTML = PRONTIDAO_ITENS.map((item) => `
+                <div class="prontidao-item prontidao-item--pending" data-item="${escaparHtmlProntidao(item.id)}">
+                    <span class="prontidao-item__icon" aria-hidden="true">
+                        <i class="fa-solid fa-exclamation"></i>
+                    </span>
+                    <span class="prontidao-item__label">${escaparHtmlProntidao(item.label)}</span>
+                </div>
+            `).join("");
+        }
+
+        const pendencias = extrairPendenciasProntidao(campanha);
+
+        if (pendenciasBox) {
+            pendenciasBox.hidden = false;
+
+            if (pendencias.length > 0) {
+                if (pendenciasText) {
+                    pendenciasText.textContent = "Itens reportados pela API:";
+                }
+                if (pendenciasList) {
+                    pendenciasList.hidden = false;
+                    pendenciasList.innerHTML = pendencias.map((p) =>
+                        `<li>${escaparHtmlProntidao(p)}</li>`
+                    ).join("");
+                }
+            } else {
+                if (pendenciasText) {
+                    pendenciasText.textContent =
+                        "A campanha possui informações pendentes. Revise os módulos da campanha antes de publicar.";
+                }
+                if (pendenciasList) {
+                    pendenciasList.hidden = true;
+                    pendenciasList.innerHTML = "";
+                }
+            }
+        }
+        return;
+    }
+
+    // Campo ausente / campanhas antigas
+    root.classList.add("campanha-prontidao--indisponivel");
+    titleEl.textContent = "Status indisponível";
+    badgeEl.textContent = "—";
+
+    if (messageEl) {
+        messageEl.hidden = false;
+        messageEl.textContent =
+            "O status de publicação ainda não está disponível para esta campanha.";
+    }
+
+    if (checklistEl) {
+        checklistEl.hidden = true;
+        checklistEl.innerHTML = "";
+    }
+
+    if (pendenciasBox) pendenciasBox.hidden = true;
+}
+
 
 // ======================================================
 // CARREGAR REGRAS DA CAMPANHA

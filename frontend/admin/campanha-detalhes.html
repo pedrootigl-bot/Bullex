@@ -158,6 +158,37 @@
 
 <div class="campaign-sections">
 
+<section
+    class="campanha-prontidao"
+    id="campanhaProntidao"
+    aria-live="polite"
+>
+    <div class="campanha-prontidao__header">
+        <div class="campanha-prontidao__heading">
+            <span class="campanha-prontidao__eyebrow">
+                Status da publicação
+            </span>
+            <h3 class="campanha-prontidao__title" id="prontidaoTitle">
+                Verificando informações...
+            </h3>
+            <p class="campanha-prontidao__message" id="prontidaoMessage" hidden></p>
+        </div>
+        <span class="campanha-prontidao__badge" id="prontidaoBadge">
+            —
+        </span>
+    </div>
+
+    <div class="campanha-prontidao__checklist" id="prontidaoChecklist" hidden>
+        <!-- preenchido via JS -->
+    </div>
+
+    <div class="campanha-prontidao__pendencias" id="prontidaoPendencias" hidden>
+        <h4 class="campanha-prontidao__pendencias-title">Pendências</h4>
+        <p class="campanha-prontidao__pendencias-text" id="prontidaoPendenciasText"></p>
+        <ul class="campanha-prontidao__pendencias-list" id="prontidaoPendenciasList" hidden></ul>
+    </div>
+</section>
+
 <section class="detail-panel campaign-rules" id="campaignRules">
     <div class="detail-panel__header">
         <div class="detail-panel__title">
@@ -280,7 +311,7 @@
 
 </div>
 
-<script src="campanha-detalhes.js?v=20260812a"></script>
+<script src="campanha-detalhes.js?v=20260812b"></script>
 
 
 </body>
