@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const adicionarRegraBtn = document.getElementById("adicionarRegraBtn");
     const materiaisContainer = document.getElementById("materiaisContainer");
     const adicionarMaterialBtn = document.getElementById("adicionarMaterialBtn");
+    const adicionarMateriaisLoteBtn = document.getElementById("adicionarMateriaisLoteBtn");
+    const materiaisBulkFile = document.getElementById("materiaisBulkFile");
     const mecanicaContainer = document.getElementById("mecanicaContainer");
     const adicionarMecanicaBtn = document.getElementById("adicionarMecanicaBtn");
     const angulosContainer = document.getElementById("angulosContainer");
@@ -35,6 +37,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     let contadorAngulos = 0;
     let uploadImagemEmAndamento = false;
     let uploadMaterialEmAndamento = 0;
+
+    function calcularStatusPorDatas(dataInicio, dataFim) {
+        const hoje = new Date();
+        const hojeISO = [
+            hoje.getFullYear(),
+            String(hoje.getMonth() + 1).padStart(2, "0"),
+            String(hoje.getDate()).padStart(2, "0")
+        ].join("-");
+
+        const inicio = String(dataInicio || "").slice(0, 10);
+        const fim = String(dataFim || "").slice(0, 10);
+
+        if (inicio && hojeISO < inicio) return "agendada";
+        if (fim && hojeISO >= fim) return "finalizada";
+        return "ativa";
+    }
+
+    function sincronizarStatusComDatas() {
+        const statusEl = document.getElementById("status");
+        const inicio = document.getElementById("data_inicio")?.value || "";
+        const fim = document.getElementById("data_fim")?.value || "";
+        if (!statusEl || (!inicio && !fim)) return;
+        statusEl.value = calcularStatusPorDatas(inicio, fim);
+    }
+
+    ["data_inicio", "data_fim"].forEach((id) => {
+        document.getElementById(id)?.addEventListener("change", sincronizarStatusComDatas);
+    });
 
     const TIPOS_IMAGEM_PERMITIDOS = [
         "image/png",
@@ -843,6 +873,36 @@ const { error } = await supabaseClient.storage
         }
     }
 
+    /**
+     * Processa um ou vários arquivos:
+     * - 1º arquivo preenche o card atual (se estiver vazio)
+     * - demais arquivos criam novos cards automaticamente
+     */
+    async function processarArquivosMateriais(materialBase, files, formatoPadrao = "stories") {
+        const lista = Array.from(files || []).filter(Boolean);
+        if (!lista.length) return;
+
+        let indice = 0;
+        const cardAtual = materialBase || null;
+        const urlAtual = cardAtual?.querySelector(".material-url")?.value?.trim();
+
+        if (cardAtual && !urlAtual) {
+            await enviarArquivoMaterial(cardAtual, lista[0]);
+            indice = 1;
+        }
+
+        for (; indice < lista.length; indice += 1) {
+            const file = lista[indice];
+            const novoCard = adicionarMaterial({
+                nome: String(file.name || "").replace(/\.[^.]+$/, ""),
+                formato: formatoPadrao
+            });
+            await enviarArquivoMaterial(novoCard, file);
+        }
+
+        atualizarTitulosMateriais();
+    }
+
     function adicionarMaterial(dados = {}) {
         if (!materiaisContainer) {
             console.error("Container #materiaisContainer não encontrado.");
@@ -906,16 +966,17 @@ const { error } = await supabaseClient.storage
                     type="file"
                     class="material-upload-file"
                     accept="image/png,image/jpeg,image/jpg,image/webp,video/*,.pdf,.zip"
+                    multiple
                     hidden
                 >
 
                 <div class="upload-dropzone material-upload-dropzone${urlAtual ? " has-preview" : ""}">
                     <div class="upload-dropzone__empty material-upload-empty"${urlAtual ? " hidden" : ""}>
                         <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <p>Arraste e solte o arquivo aqui</p>
-                        <span>Imagens, vídeos ou arquivos · máx. 50 MB</span>
+                        <p>Arraste e solte um ou vários arquivos aqui</p>
+                        <span>Imagens, vídeos ou arquivos · máx. 50 MB cada · múltiplos permitidos</span>
                         <button type="button" class="btn-secondary material-upload-select">
-                            Selecionar arquivo
+                            Selecionar arquivo(s)
                         </button>
                     </div>
 
@@ -967,6 +1028,7 @@ const { error } = await supabaseClient.storage
         }
 
         atualizarTitulosMateriais();
+        return materialElement;
     }
 
     function pegarCopies() {
@@ -1252,7 +1314,10 @@ const { error } = await supabaseClient.storage
             deposito_minimo: document.getElementById("deposito_minimo")?.value || "",
             data_inicio: document.getElementById("data_inicio")?.value || "",
             data_fim: document.getElementById("data_fim")?.value || "",
-            status: document.getElementById("status")?.value || "ativa",
+            status: calcularStatusPorDatas(
+                document.getElementById("data_inicio")?.value || "",
+                document.getElementById("data_fim")?.value || ""
+            ),
             imagem_card: document.getElementById("imagem_card")?.value.trim() || ""
         };
     }
@@ -1278,6 +1343,8 @@ const { error } = await supabaseClient.storage
             if (!el || campanha[campo] == null) return;
             el.value = campanha[campo];
         });
+
+        sincronizarStatusComDatas();
 
         preencherCategorias(campanha.categoria);
         preencherObjetivos(campanha.objetivo);
@@ -1577,6 +1644,10 @@ const { error } = await supabaseClient.storage
             materiais.forEach((material) => adicionarMaterial(material));
         }
 
+        if (!materiaisContainer?.querySelector(".material-item")) {
+            adicionarMaterial();
+        }
+
         const angulosResposta = await fetch(`${API}/api/angulos/${campanhaId}`);
         const angulos = await angulosResposta.json();
 
@@ -1602,6 +1673,30 @@ const { error } = await supabaseClient.storage
 
     if (adicionarMaterialBtn) {
         adicionarMaterialBtn.addEventListener("click", () => adicionarMaterial());
+    }
+
+    if (adicionarMateriaisLoteBtn && materiaisBulkFile) {
+        adicionarMateriaisLoteBtn.addEventListener("click", () => {
+            materiaisBulkFile.value = "";
+            materiaisBulkFile.click();
+        });
+
+        materiaisBulkFile.addEventListener("change", async () => {
+            const files = Array.from(materiaisBulkFile.files || []);
+            if (!files.length) return;
+
+            const cardVazio = Array.from(
+                materiaisContainer?.querySelectorAll(".material-item") || []
+            ).find((item) => !item.querySelector(".material-url")?.value?.trim());
+
+            await processarArquivosMateriais(
+                cardVazio || null,
+                files,
+                "stories"
+            );
+
+            materiaisBulkFile.value = "";
+        });
     }
 
     if (adicionarMecanicaBtn) {
@@ -1713,15 +1808,19 @@ const { error } = await supabaseClient.storage
             }
         });
 
-        materiaisContainer.addEventListener("change", (event) => {
+        materiaisContainer.addEventListener("change", async (event) => {
             const fileInput = event.target.closest(".material-upload-file");
             if (!fileInput) return;
 
             const material = fileInput.closest(".material-item");
-            const file = fileInput.files?.[0];
-            if (material && file) {
-                enviarArquivoMaterial(material, file);
-            }
+            const files = Array.from(fileInput.files || []);
+            if (!material || !files.length) return;
+
+            const formato =
+                material.querySelector(".material-formato")?.value || "stories";
+
+            await processarArquivosMateriais(material, files, formato);
+            fileInput.value = "";
         });
 
         ["dragenter", "dragover"].forEach((evento) => {
@@ -1744,15 +1843,18 @@ const { error } = await supabaseClient.storage
             });
         });
 
-        materiaisContainer.addEventListener("drop", (event) => {
+        materiaisContainer.addEventListener("drop", async (event) => {
             const dropzone = event.target.closest(".material-upload-dropzone");
             if (!dropzone) return;
 
             const material = dropzone.closest(".material-item");
-            const file = event.dataTransfer?.files?.[0];
-            if (material && file) {
-                enviarArquivoMaterial(material, file);
-            }
+            const files = Array.from(event.dataTransfer?.files || []);
+            if (!material || !files.length) return;
+
+            const formato =
+                material.querySelector(".material-formato")?.value || "stories";
+
+            await processarArquivosMateriais(material, files, formato);
         });
     }
 
@@ -1868,6 +1970,7 @@ const { error } = await supabaseClient.storage
     } else {
         adicionarCopy();
         adicionarRegra();
+        adicionarMaterial();
         preencherMecanica([]);
         adicionarAngulo();
         adicionarAngulo();

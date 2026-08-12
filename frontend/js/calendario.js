@@ -456,21 +456,14 @@ async function carregarCalendario(){
             ? dados
             : (dados.campanhas ?? []);
 
-        const hoje = inicioDoDia(new Date());
-
-        // Oculta campanhas inativas e a partir do dia de vencimento (data_fim)
+        // Exibe no calendário apenas campanhas ativas
+        // (status sincronizado no backend pelas datas)
         campanhasCalendario = lista.filter((campanha) => {
             const status = String(campanha.status || "")
                 .toLowerCase()
                 .trim();
 
-            if (status === "inativa") {
-                return false;
-            }
-
-            const fim = parseDataLocal(campanha.data_fim);
-            if(!fim) return true;
-            return hoje.getTime() < fim.getTime();
+            return status === "ativa";
         });
 
         if(!campanhaExibida){

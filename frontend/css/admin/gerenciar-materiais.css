@@ -427,6 +427,17 @@
     font: inherit;
 }
 
+.gm-modal__form .material-formato {
+    margin-top: 0.15rem;
+}
+
+.gm-modal__form label[for="materialFormato"] {
+    margin-top: 1rem;
+    color: #d7e6d4;
+    font-size: 0.9rem;
+    letter-spacing: 0.01em;
+}
+
 .gm-modal__actions {
     display: flex;
     justify-content: flex-end;

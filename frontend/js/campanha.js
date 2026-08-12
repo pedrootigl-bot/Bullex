@@ -27,27 +27,15 @@ function parseDataCampanha(valor){
 
 
 /**
- * Oculta a campanha quando:
- * - status for "inativa"
- * - chegar na data de vencimento (data_fim)
- * Visível somente se não estiver inativa e hoje for anterior à data final.
+ * Campanha visível no site público somente quando status = ativa.
+ * Agendada e Finalizada ficam no admin; o backend sincroniza o status pelas datas.
  */
 function campanhaEstaVisivel(campanha){
     const status = String(campanha?.status || "")
         .toLowerCase()
         .trim();
 
-    if (status === "inativa") {
-        return false;
-    }
-
-    const fim = parseDataCampanha(campanha?.data_fim);
-
-    // Sem data final: mantém visível (se não inativa)
-    if(!fim) return true;
-
-    const hoje = inicioDoDiaLocal();
-    return hoje.getTime() < fim.getTime();
+    return status === "ativa";
 }
 
 

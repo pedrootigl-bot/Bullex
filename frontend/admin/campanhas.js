@@ -28,11 +28,20 @@ function normalizarStatus(status) {
 
 function statusClass(status) {
     const s = normalizarStatus(status);
-    if (s.includes("ativa")) return "is-ativa";
-    if (s.includes("program")) return "is-programada";
+    if (s === "ativa") return "is-ativa";
+    if (s === "agendada" || s.includes("program")) return "is-agendada is-programada";
+    if (s === "finalizada" || s.includes("final") || s === "inativa") return "is-finalizada";
     if (s.includes("paus")) return "is-pausada";
-    if (s.includes("final")) return "is-finalizada";
     return "";
+}
+
+function rotuloStatus(status) {
+    const s = normalizarStatus(status);
+    if (s === "agendada") return "Agendada";
+    if (s === "ativa") return "Ativa";
+    if (s === "finalizada") return "Finalizada";
+    if (s === "inativa") return "Finalizada";
+    return status || "—";
 }
 
 function imagemCampanha(campanha) {
@@ -93,7 +102,7 @@ function preencherCategorias(campanhas) {
 
 function escolherDestaque(campanhas) {
     return (
-        campanhas.find((c) => normalizarStatus(c.status).includes("ativa"))
+        campanhas.find((c) => normalizarStatus(c.status) === "ativa")
         || campanhas[0]
         || null
     );
@@ -186,8 +195,8 @@ function irParaFeatured(index) {
 
 function montarCarouselFeatured(campanhas) {
     featuredLista = (Array.isArray(campanhas) ? campanhas.slice() : []).sort((a, b) => {
-        const aAtiva = normalizarStatus(a.status).includes("ativa") ? 0 : 1;
-        const bAtiva = normalizarStatus(b.status).includes("ativa") ? 0 : 1;
+        const aAtiva = normalizarStatus(a.status) === "ativa" ? 0 : 1;
+        const bAtiva = normalizarStatus(b.status) === "ativa" ? 0 : 1;
         return aAtiva - bAtiva;
     });
     const track = document.querySelector("#featuredCarouselTrack");
@@ -479,7 +488,7 @@ function renderizarTabela(campanhas) {
             <td>
                 <span class="status-pill ${statusCls}">
                     <i></i>
-                    ${escaparHtml(status)}
+                    ${escaparHtml(rotuloStatus(status))}
                 </span>
             </td>
             <td>${formatarData(campanha.data_inicio)}</td>

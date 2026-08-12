@@ -12,6 +12,7 @@ const downloadRoutes = require("./routes/download");
 const kitsRoutes = require("./routes/kits");
 const angulosRoutes = require("./routes/angulosRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const notificacoesRoutes = require("./routes/notificacoesRoutes");
 
 
 
@@ -96,6 +97,11 @@ app.use("/api/angulos",
 app.use(
     "/api/upload",
     uploadRoutes
+);
+
+app.use(
+    "/api/notificacoes",
+    notificacoesRoutes
 );
 
 app.get("/", (req, res) => {

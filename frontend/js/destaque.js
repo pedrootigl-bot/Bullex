@@ -64,39 +64,15 @@ function ehCampanhaAtiva(campanha) {
 
 /**
  * Regras do hero / destaque:
- * 1) Entre campanhas ativas e ainda dentro da data limite, usa a mais antiga.
- * 2) Se a mais antiga expirar ou for excluída, passa para a próxima mais antiga.
- * 3) Se nenhuma estiver vigente hoje, usa a próxima futura mais antiga.
- * 4) Senão, null (fallback da API /destaque).
+ * 1) Entre campanhas ativas (status sincronizado pelas datas), usa a mais antiga.
+ * 2) Se nenhuma estiver ativa, null (fallback da API /destaque).
  */
 function escolherCampanhaPostDoDia(campanhas = []) {
-    const hoje = inicioDoDiaDestaque(new Date());
     const lista = ordenarCampanhasMaisAntigasPrimeiro(campanhas);
+    const ativas = lista.filter((campanha) => ehCampanhaAtiva(campanha));
 
-    const ativasNaoExpiradas = lista.filter((campanha) =>
-        ehCampanhaAtiva(campanha) && campanhaNaoExpirada(campanha, hoje)
-    );
-
-    const vigentesHoje = ativasNaoExpiradas.filter((campanha) =>
-        campanhaJaIniciou(campanha, hoje)
-    );
-
-    if (vigentesHoje.length > 0) {
-        return vigentesHoje[0];
-    }
-
-    if (ativasNaoExpiradas.length > 0) {
-        return ativasNaoExpiradas[0];
-    }
-
-    const futuras = lista.filter((campanha) => {
-        if (!ehCampanhaAtiva(campanha)) return false;
-        const inicio = parseDataDestaque(campanha.data_inicio);
-        return inicio && inicio.getTime() > hoje.getTime();
-    });
-
-    if (futuras.length > 0) {
-        return futuras[0];
+    if (ativas.length > 0) {
+        return ativas[0];
     }
 
     return null;
@@ -176,8 +152,9 @@ function formatarCountdownHero(dataFim) {
 function formatarStatusHero(status) {
     const s = String(status || "").trim().toLowerCase();
     if (s === "ativa") return "DESTAQUE · ATIVA";
-    if (!s) return "DESTAQUE";
-    return `DESTAQUE · ${s.toUpperCase()}`;
+    if (s === "agendada") return "DESTAQUE · AGENDADA";
+    if (s === "finalizada") return "DESTAQUE · FINALIZADA";
+    return s ? `DESTAQUE · ${s.toUpperCase()}` : "DESTAQUE";
 }
 
 function formatarFocoHero(categoria) {

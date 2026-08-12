@@ -999,6 +999,7 @@
 }
 
 .status-pill.is-ativa i { background: #68da00; box-shadow: 0 0 8px rgba(104, 218, 0, 0.5); }
+.status-pill.is-agendada i,
 .status-pill.is-programada i { background: #f59e0b; }
 .status-pill.is-pausada i { background: #3b82f6; }
 .status-pill.is-finalizada i { background: #9ca3af; }

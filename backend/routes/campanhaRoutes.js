@@ -5,11 +5,20 @@ const router = express.Router();
 const supabase = require("../config/supabase");
 const requireAuth = require("../middleware/requireAuth");
 const { responderErroInterno } = require("../utils/httpErrors");
+const {
+    calcularStatusPorDatas,
+    sincronizarStatusCampanhas,
+    sincronizarStatusCampanha
+} = require("../utils/campanhaStatus");
+const {
+    sincronizarNotificacoesCampanhas
+} = require("../services/notificacoes.service");
 
 
 // ======================================================
 // BUSCAR TODAS AS CAMPANHAS
 // GET /api/campanhas
+// Sincroniza status (agendada/ativa/finalizada) pelas datas
 // ======================================================
 
 router.get("/", async (req, res) => {
@@ -35,11 +44,75 @@ router.get("/", async (req, res) => {
         }
 
 
-        res.json(data);
+        const sincronizadas = await sincronizarStatusCampanhas(
+            supabase,
+            data || []
+        );
+
+        res.json(sincronizadas);
 
     } catch (error) {
 
         return responderErroInterno(res, error, "Erro interno");
+
+    }
+
+});
+
+
+// ======================================================
+// SINCRONIZAR STATUS MANUALMENTE (admin / cron futuro)
+// POST /api/campanhas/sincronizar-status
+// ======================================================
+
+router.post("/sincronizar-status", requireAuth, async (req, res) => {
+
+    try {
+
+        const { data, error } = await supabase
+            .from("campanhas")
+            .select("*")
+            .order("id", { ascending: false });
+
+        if (error) {
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao buscar campanhas para sincronizar"
+            );
+        }
+
+        const sincronizadas = await sincronizarStatusCampanhas(
+            supabase,
+            data || []
+        );
+
+        // Também gera notificações de ciclo de vida (sem duplicar)
+        let notificacoesCriadas = 0;
+        try {
+            const resultadoNotif = await sincronizarNotificacoesCampanhas();
+            notificacoesCriadas = Number(resultadoNotif?.criadas) || 0;
+        } catch (erroNotif) {
+            console.error(
+                "Aviso: falha ao sincronizar notificações após status:",
+                erroNotif
+            );
+        }
+
+        return res.json({
+            mensagem: "Status sincronizados com sucesso",
+            total: sincronizadas.length,
+            notificacoes_criadas: notificacoesCriadas,
+            campanhas: sincronizadas
+        });
+
+    } catch (error) {
+
+        return responderErroInterno(
+            res,
+            error,
+            "Erro ao sincronizar status das campanhas"
+        );
 
     }
 
@@ -83,7 +156,12 @@ router.get("/:id", async (req, res) => {
         }
 
 
-        res.json(data);
+        const sincronizada = await sincronizarStatusCampanha(
+            supabase,
+            data
+        );
+
+        res.json(sincronizada);
 
     } catch (error) {
 
@@ -206,8 +284,8 @@ router.post("/", requireAuth, async (req, res) => {
 
             data_fim,
 
-            status:
-                status?.trim() || "ativa",
+            // Datas mandam: status calculado automaticamente
+            status: calcularStatusPorDatas(data_inicio, data_fim),
 
             imagem_card:
                 imagem_card?.trim() || null
@@ -383,8 +461,8 @@ router.put("/:id", requireAuth, async (req, res) => {
 
             data_fim,
 
-            status:
-                status?.trim() || "ativa",
+            // Datas mandam: status calculado automaticamente
+            status: calcularStatusPorDatas(data_inicio, data_fim),
 
             imagem_card:
                 imagem_card?.trim() || null

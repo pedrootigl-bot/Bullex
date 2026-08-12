@@ -29,24 +29,15 @@ function parseDataCampanha(valor) {
 
 
 /**
- * Campanha conta nos stats públicos quando:
- * - status === "ativa"
- * - ainda não chegou na data_fim (mesmo critério do front)
+ * Campanha conta nos stats públicos quando status === "ativa"
+ * (status sincronizado automaticamente pelas datas no GET /campanhas).
  */
 function campanhaContaNosStats(campanha) {
     const status = String(campanha?.status || "")
         .toLowerCase()
         .trim();
 
-    if (status !== "ativa") {
-        return false;
-    }
-
-    const fim = parseDataCampanha(campanha?.data_fim);
-    if (!fim) return true;
-
-    const hoje = inicioDoDia();
-    return hoje.getTime() < fim.getTime();
+    return status === "ativa";
 }
 
 

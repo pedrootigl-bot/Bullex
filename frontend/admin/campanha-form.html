@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../css/admin/admin.css">
     <link rel="stylesheet" href="../css/admin/campanha-form.css">
     <link rel="stylesheet" href="../css/admin/admin-theme.css">
+    <link rel="stylesheet" href="../css/admin/notificacoes-admin.css">
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
@@ -113,11 +114,15 @@
 
                     <div class="form-group">
                         <label for="status">Status</label>
-                        <select id="status" name="status">
+                        <select id="status" name="status" disabled>
+                            <option value="agendada">Agendada</option>
                             <option value="ativa">Ativa</option>
-                            <option value="inativa">Inativa</option>
-                            <option value="rascunho">Rascunho</option>
+                            <option value="finalizada">Finalizada</option>
                         </select>
+                        <small class="form-hint">
+                            Calculado automaticamente pelas datas (não é editável manualmente):
+                            antes do início = Agendada, no período = Ativa, a partir da data fim = Finalizada.
+                        </small>
                     </div>
 
                     <div class="form-group">
@@ -328,16 +333,33 @@
                 <div class="form-section__header">
                     <div>
                         <h2>Materiais da campanha</h2>
-                        <p>Adicione os materiais de divulgação vinculados à campanha.</p>
+                        <p>
+                            Adicione um ou vários materiais de divulgação.
+                            Você pode selecionar vários arquivos de uma vez.
+                        </p>
                     </div>
                 </div>
 
-                <div id="materiaisContainer"></div>
+                <div id="materiaisContainer" class="materiais-list"></div>
 
-                <button type="button" id="adicionarMaterialBtn" class="btn-secondary">
-                    <i class="fa-solid fa-plus"></i>
-                    Adicionar material
-                </button>
+                <input
+                    type="file"
+                    id="materiaisBulkFile"
+                    accept="image/png,image/jpeg,image/jpg,image/webp,video/*,.pdf,.zip"
+                    multiple
+                    hidden
+                >
+
+                <div class="materiais-actions">
+                    <button type="button" id="adicionarMaterialBtn" class="btn-secondary">
+                        <i class="fa-solid fa-plus"></i>
+                        Adicionar material
+                    </button>
+                    <button type="button" id="adicionarMateriaisLoteBtn" class="btn-secondary">
+                        <i class="fa-solid fa-files"></i>
+                        Adicionar vários arquivos
+                    </button>
+                </div>
             </section>
 
             <div class="form-actions">
@@ -357,6 +379,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./supabase-client.js"></script>
+    <script src="./notificacoes-admin.js?v=20260812n1"></script>
     <script src="./campanha-form.js"></script>
 
 </body>
