@@ -22,7 +22,7 @@ const TIPOS = Object.freeze({
 });
 
 function nomeCampanha(campanha) {
-    return String(campanha?.titulo || campanha?.nome || "Campanha").trim();
+    return String(campanha?.titulo || "Campanha").trim();
 }
 
 function diffDias(hoje, alvo) {
@@ -206,7 +206,7 @@ function eventosDaCampanha(campanha, hoje = hojeISO()) {
 async function sincronizarNotificacoesCampanhas() {
     const { data: campanhas, error } = await supabase
         .from("campanhas")
-        .select("id,titulo,nome,data_inicio,data_fim,status");
+        .select("id,titulo,data_inicio,data_fim,status");
 
     if (error) throw error;
 
