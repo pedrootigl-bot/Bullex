@@ -53,14 +53,19 @@ function atualizarStats(stats, campanhas) {
     const elHint = document.querySelector("#statCampanhasHint");
     const elCount = document.querySelector("#campanhasCount");
 
-    if (elCampanhas) elCampanhas.textContent = stats?.campanhas ?? campanhas.length;
+    const totalCampanhas = Array.isArray(campanhas) ? campanhas.length : 0;
+    const ativas = (Array.isArray(campanhas) ? campanhas : []).filter((c) =>
+        normalizarStatus(c.status) === "ativa"
+    ).length;
+
+    // Número grande = todas as campanhas existentes
+    // Hint = apenas as ativas
+    if (elCampanhas) elCampanhas.textContent = totalCampanhas;
     if (elMateriais) elMateriais.textContent = stats?.materiais ?? 0;
     if (elCopies) elCopies.textContent = stats?.copies ?? 0;
     if (elVideos) elVideos.textContent = stats?.videos ?? 0;
-    if (elCount) elCount.textContent = String(campanhas.length);
-
-    const ativas = campanhas.filter((c) => normalizarStatus(c.status).includes("ativa")).length;
-    if (elHint) elHint.textContent = `${ativas} ativas`;
+    if (elCount) elCount.textContent = String(totalCampanhas);
+    if (elHint) elHint.textContent = `${ativas} ativa${ativas === 1 ? "" : "s"}`;
 }
 
 function preencherCategorias(campanhas) {

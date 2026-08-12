@@ -685,23 +685,26 @@ main.dashboard > #voltarBtn {
     min-height: 38px;
     padding: 0.45rem 1rem;
     border-radius: 999px;
-    border: 1px solid transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.03);
     color: #9ca3af;
     font-size: 0.88rem;
     font-weight: 700;
-    transition: 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .objetivo-chip:hover span {
     color: #e5e7eb;
     background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-.objetivo-chip input:checked + span {
-    border-color: rgba(255, 255, 255, 0.22);
-    background: rgba(255, 255, 255, 0.08);
-    color: #f8fafc;
+.objetivo-chip input:checked + span,
+.objetivo-chip.is-selected span {
+    border-color: #68da00 !important;
+    background: rgba(104, 218, 0, 0.12) !important;
+    color: #c8ff8a !important;
+    box-shadow: 0 0 0 1px rgba(104, 218, 0, 0.25);
 }
 
 .btn-add-inline {

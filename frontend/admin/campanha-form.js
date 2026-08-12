@@ -1015,6 +1015,13 @@ const { error } = await supabaseClient.storage
             .filter(Boolean);
     }
 
+    function atualizarEstadoChipsObjetivo() {
+        document.querySelectorAll("#objetivoGroup .objetivo-chip").forEach((chip) => {
+            const input = chip.querySelector('input[name="objetivo"]');
+            chip.classList.toggle("is-selected", Boolean(input?.checked));
+        });
+    }
+
     function preencherObjetivos(objetivoValor) {
         const checks = document.querySelectorAll(
             '#objetivoGroup input[name="objetivo"]'
@@ -1028,6 +1035,14 @@ const { error } = await supabaseClient.storage
         checks.forEach((input) => {
             input.checked = selecionados.includes(input.value);
         });
+
+        atualizarEstadoChipsObjetivo();
+    }
+
+    const objetivoGroup = document.getElementById("objetivoGroup");
+    if (objetivoGroup) {
+        objetivoGroup.addEventListener("change", atualizarEstadoChipsObjetivo);
+        atualizarEstadoChipsObjetivo();
     }
 
     function adicionarPassoMecanica(texto = "") {

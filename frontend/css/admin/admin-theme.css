@@ -105,6 +105,44 @@ body {
     background: rgba(104, 218, 0, 0.12) !important;
 }
 
+.btn-site-publico {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+    min-height: 40px !important;
+    padding: 0.5rem 0.95rem !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(104, 218, 0, 0.4) !important;
+    background: rgba(104, 218, 0, 0.1) !important;
+    color: #9cff5c !important;
+    font-family: var(--admin-font) !important;
+    font-size: 0.84rem !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    transition: 0.2s ease !important;
+}
+
+.btn-site-publico:hover {
+    background: rgba(104, 218, 0, 0.18) !important;
+    border-color: #68da00 !important;
+    color: #c8ff8a !important;
+}
+
+.admin-header {
+    gap: 0.75rem;
+}
+
+.admin-header__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
 .btn-primary,
 .admin-menu button:first-child,
 button[onclick*="campanha-form"] {
