@@ -724,7 +724,6 @@ const { error } = await supabaseClient.storage
         const empty = item.querySelector(".material-upload-empty");
         const preview = item.querySelector(".material-upload-preview");
         const previewImg = item.querySelector(".material-upload-preview-img");
-        const fileName = item.querySelector(".material-upload-filename");
         const dropzone = item.querySelector(".material-upload-dropzone");
 
         if (urlInput) urlInput.value = url || "";
@@ -739,10 +738,6 @@ const { error } = await supabaseClient.storage
                 previewImg.hidden = true;
                 previewImg.removeAttribute("src");
             }
-        }
-
-        if (fileName) {
-            fileName.textContent = nomeArquivo || nomeArquivoDeUrl(url) || "arquivo";
         }
 
         if (empty) empty.hidden = Boolean(url);
@@ -920,7 +915,6 @@ const { error } = await supabaseClient.storage
         }
 
         const urlAtual = dados.url || "";
-        const nomeArquivo = urlAtual ? nomeArquivoDeUrl(urlAtual) : "";
         const ehImagemUrl = /\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(urlAtual);
 
         materialElement.innerHTML = `
@@ -934,14 +928,6 @@ const { error } = await supabaseClient.storage
                     placeholder="Ex: Banner Haval"
                     value="${escapeHtml(dados.nome || "")}"
                 >
-
-                <label>Formato da postagem</label>
-                <select class="material-formato">
-                    <option value="stories">Stories</option>
-                    <option value="feed">Feed</option>
-                    <option value="videos">Vídeos</option>
-                    <option value="banners">Banners</option>
-                </select>
 
                 <input
                     type="hidden"
@@ -971,42 +957,56 @@ const { error } = await supabaseClient.storage
                 >
 
                 <div class="upload-dropzone material-upload-dropzone${urlAtual ? " has-preview" : ""}">
-                    <div class="upload-dropzone__empty material-upload-empty"${urlAtual ? " hidden" : ""}>
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <p>Arraste e solte um ou vários arquivos aqui</p>
-                        <span>Imagens, vídeos ou arquivos · máx. 50 MB cada · múltiplos permitidos</span>
-                        <button type="button" class="btn-secondary material-upload-select">
-                            Selecionar arquivo(s)
-                        </button>
+                    <div class="material-upload-main">
+                        <div class="upload-dropzone__empty material-upload-empty"${urlAtual ? " hidden" : ""}>
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <p>Arraste e solte um ou vários arquivos aqui</p>
+                            <span>Imagens, vídeos ou arquivos · máx. 50 MB cada · múltiplos permitidos</span>
+                            <button type="button" class="material-btn material-btn--secondary material-upload-select">
+                                <i class="fa-solid fa-folder-open"></i>
+                                Selecionar arquivo(s)
+                            </button>
+                        </div>
+
+                        <div class="upload-dropzone__preview material-upload-preview"${urlAtual ? "" : " hidden"}>
+                            <img
+                                class="material-upload-preview-img"
+                                alt="Preview do material"
+                                ${ehImagemUrl && urlAtual ? `src="${escapeHtml(urlAtual)}"` : "hidden"}
+                            >
+                        </div>
                     </div>
 
-                    <div class="upload-dropzone__preview material-upload-preview"${urlAtual ? "" : " hidden"}>
-                        <img
-                            class="material-upload-preview-img"
-                            alt="Preview do material"
-                            ${ehImagemUrl && urlAtual ? `src="${escapeHtml(urlAtual)}"` : "hidden"}
-                        >
-                        <div class="upload-dropzone__meta">
-                            <strong class="material-upload-filename">
-                                ${escapeHtml(nomeArquivo || "arquivo")}
-                            </strong>
-                            <div class="upload-dropzone__actions">
-                                <button type="button" class="btn-secondary material-upload-replace">
-                                    Trocar
-                                </button>
-                                <button type="button" class="btn-secondary material-upload-clear">
-                                    Remover arquivo
-                                </button>
-                            </div>
+                    <div class="material-upload-meta">
+                        <div class="material-upload-formato">
+                            <label for="material-formato-${contadorMateriais}">
+                                Formato da postagem
+                            </label>
+                            <select
+                                id="material-formato-${contadorMateriais}"
+                                class="material-formato"
+                            >
+                                <option value="stories">Stories</option>
+                                <option value="feed">Feed</option>
+                                <option value="videos">Vídeos</option>
+                                <option value="banners">Banners</option>
+                            </select>
+                        </div>
+
+                        <div class="upload-dropzone__actions material-upload-actions">
+                            <button type="button" class="material-btn material-btn--primary material-upload-replace">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                                Trocar
+                            </button>
+                            <button type="button" class="material-btn material-btn--danger material-upload-remove">
+                                <i class="fa-solid fa-trash"></i>
+                                Excluir
+                            </button>
                         </div>
                     </div>
 
                     <div class="upload-dropzone__status material-upload-status" hidden></div>
                 </div>
-
-                <button type="button" class="remover-material btn-secondary">
-                    Remover Material
-                </button>
             </div>
         `;
 
@@ -1226,10 +1226,6 @@ const { error } = await supabaseClient.storage
         }
 
         if (lista.length === 0) {
-            adicionarPassoMecanica();
-            adicionarPassoMecanica();
-            adicionarPassoMecanica();
-            adicionarPassoMecanica();
             return;
         }
 
@@ -1630,8 +1626,6 @@ const { error } = await supabaseClient.storage
             regras
                 .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
                 .forEach((regra) => adicionarRegra(regra));
-        } else {
-            adicionarRegra();
         }
 
         const materiaisResposta = await fetch(`${API}/api/materiais/${campanhaId}`);
@@ -1644,10 +1638,6 @@ const { error } = await supabaseClient.storage
             materiais.forEach((material) => adicionarMaterial(material));
         }
 
-        if (!materiaisContainer?.querySelector(".material-item")) {
-            adicionarMaterial();
-        }
-
         const angulosResposta = await fetch(`${API}/api/angulos/${campanhaId}`);
         const angulos = await angulosResposta.json();
 
@@ -1655,11 +1645,6 @@ const { error } = await supabaseClient.storage
             angulos
                 .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
                 .forEach((angulo) => adicionarAngulo(angulo));
-        }
-
-        if (!angulosContainer?.querySelector(".angulo-item")) {
-            adicionarAngulo();
-            adicionarAngulo();
         }
     }
 
@@ -1716,10 +1701,6 @@ const { error } = await supabaseClient.storage
             if (!item) return;
 
             item.remove();
-
-            if (!mecanicaContainer.querySelector(".mecanica-item")) {
-                adicionarPassoMecanica();
-            }
         });
     }
 
@@ -1732,10 +1713,6 @@ const { error } = await supabaseClient.storage
             if (!item) return;
 
             item.remove();
-
-            if (!angulosContainer.querySelector(".angulo-item")) {
-                adicionarAngulo();
-            }
         });
     }
 
@@ -1770,13 +1747,6 @@ const { error } = await supabaseClient.storage
             const material = event.target.closest(".material-item");
             if (!material) return;
 
-            const removerBtn = event.target.closest(".remover-material");
-            if (removerBtn) {
-                material.remove();
-                atualizarTitulosMateriais();
-                return;
-            }
-
             const selectBtn = event.target.closest(
                 ".material-upload-select, .material-upload-replace"
             );
@@ -1784,6 +1754,15 @@ const { error } = await supabaseClient.storage
                 event.preventDefault();
                 event.stopPropagation();
                 material.querySelector(".material-upload-file")?.click();
+                return;
+            }
+
+            const excluirBtn = event.target.closest(".material-upload-remove");
+            if (excluirBtn) {
+                event.preventDefault();
+                event.stopPropagation();
+                material.remove();
+                atualizarTitulosMateriais();
                 return;
             }
 
@@ -1799,7 +1778,10 @@ const { error } = await supabaseClient.storage
             if (
                 dropzone &&
                 !event.target.closest("button") &&
-                !event.target.closest(".material-upload-preview")
+                !event.target.closest("select") &&
+                !event.target.closest("label") &&
+                !event.target.closest(".material-upload-preview") &&
+                !event.target.closest(".material-upload-meta")
             ) {
                 const urlAtual = material.querySelector(".material-url")?.value;
                 if (!urlAtual) {
@@ -1960,7 +1942,8 @@ const { error } = await supabaseClient.storage
         }
     });
 
-    // Modo edição: carrega dados. Modo criação: começa com 1 copy vazia.
+    // Modo edição: carrega dados existentes.
+    // Modo criação: seções vazias — o usuário adiciona campos sob demanda.
     if (isEditando) {
         carregarCampanhaParaEdicao().catch((error) => {
             console.error(error);
@@ -1968,11 +1951,6 @@ const { error } = await supabaseClient.storage
             irParaCampanhas();
         });
     } else {
-        adicionarCopy();
-        adicionarRegra();
-        adicionarMaterial();
         preencherMecanica([]);
-        adicionarAngulo();
-        adicionarAngulo();
     }
 });

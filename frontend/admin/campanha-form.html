@@ -7,7 +7,7 @@
     <title>Nova Campanha - Bullex</title>
 
     <link rel="stylesheet" href="../css/admin/admin.css">
-    <link rel="stylesheet" href="../css/admin/campanha-form.css">
+    <link rel="stylesheet" href="../css/admin/campanha-form.css?v=20260812m4">
     <link rel="stylesheet" href="../css/admin/admin-theme.css">
     <link rel="stylesheet" href="../css/admin/notificacoes-admin.css">
     <link rel="stylesheet"
@@ -300,11 +300,11 @@
                     <div>
                         <span class="form-section__eyebrow">Conteúdo</span>
                         <h2>Copies da campanha</h2>
-                        <p>Adicione os textos que serão utilizados na divulgação da campanha.</p>
+                        <p>Adicione os textos que serão utilizados na divulgação da campanha. Use o botão abaixo para incluir quantas copies precisar.</p>
                     </div>
                 </div>
 
-                <div id="copiesContainer" class="copies-list"></div>
+                <div id="copiesContainer" class="copies-list" data-empty="Nenhuma copy adicionada. Clique em “Adicionar copy”."></div>
 
                 <button type="button" id="adicionarCopyBtn" class="btn-add-copy">
                     <i class="fa-solid fa-plus"></i>
@@ -317,11 +317,11 @@
                     <div>
                         <span class="form-section__eyebrow">Condições</span>
                         <h2>Regras da campanha</h2>
-                        <p>Adicione as regras e condições da campanha.</p>
+                        <p>Adicione as regras e condições da campanha conforme a necessidade.</p>
                     </div>
                 </div>
 
-                <div id="regrasContainer" class="regras-list"></div>
+                <div id="regrasContainer" class="regras-list" data-empty="Nenhuma regra adicionada. Clique em “Adicionar regra”."></div>
 
                 <button type="button" id="adicionarRegraBtn" class="btn-add-regra">
                     <i class="fa-solid fa-plus"></i>
@@ -334,13 +334,13 @@
                     <div>
                         <h2>Materiais da campanha</h2>
                         <p>
-                            Adicione um ou vários materiais de divulgação.
-                            Você pode selecionar vários arquivos de uma vez.
+                            Adicione materiais de divulgação conforme precisar.
+                            Você também pode selecionar vários arquivos de uma vez.
                         </p>
                     </div>
                 </div>
 
-                <div id="materiaisContainer" class="materiais-list"></div>
+                <div id="materiaisContainer" class="materiais-list" data-empty="Nenhum material adicionado. Clique em “Adicionar material”."></div>
 
                 <input
                     type="file"
@@ -380,7 +380,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./supabase-client.js"></script>
     <script src="./notificacoes-admin.js?v=20260812n1"></script>
-    <script src="./campanha-form.js"></script>
+    <script src="./campanha-form.js?v=20260812m4"></script>
 
 </body>
 

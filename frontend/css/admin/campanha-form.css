@@ -309,6 +309,37 @@ main.dashboard > #voltarBtn {
     margin-bottom: 1rem;
 }
 
+.copies-list:empty,
+.regras-list:empty,
+.materiais-list:empty,
+.angulos-list:empty,
+.mecanica-list:empty {
+    display: block;
+    margin-bottom: 1rem;
+    padding: 1.1rem 1rem;
+    border-radius: 14px;
+    border: 1px dashed rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.9rem;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.copies-list:empty::before,
+.regras-list:empty::before,
+.materiais-list:empty::before {
+    content: attr(data-empty);
+}
+
+.angulos-list:empty::before {
+    content: "Nenhum ângulo adicionado. Clique em “Adicionar ângulo”.";
+}
+
+.mecanica-list:empty::before {
+    content: "Nenhum passo de mecânica. Clique em “Adicionar passo”.";
+}
+
 .form-section__eyebrow {
     display: inline-block;
     margin-bottom: 0.4rem;
@@ -1367,14 +1398,160 @@ main.dashboard > #voltarBtn {
 
 .material-item .material-upload-dropzone {
     margin-top: 4px;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
+    gap: 1rem 1.15rem;
+    align-items: stretch;
+    padding: 1rem;
+}
+
+.material-item .material-upload-main {
+    min-width: 0;
+}
+
+.material-item .material-upload-dropzone:not(.has-preview) {
+    grid-template-columns: 1fr;
+}
+
+.material-item .material-upload-dropzone:not(.has-preview) .material-upload-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0.85rem;
+}
+
+.material-item .material-upload-dropzone:not(.has-preview) .material-upload-actions {
+    display: flex;
+}
+
+.material-item .material-upload-dropzone:not(.has-preview) .material-upload-replace {
+    display: none !important;
+}
+
+.material-item .copy-item__content {
+    grid-template-columns: 1fr;
+}
+
+.material-item .copy-item__content > h3,
+.material-item .copy-item__content > label,
+.material-item .copy-item__content > input:not([type="hidden"]):not([type="file"]),
+.material-item .copy-item__content > select {
+    grid-column: 1 / -1;
+}
+
+.material-item .material-upload-preview {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.material-item .material-upload-preview-img {
+    width: 148px;
+    height: 264px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 1px solid rgba(104, 218, 0, 0.28);
+    background: rgba(0, 0, 0, 0.35);
+    flex-shrink: 0;
 }
 
 .material-item .material-upload-preview-img[hidden] {
     display: none !important;
 }
 
-.material-item .remover-material {
-    margin-top: 12px;
+.material-item .material-upload-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.9rem;
+    min-width: 0;
+}
+
+.material-item .material-upload-formato {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.material-item .material-upload-formato label {
+    margin: 0 !important;
+    color: #9ca3af !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.material-item .material-upload-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.material-item .material-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 42px;
+    padding: 0.55rem 1rem;
+    border-radius: 12px;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        filter 0.15s ease,
+        transform 0.15s ease;
+}
+
+.material-item .material-btn i {
+    font-size: 0.85rem;
+}
+
+.material-item .material-btn--primary {
+    border: none !important;
+    background: linear-gradient(180deg, #7ae600 0%, #68da00 100%) !important;
+    color: #071000 !important;
+    box-shadow: 0 8px 20px rgba(104, 218, 0, 0.22);
+}
+
+.material-item .material-btn--primary:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+.material-item .material-btn--secondary {
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #e5e7eb !important;
+}
+
+.material-item .material-btn--secondary:hover {
+    border-color: rgba(104, 218, 0, 0.35) !important;
+    background: rgba(104, 218, 0, 0.1) !important;
+    color: #fff !important;
+}
+
+.material-item .material-btn--danger {
+    border: 1px solid rgba(248, 113, 113, 0.35) !important;
+    background: rgba(220, 38, 38, 0.12) !important;
+    color: #fca5a5 !important;
+}
+
+.material-item .material-btn--danger:hover {
+    border-color: rgba(248, 113, 113, 0.55) !important;
+    background: rgba(220, 38, 38, 0.22) !important;
+    color: #fecaca !important;
+    transform: translateY(-1px);
+}
+
+.material-item .upload-dropzone__status {
+    grid-column: 1 / -1;
 }
 
 .materiais-list {
@@ -1495,6 +1672,26 @@ TELAS MUITO PEQUENAS
     .upload-dropzone__preview img {
         width: 100%;
         height: 180px;
+    }
+
+    .material-item .material-upload-preview-img {
+        width: min(160px, 42vw);
+        height: min(284px, 74vw);
+        margin-inline: auto;
+    }
+    .material-item .material-upload-dropzone {
+        grid-template-columns: 1fr;
+        padding: 0.85rem;
+    }
+
+    .material-item .material-upload-dropzone:not(.has-preview) .material-upload-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .material-item .material-upload-preview-img {
+        width: min(168px, 46vw);
+        height: min(300px, 82vw);
+        margin-inline: auto;
     }
 
 }
