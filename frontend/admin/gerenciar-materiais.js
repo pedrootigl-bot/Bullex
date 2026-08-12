@@ -15,6 +15,7 @@ const materialForm = document.querySelector("#materialForm");
 const materialIdInput = document.querySelector("#materialId");
 const materialNomeInput = document.querySelector("#materialNome");
 const materialTipoInput = document.querySelector("#materialTipo");
+const materialFormatoInput = document.querySelector("#materialFormato");
 const materialUrlInput = document.querySelector("#materialUrl");
 const materialFileInput = document.querySelector("#materialFile");
 const materialDropzone = document.querySelector("#materialDropzone");
@@ -79,9 +80,53 @@ function ehUrlImagem(url) {
 
 function tipoPorArquivo(file) {
     const tipo = String(file?.type || "").toLowerCase();
-    if (tipo.startsWith("image/")) return "Imagem";
-    if (tipo.startsWith("video/")) return "Video";
-    return "Arquivo";
+    if (tipo.startsWith("image/")) return "imagem";
+    if (tipo.startsWith("video/")) return "video";
+    return "arquivo";
+}
+
+function normalizarFormatoMaterial(valor) {
+    const bruto = String(valor || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (!bruto) return "";
+    if (["stories", "feed", "videos", "banners"].includes(bruto)) return bruto;
+    if (bruto.includes("stor")) return "stories";
+    if (bruto.includes("feed")) return "feed";
+    if (bruto.includes("video")) return "videos";
+    if (bruto.includes("banner")) return "banners";
+    return "";
+}
+
+function inferirFormatoLegado(material = {}) {
+    return (
+        normalizarFormatoMaterial(material.formato)
+        || normalizarFormatoMaterial(material.tipo)
+        || "stories"
+    );
+}
+
+function labelFormato(formato) {
+    const mapa = {
+        stories: "Stories",
+        feed: "Feed",
+        videos: "Vídeos",
+        banners: "Banners"
+    };
+    return mapa[formato] || "Outros";
+}
+
+function inferirTipoArquivo(material = {}) {
+    const tipo = String(material.tipo || "").trim().toLowerCase();
+    if (["imagem", "video", "arquivo"].includes(tipo)) return tipo;
+
+    const url = String(material.url || material.arquivo || "");
+    if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)) return "video";
+    if (/\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(url)) return "imagem";
+    return "arquivo";
 }
 
 function mostrarEstado(el, mensagem, tipo = "") {
@@ -237,7 +282,8 @@ function renderMaterialCard(material) {
     card.dataset.id = String(material.id);
 
     const nome = material.nome || "Material";
-    const tipo = material.tipo || "—";
+    const formato = inferirFormatoLegado(material);
+    const tipo = inferirTipoArquivo(material);
     const url = material.url || "";
     const descricao = material.descricao || material.descricao_material || "";
     const preview = ehUrlImagem(url)
@@ -250,7 +296,7 @@ function renderMaterialCard(material) {
             <h3>${escaparHtml(nome)}</h3>
             ${descricao ? `<p>${escaparHtml(descricao)}</p>` : ""}
             <p>Arquivo: ${escaparHtml(nomeArquivoDeUrl(url) || "—")}</p>
-            <span class="gm-material-card__type">${escaparHtml(tipo)}</span>
+            <span class="gm-material-card__type">${escaparHtml(labelFormato(formato))} · ${escaparHtml(tipo)}</span>
         </div>
         <div class="gm-material-card__actions">
             <button type="button" class="gm-btn gm-btn--sm gm-btn--view" data-action="visualizar" ${url ? "" : "disabled"}>
@@ -362,13 +408,20 @@ function abrirModalMaterial(material = null) {
         }
         if (materialIdInput) materialIdInput.value = String(material.id || "");
         if (materialNomeInput) materialNomeInput.value = material.nome || "";
-        if (materialTipoInput) materialTipoInput.value = material.tipo || "";
+        if (materialFormatoInput) {
+            materialFormatoInput.value = inferirFormatoLegado(material);
+        }
+        if (materialTipoInput) {
+            materialTipoInput.value = inferirTipoArquivo(material);
+        }
         mostrarPreviewArquivo(material.url || "", nomeArquivoDeUrl(material.url));
     } else {
         if (materialModalTitle) {
             materialModalTitle.textContent = "Adicionar material";
         }
         if (materialIdInput) materialIdInput.value = "";
+        if (materialFormatoInput) materialFormatoInput.value = "stories";
+        if (materialTipoInput) materialTipoInput.value = "";
     }
 
     materialModal.hidden = false;
@@ -426,7 +479,7 @@ async function processarUploadArquivo(file) {
             throw new Error("Upload concluído, mas a URL não foi retornada.");
         }
 
-        if (materialTipoInput && !materialTipoInput.value.trim()) {
+        if (materialTipoInput) {
             materialTipoInput.value = tipoPorArquivo(file);
         }
 
@@ -461,13 +514,23 @@ async function salvarMaterial(event) {
     }
 
     const nome = materialNomeInput?.value.trim() || "";
-    const tipo = materialTipoInput?.value.trim() || "";
+    const formato = normalizarFormatoMaterial(materialFormatoInput?.value);
+    let tipo = String(materialTipoInput?.value || "").trim().toLowerCase();
     const url = materialUrlInput?.value.trim() || "";
     const materialId = materialIdInput?.value.trim() || "";
 
     if (!nome) {
         setStatusUpload("Informe o nome do material.", "is-error");
         return;
+    }
+
+    if (!formato) {
+        setStatusUpload("Selecione o formato da postagem.", "is-error");
+        return;
+    }
+
+    if (!["imagem", "video", "arquivo"].includes(tipo)) {
+        tipo = inferirTipoArquivo({ url, tipo });
     }
 
     if (materialSalvarBtn) materialSalvarBtn.disabled = true;
@@ -477,7 +540,7 @@ async function salvarMaterial(event) {
             "Content-Type": "application/json"
         });
 
-        const payload = { nome, tipo, url };
+        const payload = { nome, tipo, formato, url };
         let resposta;
 
         if (materialId) {

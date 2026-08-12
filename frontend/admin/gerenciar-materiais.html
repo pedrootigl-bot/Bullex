@@ -107,13 +107,15 @@
                     required
                 >
 
-                <label for="materialTipo">Tipo</label>
-                <input
-                    type="text"
-                    id="materialTipo"
-                    class="material-tipo"
-                    placeholder="Ex: Imagem"
-                >
+                <label for="materialFormato">Formato da postagem</label>
+                <select id="materialFormato" class="material-formato" required>
+                    <option value="stories">Stories</option>
+                    <option value="feed">Feed</option>
+                    <option value="videos">Vídeos</option>
+                    <option value="banners">Banners</option>
+                </select>
+
+                <input type="hidden" id="materialTipo" class="material-tipo" value="">
 
                 <label>Arquivo do material</label>
                 <input

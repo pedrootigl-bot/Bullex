@@ -6,11 +6,76 @@ const supabase = require("../config/supabase");
 const requireAuth = require("../middleware/requireAuth");
 const { responderErroInterno } = require("../utils/httpErrors");
 
+const FORMATOS_VALIDOS = new Set([
+    "stories",
+    "feed",
+    "videos",
+    "banners"
+]);
+
+/**
+ * formato = categoria da postagem (stories|feed|videos|banners)
+ * Não confundir com tipo (imagem|video|arquivo).
+ */
+function normalizarFormato(valor) {
+    const bruto = String(valor || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (!bruto) return null;
+
+    if (FORMATOS_VALIDOS.has(bruto)) {
+        return bruto;
+    }
+
+    if (bruto.includes("stor")) return "stories";
+    if (bruto.includes("feed")) return "feed";
+    if (bruto.includes("video")) return "videos";
+    if (bruto.includes("banner")) return "banners";
+
+    return null;
+}
+
+/**
+ * tipo = tipo do arquivo (imagem|video|arquivo)
+ * Ignora valores legados que eram categorias de postagem.
+ */
+function normalizarTipoArquivo(valor) {
+    const bruto = String(valor || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (!bruto) return null;
+
+    // Valores antigos do form (Stories/Feed/...) não são tipo de arquivo
+    if (FORMATOS_VALIDOS.has(bruto) || bruto === "story" || bruto === "banner") {
+        return null;
+    }
+
+    if (bruto.includes("video")) return "video";
+    if (
+        bruto.includes("image")
+        || bruto.includes("imagem")
+        || bruto.includes("img")
+    ) {
+        return "imagem";
+    }
+    if (bruto.includes("arquivo") || bruto.includes("file") || bruto.includes("pdf")) {
+        return "arquivo";
+    }
+
+    return bruto;
+}
+
 
 // ======================================================
 // CRIAR MATERIAL
 // POST /api/materiais
-// Campos reais da tabela: campanha_id, nome, tipo, url
+// Campos: campanha_id, nome, tipo, formato, url
 // ======================================================
 
 router.post("/", requireAuth, async (req, res) => {
@@ -21,6 +86,7 @@ router.post("/", requireAuth, async (req, res) => {
             campanha_id,
             nome,
             tipo,
+            formato,
             url
         } = req.body;
 
@@ -50,8 +116,9 @@ router.post("/", requireAuth, async (req, res) => {
 
             nome: String(nome).trim(),
 
-            tipo:
-                tipo?.trim() || null,
+            tipo: normalizarTipoArquivo(tipo),
+
+            formato: normalizarFormato(formato),
 
             url:
                 url?.trim() || null
@@ -173,7 +240,7 @@ router.put("/:id", requireAuth, async (req, res) => {
             });
         }
 
-        const { nome, tipo, url } = req.body;
+        const { nome, tipo, formato, url } = req.body;
 
         if (!nome || !String(nome).trim()) {
             return res.status(400).json({
@@ -183,7 +250,8 @@ router.put("/:id", requireAuth, async (req, res) => {
 
         const atualizacao = {
             nome: String(nome).trim(),
-            tipo: tipo?.trim() || null,
+            tipo: normalizarTipoArquivo(tipo),
+            formato: normalizarFormato(formato),
             url: url?.trim() || null
         };
 

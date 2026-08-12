@@ -25,6 +25,47 @@ function extrairStorageDeUrl(url) {
     }
 }
 
+/**
+ * Pastas do ZIP seguem o campo `formato` (stories|feed|videos|banners).
+ * Fallback legado: tipo/nome só se forem categorias de postagem (não imagem/video).
+ */
+function pastaPorFormatoMaterial(item) {
+    const formato = String(item?.formato || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (formato === "stories" || formato.includes("stor")) return "stories";
+    if (formato === "feed" || formato.includes("feed")) return "feed";
+    if (formato === "videos" || formato.includes("video")) return "videos";
+    if (formato === "banners" || formato.includes("banner")) return "banners";
+
+    const legado = String(
+        item?.categoria
+        || item?.tipo
+        || item?.nome
+        || item?.titulo
+        || ""
+    )
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    // Não usar tipo=imagem|video como pasta de postagem
+    if (legado === "imagem" || legado === "image" || legado === "video" || legado === "arquivo") {
+        return "outros";
+    }
+
+    if (legado.includes("stor")) return "stories";
+    if (legado.includes("feed")) return "feed";
+    if (legado.includes("video")) return "videos";
+    if (legado.includes("banner")) return "banners";
+
+    return "outros";
+}
+
 function nomeArquivoItem(item, fallbackIndex) {
     const origem =
         item.nome
@@ -134,9 +175,12 @@ router.get("/kit/:campanha_id", async (req, res) => {
                 continue;
             }
 
+            const pasta = pastaPorFormatoMaterial(item);
+            const nomeBase = nomeArquivoItem(item, i + 1);
+
             entradas.push({
                 buffer,
-                name: nomeArquivoItem(item, i + 1)
+                name: `${pasta}/${nomeBase}`
             });
         }
 
@@ -144,6 +188,28 @@ router.get("/kit/:campanha_id", async (req, res) => {
             return res.status(404).json({
                 erro: "Nenhum arquivo pôde ser baixado"
             });
+        }
+
+        // Evita nomes duplicados no ZIP
+        const nomesUsados = new Set();
+        for (const entrada of entradas) {
+            let nomeFinal = entrada.name;
+            let contador = 2;
+
+            while (nomesUsados.has(nomeFinal.toLowerCase())) {
+                const ponto = entrada.name.lastIndexOf(".");
+                if (ponto > entrada.name.lastIndexOf("/")) {
+                    nomeFinal =
+                        `${entrada.name.slice(0, ponto)}-${contador}`
+                        + entrada.name.slice(ponto);
+                } else {
+                    nomeFinal = `${entrada.name}-${contador}`;
+                }
+                contador += 1;
+            }
+
+            nomesUsados.add(nomeFinal.toLowerCase());
+            entrada.name = nomeFinal;
         }
 
         res.setHeader("Content-Type", "application/zip");

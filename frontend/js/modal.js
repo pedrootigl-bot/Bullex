@@ -11,6 +11,8 @@ const modalErrorMessage = document.getElementById("modalErrorMessage");
 const modalBody = document.getElementById("modalBody");
 const modalRetry = document.getElementById("modalRetry");
 let campanhaModalAtualId = null;
+let materiaisModalCache = [];
+let kitsModalCache = [];
 
 /**
  * Resolve o ID da campanha do destaque ("O que divulgar hoje").
@@ -199,11 +201,6 @@ async function carregarCampanhaNoModal(campanhaId) {
         campanhaModalAtualId = campanha.id;
         popularCampanha(campanha);
 
-        // Kit completo da mesma campanha do destaque
-        if (campanha.id != null) {
-            carregarKit(campanha.id);
-        }
-
         setModalState({ ready: true });
     } catch (err) {
         console.error(err);
@@ -241,7 +238,9 @@ function popularCampanha(campanha) {
         periodoEl.hidden = !periodo;
     }
 
-    document.getElementById("campaignSubtitle").textContent = campanha.subtitulo || "";
+    document.getElementById("campaignSubtitle").textContent =
+        campanha.subtitulo
+        || "Materiais organizados por formato para acelerar sua divulgação.";
 
     const downloadKit = document.getElementById("downloadKit");
     if (downloadKit) {
@@ -251,18 +250,32 @@ function popularCampanha(campanha) {
         if (Number.isFinite(idNumerico) && idNumerico > 0) {
             downloadKit.href =
                 `http://localhost:3000/api/download/kit/${idNumerico}`;
+            downloadKit.removeAttribute("aria-disabled");
+            downloadKit.classList.remove("is-disabled");
+        } else {
+            downloadKit.href = "#";
+            downloadKit.setAttribute("aria-disabled", "true");
+            downloadKit.classList.add("is-disabled");
         }
 
         downloadKit.removeAttribute("target");
         downloadKit.removeAttribute("rel");
-        downloadKit.setAttribute("download", "");
+        downloadKit.setAttribute("download", `kit-${idNumerico || "campanha"}.zip`);
     }
 
     renderizarAbas(campanha.abas || []);
-    renderizarMateriais(campanha.materiais || []);
     renderizarVisaoGeral(campanha.visaoGeral);
     renderizarCopies(campanha.copies || []);
     renderizarRegras(campanha.regras || []);
+
+    // Materiais + kit na mesma lista agrupada
+    materiaisModalCache = Array.isArray(campanha.materiais) ? campanha.materiais.slice() : [];
+    renderizarMateriais(materiaisModalCache);
+
+    if (campanha.id != null) {
+        carregarKit(campanha.id);
+    }
+
     ativarAba(modalAbaInicial || "visao-geral");
     modalAbaInicial = "visao-geral";
 }
@@ -297,6 +310,145 @@ function ativarAba(abaId) {
     });
 }
 
+const GRUPOS_MATERIAIS_MODAL = [
+    { id: "stories", label: "Stories" },
+    { id: "feed", label: "Feed" },
+    { id: "videos", label: "Vídeos" },
+    { id: "banners", label: "Banners" }
+];
+
+const FORMATOS_VALIDOS_MODAL = new Set([
+    "stories",
+    "feed",
+    "videos",
+    "banners"
+]);
+
+function ehVideoMaterial(material) {
+    const tipo = String(material?.tipo || "").toLowerCase();
+    const url = String(material?.url || material?.arquivo || "").toLowerCase();
+    return (
+        tipo === "video"
+        || tipo.includes("video")
+        || tipo.includes("vídeo")
+        || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)
+    );
+}
+
+function normalizarFormatoModal(valor) {
+    const bruto = String(valor || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (!bruto) return null;
+    if (FORMATOS_VALIDOS_MODAL.has(bruto)) return bruto;
+    if (bruto.includes("stor")) return "stories";
+    if (bruto.includes("feed")) return "feed";
+    if (bruto.includes("video")) return "videos";
+    if (bruto.includes("banner")) return "banners";
+    return null;
+}
+
+/**
+ * Agrupa por `formato` (stories|feed|videos|banners).
+ * Sem formato: tenta legado em tipo/nome (só se for categoria de postagem),
+ * senão cai em "outros". Não usa tipo=imagem|video como categoria.
+ */
+function classificarGrupoMaterial(material) {
+    const porFormato = normalizarFormatoModal(material?.formato);
+    if (porFormato) return porFormato;
+
+    const legado = String(
+        material?.categoria
+        || material?.tipo
+        || material?.nome
+        || material?.titulo
+        || ""
+    )
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (
+        legado === "imagem"
+        || legado === "image"
+        || legado === "video"
+        || legado === "arquivo"
+    ) {
+        return "outros";
+    }
+
+    const porLegado = normalizarFormatoModal(legado);
+    if (porLegado) return porLegado;
+
+    if (legado.includes("1080x1920")) return "stories";
+    if (legado.includes("1080x1080")) return "feed";
+
+    return "outros";
+}
+
+function agruparMateriaisModal(materiais = []) {
+    const mapa = {
+        stories: [],
+        feed: [],
+        videos: [],
+        banners: [],
+        outros: []
+    };
+
+    materiais.forEach((item) => {
+        const grupo = classificarGrupoMaterial(item);
+        (mapa[grupo] || mapa.outros).push(item);
+    });
+
+    const ordem = [...GRUPOS_MATERIAIS_MODAL, { id: "outros", label: "Outros" }];
+
+    return ordem
+        .map((grupo) => ({
+            id: grupo.id,
+            label: grupo.label,
+            items: mapa[grupo.id] || []
+        }))
+        .filter((grupo) => grupo.items.length > 0);
+}
+
+function tituloMaterialModal(material) {
+    const nome = String(material?.nome || material?.titulo || "Material").trim();
+    const grupo = GRUPOS_MATERIAIS_MODAL.find(
+        (item) => item.id === classificarGrupoMaterial(material)
+    );
+
+    if (!grupo) return nome;
+    if (nome.toLowerCase().includes(grupo.label.toLowerCase().slice(0, 4))) {
+        return nome;
+    }
+
+    return `${grupo.label.replace(/s$/i, "").replace("Vídeo", "Video")} — ${nome}`;
+}
+
+function metaMaterialModal(material) {
+    return (
+        material?.resolucao
+        || material?.dimensoes
+        || material?.tamanho
+        || material?.tipo
+        || ""
+    );
+}
+
+function urlMaterialModal(material) {
+    return resolverCaminhoKit(
+        material?.preview
+        || material?.arquivo
+        || material?.url
+        || material?.imagem
+        || ""
+    );
+}
+
 function renderizarMateriais(materiais) {
     const container = document.getElementById("materialsContainer");
 
@@ -305,115 +457,125 @@ function renderizarMateriais(materiais) {
         return;
     }
 
-    container.innerHTML = "";
-
     const lista = Array.isArray(materiais) ? materiais : [];
+    const grupos = agruparMateriaisModal(lista);
 
-    if (!lista.length) {
-        container.innerHTML = "<p>Nenhum material disponível no momento.</p>";
+    if (!grupos.length) {
+        container.innerHTML = `
+            <p class="modal__visao-geral__empty">
+                Nenhum material disponível no momento.
+            </p>
+        `;
         return;
     }
 
-    lista.forEach((material) => {
-        const card = document.createElement("div");
-        card.className = "material-card";
-        card.dataset.materialId = material.id || "";
+    container.innerHTML = `
+        <div class="modal__materials-list">
+            ${grupos.map((grupo) => `
+                <section class="modal__materials-group" data-grupo="${escapeHtml(grupo.id)}">
+                    <p class="modal__materials-group__label">${escapeHtml(grupo.label)}</p>
+                    <div class="modal__materials-group__items">
+                        ${grupo.items.map((material, index) => {
+                            const titulo = tituloMaterialModal(material);
+                            const meta = metaMaterialModal(material);
+                            const url = urlMaterialModal(material);
+                            const thumb = url && !ehVideoMaterial(material)
+                                ? `<img src="${escapeHtml(url)}" alt="${escapeHtml(titulo)}" loading="lazy">`
+                                : `<div class="modal__material-thumb-fallback" aria-hidden="true">
+                                    <i class="fa-solid ${ehVideoMaterial(material) ? "fa-film" : "fa-image"}"></i>
+                                   </div>`;
 
-        const titulo = material.titulo || material.nome || "Material";
+                            return `
+                                <article
+                                    class="modal__material-row"
+                                    data-grupo="${escapeHtml(grupo.id)}"
+                                    data-index="${index}"
+                                >
+                                    <div class="modal__material-thumb">
+                                        ${thumb}
+                                    </div>
+                                    <div class="modal__material-info">
+                                        <h3>${escapeHtml(titulo)}</h3>
+                                        ${meta ? `<span>${escapeHtml(meta)}</span>` : ""}
+                                    </div>
+                                    <div class="modal__material-actions">
+                                        <button type="button" class="btn btn--outline" data-action="preview">
+                                            <i class="fa-regular fa-eye"></i>
+                                            Visualizar
+                                        </button>
+                                        <a href="${escapeHtml(url || "#")}" class="btn modal__material-download" download>
+                                            <i class="fa-solid fa-download"></i>
+                                            Baixar
+                                        </a>
+                                    </div>
+                                </article>
+                            `;
+                        }).join("")}
+                    </div>
+                </section>
+            `).join("")}
+        </div>
+    `;
 
-        const arquivoUrl = resolverCaminhoKit(
-            material.preview ||
-            material.arquivo ||
-            material.url ||
-            material.imagem ||
-            ""
-        );
+    container.querySelectorAll(".modal__material-row").forEach((row) => {
+        const grupoId = row.dataset.grupo;
+        const index = Number(row.dataset.index);
+        const grupo = grupos.find((item) => item.id === grupoId);
+        const material = grupo?.items?.[index];
+        if (!material) return;
 
-        const downloadUrl = resolverCaminhoKit(
-            material.download ||
-            material.arquivo ||
-            material.url ||
-            material.imagem ||
-            "#"
-        );
+        const url = urlMaterialModal(material);
+        const titulo = tituloMaterialModal(material);
 
-
-        card.innerHTML = `
-            <div class="material-info">
-                <h3>${escapeHtml(titulo)}</h3>
-                <span>${escapeHtml(material.resolucao || material.tipo || "")}</span>
-            </div>
-
-            <div class="material-actions">
-
-                <button type="button" class="btn btn--outline" data-action="preview">
-                    <i class="fa-regular fa-eye"></i>
-                    Visualizar
-                </button>
-
-                <a href="${downloadUrl}" class="btn" download>
-                    <i class="fa-solid fa-download"></i>
-                    Baixar
-                </a>
-
-            </div>
-        `;
-
-
-        const previewBtn = card.querySelector('[data-action="preview"]');
-
-        previewBtn.addEventListener("click", () => {
-
-            const url = arquivoUrl;
-
-
-            // Se for vídeo
-            if (material.tipo === "video") {
-
+        row.querySelector('[data-action="preview"]')?.addEventListener("click", () => {
+            if (ehVideoMaterial(material)) {
                 if (typeof abrirVideoPreview === "function") {
                     abrirVideoPreview(url, titulo);
                 } else {
                     window.open(url, "_blank", "noopener");
                 }
-
                 return;
             }
 
-
-            // Se for imagem
             if (typeof abrirImagePreview === "function") {
-
                 abrirImagePreview(url, titulo);
-
             } else if (url) {
-
                 window.open(url, "_blank", "noopener");
-
             }
-
         });
 
-
-        const downloadBtn = card.querySelector("a.btn[download]");
-
-        if (downloadBtn) {
-
-            downloadBtn.addEventListener("click", (event) => {
-
-                forcarDownloadArquivo(
-                    event,
-                    downloadUrl,
-                    titulo
-                );
-
-            });
-
-        }
-
-
-        container.appendChild(card);
-
+        row.querySelector(".modal__material-download")?.addEventListener("click", (event) => {
+            forcarDownloadArquivo(event, url, titulo);
+        });
     });
+}
+
+function normalizarKitComoMaterial(item) {
+    return {
+        id: item?.id ? `kit-${item.id}` : undefined,
+        nome: item?.nome || item?.titulo || "Item do kit",
+        titulo: item?.titulo || item?.nome || "Item do kit",
+        tipo: item?.tipo || "arquivo",
+        formato: item?.formato || null,
+        url: item?.arquivo || item?.url || item?.imagem || "",
+        arquivo: item?.arquivo || item?.url || item?.imagem || "",
+        resolucao: item?.descricao || item?.resolucao || "",
+        origem: "kit"
+    };
+}
+
+function mesclarMateriaisEKits() {
+    const mapa = new Map();
+
+    [...materiaisModalCache, ...kitsModalCache].forEach((item) => {
+        const url = String(item?.url || item?.arquivo || "").trim();
+        const chave = url || `${item?.nome || item?.titulo || ""}-${item?.id || Math.random()}`;
+        if (!mapa.has(chave)) {
+            mapa.set(chave, item);
+        }
+    });
+
+    renderizarMateriais(Array.from(mapa.values()));
 }
 function normalizarListaMecanica(valor) {
     if (Array.isArray(valor)) {
@@ -918,14 +1080,18 @@ async function carregarKit(campanhaId){
         }
 
         const dados = await response.json();
+        const lista = Array.isArray(dados)
+            ? dados
+            : (dados?.kits ?? []);
 
-        console.log("KIT RECEBIDO:", dados);
-
-        renderizarKit(dados);
+        kitsModalCache = lista.map(normalizarKitComoMaterial);
+        mesclarMateriaisEKits();
 
     }catch(error){
 
         console.error("Erro ao carregar kit:", error);
+        kitsModalCache = [];
+        mesclarMateriaisEKits();
 
     }
 
@@ -1009,98 +1175,17 @@ async function forcarDownloadArquivo(event, url, nomeBase){
 
 
 function renderizarKit(itens){
-
-    const container = document.getElementById("kit-items");
-
-    if(!container){
-        console.error("Elemento #kit-items não encontrado");
-        return;
-    }
-
     const lista = Array.isArray(itens)
         ? itens
         : (itens?.kits ?? []);
 
-    // Evita duplicar mock + kit no mesmo painel
-    const materialsContainer = document.getElementById("materialsContainer");
-    if(materialsContainer){
-        materialsContainer.innerHTML = "";
-    }
-
-    container.innerHTML = "";
-
-    if(lista.length === 0){
-        container.innerHTML = "<p>Nenhum item no kit.</p>";
-        return;
-    }
-
-    lista.forEach(item => {
-
-        const imagemSrc = resolverCaminhoKit(
-            item.arquivo || item.imagem || item.url || ""
-        );
-
-        const downloadSrc = resolverCaminhoKit(
-            item.arquivo || item.imagem || item.url || "#"
-        );
-
-        const nome = item.nome || item.titulo || "Material";
-        const meta = item.descricao || item.tipo || "";
-
-        const card = document.createElement("div");
-        card.className = "material-card";
-
-        // Sem imagem no card — só no modal de preview ao clicar em Visualizar
-        card.innerHTML = `
-            <div class="material-info">
-                <h3>${escapeHtml(nome)}</h3>
-                <span>${escapeHtml(meta)}</span>
-            </div>
-            <div class="material-actions">
-                <button type="button" class="btn btn--outline" data-action="preview">
-                    <i class="fa-regular fa-eye"></i>
-                    Visualizar
-                </button>
-                <a
-                    href="${downloadSrc}"
-                    download="${nomeArquivoDeUrl(downloadSrc, nome)}"
-                    class="btn btn-download-kit"
-                >
-                    <i class="fa-solid fa-download"></i>
-                    Baixar
-                </a>
-            </div>
-        `;
-
-        const previewBtn = card.querySelector('[data-action="preview"]');
-        if(previewBtn){
-            previewBtn.addEventListener("click", () => {
-                abrirImagePreview(imagemSrc, nome);
-            });
-        }
-
-        const botaoBaixar = card.querySelector(".btn-download-kit");
-        if(botaoBaixar){
-            botaoBaixar.addEventListener("click", (event) => {
-                forcarDownloadArquivo(event, downloadSrc, nome);
-            });
-        }
-
-        container.appendChild(card);
-
-    });
-
+    kitsModalCache = lista.map(normalizarKitComoMaterial);
+    mesclarMateriaisEKits();
 }
-
-
-/* ==================================================
-   MODAL — Preview de imagem (kit/materiais)
-================================================== */
 
 const imagePreviewModal = document.getElementById("imagePreviewModal");
 const imagePreview = document.getElementById("imagePreview");
 const closeImagePreviewBtn = document.getElementById("closeImagePreview");
-
 
 function abrirImagePreview(src, alt = "Visualização do material"){
 
@@ -1135,7 +1220,11 @@ function fecharImagePreview(){
 
 
 if(closeImagePreviewBtn){
-    closeImagePreviewBtn.addEventListener("click", fecharImagePreview);
+    closeImagePreviewBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        fecharImagePreview();
+    });
 }
 
 
@@ -1145,7 +1234,7 @@ if(imagePreviewModal){
 
         if(
             event.target === imagePreviewModal
-            || event.target.matches("[data-image-preview-close]")
+            || event.target.closest("[data-image-preview-close]")
         ){
             fecharImagePreview();
         }
@@ -1161,7 +1250,7 @@ if(modal){
     modal.addEventListener("click", (event) => {
 
         const img = event.target.closest(
-            "#kit-items img, #materialsContainer img, .kit-card img, .material-card img"
+            "#materialsContainer img, .modal__material-thumb img, .kit-card img, .material-card img"
         );
 
         if(!img) return;

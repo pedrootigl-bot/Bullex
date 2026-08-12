@@ -603,9 +603,38 @@ const { error } = await supabaseClient.storage
     function tipoMaterialPorArquivo(file) {
         const tipo = String(file?.type || "").toLowerCase();
 
-        if (tipo.startsWith("image/")) return "Imagem";
-        if (tipo.startsWith("video/")) return "Video";
-        return "Arquivo";
+        if (tipo.startsWith("image/")) return "imagem";
+        if (tipo.startsWith("video/")) return "video";
+        return "arquivo";
+    }
+
+    function normalizarFormatoMaterial(valor) {
+        const bruto = String(valor || "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        if (!bruto) return "";
+
+        if (["stories", "feed", "videos", "banners"].includes(bruto)) {
+            return bruto;
+        }
+
+        if (bruto.includes("stor")) return "stories";
+        if (bruto.includes("feed")) return "feed";
+        if (bruto.includes("video")) return "videos";
+        if (bruto.includes("banner")) return "banners";
+
+        return "";
+    }
+
+    function inferirFormatoLegado(dados = {}) {
+        const direto = normalizarFormatoMaterial(dados.formato);
+        if (direto) return direto;
+
+        // Materiais antigos gravavam a categoria em `tipo`
+        return normalizarFormatoMaterial(dados.tipo);
     }
 
     function extensaoArquivoMaterial(file) {
@@ -773,7 +802,7 @@ const { error } = await supabaseClient.storage
                 );
             }
 
-            if (tipoInput && !tipoInput.value.trim()) {
+            if (tipoInput) {
                 tipoInput.value = tipoMaterialPorArquivo(file);
             }
 
@@ -846,12 +875,24 @@ const { error } = await supabaseClient.storage
                     value="${escapeHtml(dados.nome || "")}"
                 >
 
-                <label>Tipo</label>
+                <label>Formato da postagem</label>
+                <select class="material-formato">
+                    <option value="stories">Stories</option>
+                    <option value="feed">Feed</option>
+                    <option value="videos">Vídeos</option>
+                    <option value="banners">Banners</option>
+                </select>
+
                 <input
-                    type="text"
+                    type="hidden"
                     class="material-tipo"
-                    placeholder="Ex: Imagem"
-                    value="${escapeHtml(dados.tipo || "")}"
+                    value="${escapeHtml(
+                        ["imagem", "video", "arquivo"].includes(
+                            String(dados.tipo || "").trim().toLowerCase()
+                        )
+                            ? String(dados.tipo).trim().toLowerCase()
+                            : ""
+                    )}"
                 >
 
                 <label>Arquivo do material</label>
@@ -909,6 +950,22 @@ const { error } = await supabaseClient.storage
         `;
 
         materiaisContainer.appendChild(materialElement);
+
+        const formatoSelect = materialElement.querySelector(".material-formato");
+        if (formatoSelect) {
+            formatoSelect.value = inferirFormatoLegado(dados) || "stories";
+        }
+
+        // Se tipo legado era categoria, tenta inferir tipo pela URL
+        const tipoInput = materialElement.querySelector(".material-tipo");
+        if (tipoInput && !tipoInput.value) {
+            if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(urlAtual)) {
+                tipoInput.value = "video";
+            } else if (/\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(urlAtual)) {
+                tipoInput.value = "imagem";
+            }
+        }
+
         atualizarTitulosMateriais();
     }
 
@@ -966,13 +1023,25 @@ const { error } = await supabaseClient.storage
 
         elementos.forEach((element) => {
             const nome = element.querySelector(".material-nome")?.value.trim() || "";
-            const tipo = element.querySelector(".material-tipo")?.value.trim() || "";
+            const formato = normalizarFormatoMaterial(
+                element.querySelector(".material-formato")?.value
+            );
+            let tipo = String(
+                element.querySelector(".material-tipo")?.value || ""
+            ).trim().toLowerCase();
             const url = element.querySelector(".material-url")?.value.trim() || "";
+
+            if (!["imagem", "video", "arquivo"].includes(tipo)) {
+                if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)) tipo = "video";
+                else if (/\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(url)) tipo = "imagem";
+                else tipo = tipo || "arquivo";
+            }
 
             materiais.push({
                 id: element.dataset.id || null,
                 nome,
                 tipo,
+                formato,
                 url
             });
         });
@@ -1292,6 +1361,11 @@ const { error } = await supabaseClient.storage
                 alert(`Digite o nome do Material ${n}.`);
                 return false;
             }
+
+            if (!material.formato) {
+                alert(`Selecione o formato da postagem do Material ${n}.`);
+                return false;
+            }
         }
 
         return true;
@@ -1368,6 +1442,7 @@ const { error } = await supabaseClient.storage
                     campanha_id: Number(campanhaCriadaId),
                     nome: material.nome,
                     tipo: material.tipo,
+                    formato: material.formato,
                     url: material.url
                 })
             });
@@ -1380,6 +1455,47 @@ const { error } = await supabaseClient.storage
                     resultado.error ||
                     `Erro ao criar o Material ${i + 1}.`
                 );
+            }
+        }
+    }
+
+    async function atualizarMaterialExistente(material) {
+        const resposta = await fetch(`${API}/api/materiais/${material.id}`, {
+            method: "PUT",
+            headers: await getAuthHeaders({
+                "Content-Type": "application/json"
+            }),
+            body: JSON.stringify({
+                nome: material.nome,
+                tipo: material.tipo,
+                formato: material.formato,
+                url: material.url
+            })
+        });
+
+        const resultado = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+            throw new Error(
+                resultado.erro ||
+                resultado.error ||
+                `Erro ao atualizar o material ${material.nome || material.id}.`
+            );
+        }
+
+        return resultado.material;
+    }
+
+    async function sincronizarMateriais(campanhaCriadaId, materiais) {
+        const lista = Array.isArray(materiais) ? materiais : [];
+
+        for (let i = 0; i < lista.length; i += 1) {
+            const material = lista[i];
+
+            if (material.id) {
+                await atualizarMaterialExistente(material);
+            } else {
+                await criarMateriais(campanhaCriadaId, [material]);
             }
         }
     }
@@ -1713,20 +1829,13 @@ const { error } = await supabaseClient.storage
                 resultado.id ||
                 campanhaId;
 
-            // Em criação/edição: sincroniza copies, regras, ângulos e
-            // cria apenas materiais novos (sem id).
-            const materiaisParaCriar = isEditando
-                ? materiais.filter((material) => !material.id)
-                : materiais;
-
+            // Em criação/edição: sincroniza copies, regras, ângulos e materiais
+            // (POST novos + PUT existentes, incluindo formato).
             if (idCriado) {
                 await sincronizarCopies(idCriado, copies);
                 await sincronizarRegras(idCriado, regras);
                 await sincronizarAngulos(idCriado, angulos);
-            }
-
-            if (idCriado && materiaisParaCriar.length > 0) {
-                await criarMateriais(idCriado, materiaisParaCriar);
+                await sincronizarMateriais(idCriado, materiais);
             }
 
             alert(
