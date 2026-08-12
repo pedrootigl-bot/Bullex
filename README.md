@@ -1,282 +1,770 @@
-# Bullex
+# 🚀 Bullex
 
-Sistema web para **gerenciamento, organização e divulgação de campanhas promocionais**.
+> Plataforma web para **gerenciamento, organização e divulgação de campanhas promocionais**, centralizando toda a operação de marketing em um único ambiente.
 
-O Bullex centraliza campanhas, materiais, kits, copies, regras, visão geral estratégica e notificações administrativas em uma única plataforma — com área pública para divulgação e painel admin para operação.
+O **Bullex** permite que equipes administrativas criem e gerenciem campanhas, organizem materiais de divulgação, disponibilizem copies e regras, acompanhem estatísticas e automatizem notificações relacionadas ao ciclo de vida das campanhas.
 
----
-
-## Sobre o projeto
-
-A plataforma permite:
-
-- Cadastrar e gerenciar campanhas
-- Controlar ciclo de vida por datas (`agendada` → `ativa` → `finalizada`)
-- Organizar materiais por formato (`stories`, `feed`, `videos`, `banners`)
-- Disponibilizar copies, regras e ângulos de divulgação
-- Baixar materiais individualmente ou o kit completo em ZIP
-- Acompanhar estatísticas no dashboard
-- Receber notificações automáticas do ciclo das campanhas
+A plataforma é dividida entre uma **área pública**, voltada à divulgação das campanhas, e um **painel administrativo**, utilizado para gerenciamento e operação interna.
 
 ---
 
-## Stack
+## 📌 Visão geral
 
-| Camada | Tecnologias |
-|--------|-------------|
-| Frontend | HTML5, CSS3, JavaScript (Vanilla) |
-| Backend | Node.js, Express |
-| Banco / Auth / Storage | Supabase (PostgreSQL + Auth + Storage) |
-| Segurança | JWT (Supabase Auth), RLS no Storage |
+O Bullex foi desenvolvido para resolver um problema comum em operações de marketing: a dispersão de informações e materiais em diferentes ferramentas.
+
+Com a plataforma, uma campanha pode concentrar em um único lugar:
+
+* 📢 Informações da campanha
+* 📅 Período de divulgação
+* 🖼️ Materiais gráficos
+* 🎥 Vídeos
+* ✍️ Copies
+* 📋 Regras
+* 🎯 Ângulos de comunicação
+* 📦 Kits completos de materiais
+* 🔔 Notificações automáticas
+* 📊 Estatísticas
+* 👀 Visão geral estratégica
 
 ---
 
-## Estrutura do repositório
+## ✨ Principais funcionalidades
+
+### 📢 Gerenciamento de campanhas
+
+* Criação e edição de campanhas
+* Definição de período de início e término
+* Controle automático do status
+* Organização por categorias
+* Banner e imagem de destaque
+* Visão geral estratégica da campanha
+
+### 📦 Gerenciamento de materiais
+
+Os materiais podem ser organizados por diferentes formatos de publicação:
+
+* Stories
+* Feed
+* Vídeos
+* Banners
+
+Cada material possui informações sobre seu tipo e formato, permitindo uma organização mais intuitiva no painel e na área pública.
+
+Também é possível:
+
+* Fazer upload de múltiplos arquivos
+* Visualizar materiais
+* Baixar arquivos individualmente
+* Baixar todos os materiais como um kit `.ZIP`
+* Organizar automaticamente o ZIP por formato de postagem
+
+### ✍️ Copies
+
+Cada campanha pode possuir diferentes copies para utilização na divulgação, permitindo que a equipe tenha textos prontos e organizados em um único lugar.
+
+### 📋 Regras
+
+As regras da campanha ficam vinculadas diretamente à campanha e são apresentadas na área pública para facilitar o acesso às informações.
+
+### 🎯 Ângulos de divulgação
+
+O sistema permite cadastrar diferentes ângulos estratégicos para orientar a comunicação e divulgação das campanhas.
+
+### 📊 Dashboard
+
+O painel administrativo apresenta indicadores relacionados ao sistema, incluindo:
+
+* Campanhas
+* Materiais
+* Copies
+* Vídeos
+* Outros indicadores operacionais
+
+### 🔔 Central de notificações
+
+O Bullex possui uma central de notificações administrativa que acompanha automaticamente o ciclo das campanhas.
+
+São geradas notificações para eventos como:
+
+* 🚀 Campanha iniciada
+* ⏳ Campanha terminando em 7 dias
+* ⏳ Campanha terminando em 3 dias
+* ⚠️ Campanha terminando amanhã
+* 🏁 Campanha encerrada
+
+O sistema evita a criação de notificações duplicadas.
+
+---
+
+# 🏗️ Arquitetura
+
+A aplicação utiliza uma arquitetura dividida em três principais camadas:
+
+```text
+┌──────────────────────────────┐
+│          Frontend            │
+│       HTML / CSS / JS        │
+└──────────────┬───────────────┘
+               │
+               │ HTTP / REST
+               ▼
+┌──────────────────────────────┐
+│           Backend            │
+│       Node.js / Express      │
+└──────────────┬───────────────┘
+               │
+               │ Supabase SDK
+               ▼
+┌──────────────────────────────┐
+│           Supabase           │
+│ PostgreSQL / Auth / Storage  │
+└──────────────────────────────┘
+```
+
+### Fluxo principal
+
+```text
+Administrador
+      │
+      ▼
+Painel Administrativo
+      │
+      ▼
+API REST
+      │
+      ▼
+Supabase
+      │
+      ├── PostgreSQL
+      ├── Authentication
+      └── Storage
+      │
+      ▼
+Área Pública
+      │
+      ▼
+Usuário final
+```
+
+---
+
+# 🛠️ Stack
+
+| Camada                      | Tecnologia              |
+| --------------------------- | ----------------------- |
+| Frontend                    | HTML5, CSS3, JavaScript |
+| Backend                     | Node.js + Express       |
+| Banco de dados              | PostgreSQL              |
+| Backend as a Service        | Supabase                |
+| Autenticação                | Supabase Auth           |
+| Armazenamento               | Supabase Storage        |
+| Segurança                   | JWT + RLS               |
+| Controle de versão          | Git + GitHub            |
+| Ambiente de desenvolvimento | Node.js + Nodemon       |
+
+---
+
+# 📁 Estrutura do projeto
 
 ```text
 Bullex/
-├── frontend/                 # Site público + painel admin
+│
+├── frontend/
 │   ├── index.html
-│   ├── admin/                # Login, dashboard, campanhas, materiais, copies
+│   │
+│   ├── admin/
+│   │   ├── login.html
+│   │   ├── dashboard.html
+│   │   ├── campanhas.html
+│   │   ├── campanha-detalhes.html
+│   │   └── ...
+│   │
 │   ├── css/
+│   │   ├── admin/
+│   │   └── ...
+│   │
 │   ├── js/
+│   │   ├── main.js
+│   │   ├── campanhas.js
+│   │   ├── materiais.js
+│   │   ├── campanha-modal.js
+│   │   ├── stats.js
+│   │   └── ...
+│   │
 │   ├── images/
 │   └── downloads/
-├── backend/                  # API REST
+│
+├── backend/
 │   ├── server.js
 │   ├── routes/
 │   ├── services/
 │   ├── utils/
 │   ├── middleware/
 │   ├── config/
-│   └── .env.example
-├── database/                 # Scripts SQL auxiliares
-├── documents/                # Documentação de features
+│   ├── .env.example
+│   └── package.json
+│
+├── database/
+│   └── *.sql
+│
+├── documents/
+│   └── *.md
+│
 └── README.md
 ```
 
 ---
 
-## Pré-requisitos
+# ⚙️ Pré-requisitos
 
-- Node.js 18+ (recomendado)
-- Conta e projeto no [Supabase](https://supabase.com)
-- Servidor estático para o frontend (ex.: Live Server, `npx serve`)
+Antes de executar o projeto, tenha instalado:
+
+* [Node.js](https://nodejs.org/) 18 ou superior
+* Git
+* Um projeto no [Supabase](https://supabase.com/)
+* VS Code, Cursor ou outro editor de código
+* Um servidor HTTP para executar o frontend
 
 ---
 
-## Instalação
+# 🚀 Instalação
 
-### 1. Clone
+## 1. Clonar o repositório
 
 ```bash
 git clone https://github.com/pedrootigl-bot/Bullex.git
 cd Bullex
 ```
 
-### 2. Backend
+---
+
+## 2. Instalar dependências do backend
 
 ```bash
 cd backend
 npm install
-cp .env.example .env
 ```
 
-Edite `backend/.env`:
+---
+
+## 3. Configurar variáveis de ambiente
+
+Crie o arquivo:
+
+```text
+backend/.env
+```
+
+Utilizando `.env.example` como referência:
 
 ```env
 SUPABASE_URL=https://seu-projeto.supabase.co
 SUPABASE_KEY=sua_chave_anon
 SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key
+
 PORT=3000
+
 CORS_ORIGINS=http://localhost:5500,http://127.0.0.1:5500,http://localhost:3000
 ```
 
-> A API usa `SUPABASE_SERVICE_ROLE_KEY` no servidor.  
-> Nunca exponha a service role no frontend.
+### ⚠️ Importante
 
-### 3. Subir a API
+A variável:
+
+```env
+SUPABASE_SERVICE_ROLE_KEY
+```
+
+deve existir **somente no backend**.
+
+Nunca coloque a Service Role Key em arquivos JavaScript do frontend ou em qualquer arquivo versionado.
+
+---
+
+# ▶️ Executando o projeto
+
+## Backend
+
+Dentro da pasta `backend`:
 
 ```bash
 npm run dev
-# ou
+```
+
+Ou:
+
+```bash
 npm start
 ```
 
-A API responde em `http://localhost:3000`.
+A API ficará disponível em:
 
-### 4. Frontend
-
-Abra a pasta `frontend/` com um servidor estático (ex.: extensão Live Server no VS Code/Cursor) e acesse:
-
-- Site público: `frontend/index.html`
-- Admin: `frontend/admin/login.html`
+```text
+http://localhost:3000
+```
 
 ---
 
-## Áreas do sistema
+## Frontend
 
-### Site público
+Execute a pasta `frontend` através de um servidor HTTP.
 
-- Destaque / “O que divulgar hoje”
-- Listagem de campanhas ativas
-- Calendário de oportunidades
-- Modal unificado (materiais, visão geral, copies, regras)
-- Download individual e kit ZIP
+Por exemplo, utilizando o Live Server do VS Code/Cursor.
+
+### Área pública
+
+```text
+frontend/index.html
+```
 
 ### Painel administrativo
 
-- Dashboard com estatísticas
-- CRUD de campanhas
-- Materiais (upload múltiplo, formato de postagem)
-- Copies e regras
-- Central de notificações (sino no topbar)
-
----
-
-## Status automático das campanhas
-
-O status é derivado das datas (`America/Sao_Paulo`):
-
-| Status | Condição | Site público |
-|--------|----------|--------------|
-| `agendada` | antes de `data_inicio` | oculta |
-| `ativa` | no período da campanha | visível |
-| `finalizada` | a partir de `data_fim` | oculta |
-
-Detalhes: [`documents/status-automatico-campanhas.md`](documents/status-automatico-campanhas.md)
-
----
-
-## Materiais por formato
-
-Cada material possui:
-
-- `tipo` → tipo do arquivo (`imagem`, `video`, `arquivo`)
-- `formato` → categoria da postagem (`stories`, `feed`, `videos`, `banners`)
-
-No modal público, os materiais são agrupados por `formato`.  
-O kit ZIP é organizado em pastas equivalentes.
-
-Detalhes: [`documents/formato-materiais.md`](documents/formato-materiais.md)
-
----
-
-## Central de notificações
-
-Tabela `notificacoes` no Supabase.
-
-Eventos automáticos (sem duplicar):
-
-- Campanha iniciada
-- Campanha terminando em 7 / 3 dias / amanhã
-- Campanha encerrada
-
-Endpoints:
-
-```http
-GET  /api/notificacoes
-PATCH /api/notificacoes/:id/lida
-POST /api/notificacoes/sincronizar
+```text
+frontend/admin/login.html
 ```
 
-Detalhes: [`documents/central-notificacoes.md`](documents/central-notificacoes.md)
-
 ---
 
-## Principais endpoints da API
+# 🗄️ Banco de dados
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/api/campanhas` | Lista campanhas (sincroniza status) |
-| GET | `/api/campanhas/:id` | Detalhe da campanha |
-| POST/PUT | `/api/campanhas` | Criar / atualizar (auth) |
-| GET | `/api/materiais/:campanha_id` | Materiais da campanha |
-| GET | `/api/copies/:campanha_id` | Copies |
-| GET | `/api/regras/:campanha_id` | Regras |
-| GET | `/api/kits/:campanha_id` | Kits |
-| GET | `/api/angulos/:campanha_id` | Ângulos |
-| GET | `/api/download/kit/:id` | ZIP do kit |
-| GET | `/api/stats` | Estatísticas |
-| GET | `/api/notificacoes` | Notificações (auth) |
-| POST | `/api/upload` | Upload de arquivos (auth) |
+O Bullex utiliza o **Supabase PostgreSQL** para armazenar os dados da aplicação.
 
----
-
-## Banco e scripts
-
-Scripts SQL auxiliares em `database/`:
-
-- `add-campanha-visao-geral.sql`
-- `add-materiais-formato.sql` (se aplicável no ambiente)
-- `fix-storage-campanhas-auth.sql`
-
-Documentação adicional em `documents/`.
-
----
-
-## Fluxo operacional
+Entre as principais entidades utilizadas estão:
 
 ```text
-Admin cria campanha
-      ↓
-Define datas, visão geral, copies, regras, materiais
-      ↓
-Status automático (agendada / ativa / finalizada)
-      ↓
-Site público exibe apenas campanhas ativas
-      ↓
-Usuário baixa materiais ou kit ZIP
-      ↓
-Admin recebe notificações do ciclo da campanha
+campanhas
+│
+├── materiais
+├── copies
+├── regras
+├── kits
+├── angulos
+├── notificacoes
+└── estatísticas
+```
+
+Os arquivos SQL auxiliares ficam disponíveis em:
+
+```text
+database/
+```
+
+Exemplos:
+
+```text
+database/
+├── add-campanha-visao-geral.sql
+├── add-materiais-formato.sql
+└── fix-storage-campanhas-auth.sql
 ```
 
 ---
 
-## Segurança
+# 📅 Status automático das campanhas
 
-- Rotas de escrita protegidas com JWT (`requireAuth`)
-- Frontend admin usa chave **anon** do Supabase
-- Backend usa **service role** apenas no servidor
-- RLS permanece habilitado no Supabase Storage
-- Variáveis sensíveis apenas em `.env` (não versionado)
+O status das campanhas é determinado automaticamente com base nas datas da campanha.
+
+Timezone utilizado:
+
+```text
+America/Sao_Paulo
+```
+
+| Status       | Condição                         | Área pública |
+| ------------ | -------------------------------- | ------------ |
+| `agendada`   | Antes de `data_inicio`           | Oculta       |
+| `ativa`      | Entre `data_inicio` e `data_fim` | Visível      |
+| `finalizada` | A partir de `data_fim`           | Oculta       |
+
+Fluxo:
+
+```text
+        data_inicio
+             │
+             ▼
+       ┌───────────┐
+       │ AGENDADA  │
+       └─────┬─────┘
+             │
+             ▼
+       ┌───────────┐
+       │   ATIVA   │
+       └─────┬─────┘
+             │
+             ▼
+       ┌────────────┐
+       │ FINALIZADA │
+       └────────────┘
+```
+
+Documentação:
+
+`documents/status-automatico-campanhas.md`
 
 ---
 
-## Desenvolvimento
+# 🖼️ Organização dos materiais
+
+Os materiais possuem duas classificações principais.
+
+### Tipo do arquivo
+
+```text
+imagem
+video
+arquivo
+```
+
+### Formato da publicação
+
+```text
+stories
+feed
+videos
+banners
+```
+
+Exemplo:
+
+```text
+Campanha
+│
+├── Stories
+│   ├── imagem
+│   └── video
+│
+├── Feed
+│   └── imagem
+│
+├── Vídeos
+│   └── video
+│
+└── Banners
+    └── imagem
+```
+
+No painel administrativo, os materiais podem ser gerenciados individualmente.
+
+Na área pública, eles são agrupados por formato.
+
+---
+
+# 📦 Download de materiais
+
+O usuário pode escolher entre:
+
+### Download individual
+
+Baixa somente o arquivo selecionado.
+
+### Download do kit completo
+
+Baixa todos os materiais da campanha em um único arquivo:
+
+```text
+kit-campanha.zip
+```
+
+O ZIP mantém a organização por formato:
+
+```text
+kit-campanha.zip
+│
+├── stories/
+│   ├── material-01.png
+│   └── material-02.png
+│
+├── feed/
+│   └── material-03.png
+│
+├── videos/
+│   └── video-01.mp4
+│
+└── banners/
+    └── banner-01.png
+```
+
+Endpoint:
+
+```http
+GET /api/download/kit/:id
+```
+
+---
+
+# 🔔 Sistema de notificações
+
+As notificações são armazenadas na tabela:
+
+```text
+notificacoes
+```
+
+O sistema possui sincronização automática para identificar mudanças no ciclo das campanhas.
+
+### Eventos
+
+```text
+Campanha iniciada
+        ↓
+Campanha terminando em 7 dias
+        ↓
+Campanha terminando em 3 dias
+        ↓
+Campanha terminando amanhã
+        ↓
+Campanha encerrada
+```
+
+### Endpoints
+
+```http
+GET   /api/notificacoes
+PATCH /api/notificacoes/:id/lida
+POST  /api/notificacoes/sincronizar
+```
+
+Documentação:
+
+`documents/central-notificacoes.md`
+
+---
+
+# 🔌 API
+
+Principais endpoints disponíveis:
+
+| Método | Endpoint                      | Descrição            |
+| ------ | ----------------------------- | -------------------- |
+| `GET`  | `/api/campanhas`              | Lista campanhas      |
+| `GET`  | `/api/campanhas/:id`          | Detalha uma campanha |
+| `POST` | `/api/campanhas`              | Cria campanha        |
+| `PUT`  | `/api/campanhas`              | Atualiza campanha    |
+| `GET`  | `/api/materiais/:campanha_id` | Lista materiais      |
+| `GET`  | `/api/copies/:campanha_id`    | Lista copies         |
+| `GET`  | `/api/regras/:campanha_id`    | Lista regras         |
+| `GET`  | `/api/kits/:campanha_id`      | Lista kits           |
+| `GET`  | `/api/angulos/:campanha_id`   | Lista ângulos        |
+| `GET`  | `/api/download/kit/:id`       | Gera/download do ZIP |
+| `GET`  | `/api/stats`                  | Retorna estatísticas |
+| `GET`  | `/api/notificacoes`           | Lista notificações   |
+| `POST` | `/api/upload`                 | Realiza upload       |
+
+> Rotas administrativas e operações de escrita exigem autenticação.
+
+---
+
+# 🔐 Segurança
+
+O projeto utiliza diferentes camadas de proteção.
+
+### Autenticação
+
+O painel administrativo utiliza:
+
+```text
+Supabase Auth
+        ↓
+JWT
+        ↓
+Middleware requireAuth
+        ↓
+API protegida
+```
+
+### Row Level Security
+
+O Supabase Storage utiliza políticas de **RLS** para controlar operações de acesso aos arquivos.
+
+### Service Role
+
+A `SUPABASE_SERVICE_ROLE_KEY` é utilizada exclusivamente no backend.
+
+### Variáveis de ambiente
+
+Informações sensíveis devem permanecer em:
+
+```text
+backend/.env
+```
+
+E nunca devem ser commitadas no Git.
+
+---
+
+# 🔄 Fluxo operacional
+
+```text
+┌─────────────────────┐
+│ Admin cria campanha │
+└──────────┬──────────┘
+           ↓
+┌──────────────────────────────┐
+│ Define datas e informações  │
+│ Copies, regras e materiais  │
+└──────────┬───────────────────┘
+           ↓
+┌──────────────────────────┐
+│ Status automático        │
+│ agendada / ativa / fim   │
+└──────────┬───────────────┘
+           ↓
+┌──────────────────────────┐
+│ Área pública             │
+│ exibe campanhas ativas   │
+└──────────┬───────────────┘
+           ↓
+┌──────────────────────────┐
+│ Usuário acessa materiais │
+└──────────┬───────────────┘
+           ↓
+     ┌─────┴─────┐
+     ↓           ↓
+ Download      Kit ZIP
+ individual    completo
+```
+
+---
+
+# 📚 Documentação
+
+Documentações técnicas e funcionais adicionais estão disponíveis em:
+
+```text
+documents/
+```
+
+### Status automático
+
+`documents/status-automatico-campanhas.md`
+
+### Formato dos materiais
+
+`documents/formato-materiais.md`
+
+### Central de notificações
+
+`documents/central-notificacoes.md`
+
+### Visão geral da campanha
+
+`documents/visao-geral-campanha.md`
+
+### Testes
+
+`documents/camada-1-testes-sistema-atual.md`
+
+### Segurança
+
+`documents/camada-2-seguranca.md`
+
+---
+
+# 🧪 Desenvolvimento
+
+Para iniciar o backend em modo de desenvolvimento:
 
 ```bash
 cd backend
-npm run dev   # nodemon
+npm run dev
 ```
 
-Arquitetura:
+O projeto utiliza **Nodemon** para reiniciar automaticamente o servidor durante alterações no código.
+
+Arquitetura local:
 
 ```text
-Frontend (estático)
-    ↓
-API REST (Express :3000)
-    ↓
-Supabase (PostgreSQL + Auth + Storage)
+Frontend
+   │
+   │ HTTP
+   ▼
+Express API
+   │
+   │ Supabase SDK
+   ▼
+Supabase
+   ├── PostgreSQL
+   ├── Auth
+   └── Storage
 ```
 
 ---
 
-## Documentação relacionada
+# 🌎 Variáveis de ambiente
 
-- [Status automático](documents/status-automatico-campanhas.md)
-- [Formato de materiais](documents/formato-materiais.md)
-- [Central de notificações](documents/central-notificacoes.md)
-- [Visão geral da campanha](documents/visao-geral-campanha.md)
-- [Camada 1 — testes](documents/camada-1-testes-sistema-atual.md)
-- [Camada 2 — segurança](documents/camada-2-seguranca.md)
-
----
-
-## Licença
-
-Projeto privado, de uso interno.
+| Variável                    | Descrição                       |
+| --------------------------- | ------------------------------- |
+| `SUPABASE_URL`              | URL do projeto Supabase         |
+| `SUPABASE_KEY`              | Chave pública/anon              |
+| `SUPABASE_SERVICE_ROLE_KEY` | Chave administrativa do backend |
+| `PORT`                      | Porta da API                    |
+| `CORS_ORIGINS`              | Origens autorizadas             |
 
 ---
 
-Desenvolvido com foco em **organização, automação e experiência do usuário**.
+# 🚧 Status do projeto
+
+**Em desenvolvimento ativo.**
+
+O núcleo da plataforma já contempla:
+
+* [x] Gerenciamento de campanhas
+* [x] Status automático
+* [x] Dashboard administrativo
+* [x] Materiais por formato
+* [x] Upload de arquivos
+* [x] Downloads individuais
+* [x] Download de kit completo em ZIP
+* [x] Copies
+* [x] Regras
+* [x] Ângulos de divulgação
+* [x] Central de notificações
+* [x] Autenticação administrativa
+* [x] Supabase Storage
+* [x] Políticas de segurança
+* [x] API REST
+
+---
+
+# 🔮 Próximos passos
+
+Possíveis evoluções da plataforma:
+
+* [ ] Melhorias no dashboard
+* [ ] Mais indicadores e métricas
+* [ ] Melhorias na gestão de permissões
+* [ ] Histórico de alterações
+* [ ] Auditoria de ações administrativas
+* [ ] Melhorias de UX/UI
+* [ ] Testes automatizados
+* [ ] CI/CD
+* [ ] Deploy em ambiente de produção
+* [ ] Monitoramento e observabilidade
+
+---
+
+# 👨‍💻 Desenvolvedor
+
+**Pedro Henrique Sá Pinheiro**
+
+Desenvolvimento e implementação da plataforma Bullex.
+
+---
+
+# 📄 Licença
+
+Projeto **privado e de uso interno**.
+
+Todos os direitos reservados.
+
+---
+
+<div align="center">
+
+### 🚀 Bullex
+
+**Organização • Automação • Performance • Experiência**
+
+Desenvolvido para centralizar e simplificar a operação de campanhas promocionais.
+
+</div>
