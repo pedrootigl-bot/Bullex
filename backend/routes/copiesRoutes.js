@@ -4,6 +4,107 @@ const supabase = require("../config/supabase");
 const requireAuth = require("../middleware/requireAuth");
 const { responderErroInterno } = require("../utils/httpErrors");
 
+function normalizarCopiesPayload(lista = []) {
+    const origem = Array.isArray(lista) ? lista : [];
+
+    return origem
+        .map((item, index) => {
+            const titulo = String(item?.titulo || "").trim();
+            const texto = String(item?.texto || "").trim();
+            const canal = String(item?.canal || "").trim();
+            const tipo = String(item?.tipo || "").trim();
+
+            if (!titulo && !texto && !canal && !tipo) return null;
+
+            return {
+                titulo: titulo || `Copy ${index + 1}`,
+                texto: texto || "",
+                canal: canal || null,
+                tipo: tipo || null,
+                ordem:
+                    item?.ordem !== "" &&
+                    item?.ordem !== undefined &&
+                    item?.ordem !== null
+                        ? Number(item.ordem)
+                        : index + 1
+            };
+        })
+        .filter(Boolean)
+        .filter((item) => item.titulo && item.texto);
+}
+
+// ======================================================
+// SINCRONIZAR COPIES DE UMA CAMPANHA
+// PUT /api/copies/por-campanha/:campanha_id
+// ======================================================
+
+router.put("/por-campanha/:campanha_id", requireAuth, async (req, res) => {
+    try {
+        const campanhaId = Number(req.params.campanha_id);
+
+        if (!campanhaId) {
+            return res.status(400).json({
+                erro: "campanha_id inválido"
+            });
+        }
+
+        const copies = normalizarCopiesPayload(req.body?.copies);
+
+        const { error: erroDelete } = await supabase
+            .from("copies")
+            .delete()
+            .eq("campanha_id", campanhaId);
+
+        if (erroDelete) {
+            return responderErroInterno(
+                res,
+                erroDelete,
+                "Erro ao limpar copies da campanha"
+            );
+        }
+
+        if (copies.length === 0) {
+            return res.json({
+                mensagem: "Copies sincronizadas",
+                copies: []
+            });
+        }
+
+        const payload = copies.map((copy) => ({
+            campanha_id: campanhaId,
+            titulo: copy.titulo,
+            texto: copy.texto,
+            canal: copy.canal,
+            tipo: copy.tipo,
+            ordem: copy.ordem
+        }));
+
+        const { data, error } = await supabase
+            .from("copies")
+            .insert(payload)
+            .select("*");
+
+        if (error) {
+            return responderErroInterno(
+                res,
+                error,
+                "Erro ao salvar copies"
+            );
+        }
+
+        return res.json({
+            mensagem: "Copies sincronizadas",
+            copies: data || []
+        });
+    } catch (error) {
+        return responderErroInterno(
+            res,
+            error,
+            "Erro interno ao sincronizar copies"
+        );
+    }
+});
+
 // ======================================================
 // CRIAR COPY
 // POST /api/copies
@@ -110,7 +211,7 @@ router.get("/:campanha_id", async (req, res) => {
             );
         }
 
-        res.json(data);
+        res.json(data || []);
     } catch (error) {
         return responderErroInterno(
             res,

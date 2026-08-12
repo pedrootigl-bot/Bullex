@@ -56,14 +56,14 @@ function formatarPeriodoCampanha(campanha) {
 
     const formatar = (valor) => {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return valor || "";
-        const [ano, mes, dia] = valor.split("-");
-        return `${dia}/${mes}/${ano}`;
+        const [, mes, dia] = valor.split("-");
+        return `${dia}/${mes}`;
     };
 
     const ini = formatar(inicio);
     const end = formatar(fim);
 
-    if (ini && end) return `${ini} • ${end}`;
+    if (ini && end) return `${ini} — ${end}`;
     return ini || end || "";
 }
 
@@ -99,10 +99,11 @@ async function obterCampanha(id) {
 
     const campanha = await resposta.json();
 
-    const [materiais, copies, regras] = await Promise.all([
+    const [materiais, copies, regras, angulos] = await Promise.all([
         fetchJsonLista(`http://localhost:3000/api/materiais/${campanhaId}`),
         fetchJsonLista(`http://localhost:3000/api/copies/${campanhaId}`),
-        fetchJsonLista(`http://localhost:3000/api/regras/${campanhaId}`)
+        fetchJsonLista(`http://localhost:3000/api/regras/${campanhaId}`),
+        fetchJsonLista(`http://localhost:3000/api/angulos/${campanhaId}`)
     ]);
 
     return {
@@ -114,8 +115,8 @@ async function obterCampanha(id) {
         subtitulo: "Materiais organizados por formato para acelerar sua divulgação.",
         banner: campanha.imagem_card || campanha.banner || "",
         abas: [
+            { id: "visao-geral", label: "Visão geral" },
             { id: "materiais", label: "Materiais" },
-            { id: "visao-geral", label: "Visão Geral" },
             { id: "copies", label: "Copies" },
             { id: "regras", label: "Regras" }
         ],
@@ -127,12 +128,16 @@ async function obterCampanha(id) {
             .slice()
             .sort((a, b) => (a.ordem || 0) - (b.ordem || 0)),
         visaoGeral: {
-            titulo: "Visão Geral",
-            texto:
-                campanha.visao_geral
-                || campanha.objetivo
-                || campanha.descricao
-                || ""
+            resumo:
+                campanha.resumo
+                || campanha.visao_geral
+                || "",
+            publicoRecomendado: campanha.publico_recomendado || "",
+            objetivo: campanha.objetivo || "",
+            mecanica: normalizarListaMecanica(campanha.mecanica),
+            angulos: (Array.isArray(angulos) ? angulos : [])
+                .slice()
+                .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
         }
     };
 }
@@ -213,10 +218,29 @@ function popularCampanha(campanha) {
     banner.src = campanha.banner || "";
     banner.alt = campanha.titulo || "Campanha";
 
-    document.getElementById("campaignStatus").textContent = campanha.status || "";
+    const statusEl = document.getElementById("campaignStatus");
+    if (statusEl) {
+        const status = String(campanha.status || "").trim();
+        statusEl.textContent = status ? status.toUpperCase() : "";
+        statusEl.hidden = !status;
+    }
+
     document.getElementById("campaignTitle").textContent = campanha.titulo || "";
-    document.getElementById("campaignDescription").textContent = campanha.descricao || "";
-    document.getElementById("campaignPeriod").textContent = campanha.periodo || "";
+
+    const descricaoEl = document.getElementById("campaignDescription");
+    if (descricaoEl) {
+        const descricao = String(campanha.descricao || "").trim();
+        descricaoEl.textContent = descricao;
+        descricaoEl.hidden = !descricao;
+    }
+
+    const periodoEl = document.getElementById("campaignPeriod");
+    if (periodoEl) {
+        const periodo = String(campanha.periodo || "").trim();
+        periodoEl.textContent = periodo;
+        periodoEl.hidden = !periodo;
+    }
+
     document.getElementById("campaignSubtitle").textContent = campanha.subtitulo || "";
 
     const downloadKit = document.getElementById("downloadKit");
@@ -239,8 +263,8 @@ function popularCampanha(campanha) {
     renderizarVisaoGeral(campanha.visaoGeral);
     renderizarCopies(campanha.copies || []);
     renderizarRegras(campanha.regras || []);
-    ativarAba(modalAbaInicial || "materiais");
-    modalAbaInicial = "materiais";
+    ativarAba(modalAbaInicial || "visao-geral");
+    modalAbaInicial = "visao-geral";
 }
 
 function renderizarAbas(abas) {
@@ -391,17 +415,143 @@ function renderizarMateriais(materiais) {
 
     });
 }
-function renderizarVisaoGeral(visaoGeral) {
+function normalizarListaMecanica(valor) {
+    if (Array.isArray(valor)) {
+        return valor
+            .map((item) => {
+                if (typeof item === "string") return item.trim();
+                if (item && typeof item === "object") {
+                    return String(item.texto || item.titulo || "").trim();
+                }
+                return String(item || "").trim();
+            })
+            .filter(Boolean);
+    }
+
+    if (typeof valor === "string" && valor.trim()) {
+        try {
+            const parsed = JSON.parse(valor);
+            if (Array.isArray(parsed)) {
+                return normalizarListaMecanica(parsed);
+            }
+        } catch {
+            // texto simples / multilinha
+        }
+
+        return valor
+            .split(/\n+/)
+            .map((item) => item.replace(/^\d+[\).\s-]*/, "").trim())
+            .filter(Boolean);
+    }
+
+    return [];
+}
+
+function parseObjetivosModal(valor) {
+    const opcoes = ["Retenção", "Redepósito", "Aquisição", "Volume"];
+    const selecionados = String(valor || "")
+        .split(/[,·|]/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+    const selecionadosLower = new Set(
+        selecionados.map((item) => item.toLowerCase())
+    );
+
+    return opcoes.map((opcao) => ({
+        label: opcao,
+        ativo: selecionadosLower.has(opcao.toLowerCase())
+    }));
+}
+
+function renderizarVisaoGeral(visaoGeral = {}) {
     const container = document.getElementById("visaoGeralContent");
     if (!container) return;
 
-    const texto = String(visaoGeral?.texto || "").trim();
+    const resumo = String(visaoGeral.resumo || visaoGeral.texto || "").trim();
+    const publico = String(visaoGeral.publicoRecomendado || "").trim();
+    const objetivos = parseObjetivosModal(visaoGeral.objetivo);
+    const temObjetivoAtivo = objetivos.some((item) => item.ativo);
+    const mecanica = Array.isArray(visaoGeral.mecanica) ? visaoGeral.mecanica : [];
+    const angulos = Array.isArray(visaoGeral.angulos) ? visaoGeral.angulos : [];
 
-    if (!texto) {
+    const blocoResumo = resumo
+        ? `
+            <section class="modal__visao-bloco">
+                <p class="modal__visao-geral__label">Resumo</p>
+                <p class="modal__visao-geral__texto">${escapeHtml(resumo)}</p>
+            </section>
+        `
+        : "";
+
+    const blocoPublico = publico
+        ? `
+            <section class="modal__visao-bloco">
+                <p class="modal__visao-geral__label">Público recomendado</p>
+                <p class="modal__visao-publico">${escapeHtml(publico)}</p>
+            </section>
+        `
+        : "";
+
+    const blocoObjetivo = `
+        <section class="modal__visao-bloco">
+            <p class="modal__visao-geral__label">Objetivo</p>
+            ${
+                temObjetivoAtivo
+                    ? `<div class="modal__objetivo-chips">
+                        ${objetivos.map((item) => `
+                            <span class="modal__objetivo-chip${item.ativo ? " is-active" : ""}">
+                                ${escapeHtml(item.label)}
+                            </span>
+                        `).join("")}
+                    </div>`
+                    : `<p class="modal__visao-geral__empty">Nenhum objetivo cadastrado.</p>`
+            }
+        </section>
+    `;
+
+    const blocoMecanica = `
+        <section class="modal__visao-bloco">
+            <p class="modal__visao-geral__label">Mecânica</p>
+            ${
+                mecanica.length
+                    ? `<ol class="modal__mecanica-list">
+                        ${mecanica.map((passo) => `
+                            <li class="modal__mecanica-item">
+                                <span class="modal__mecanica-index" aria-hidden="true"></span>
+                                <p>${escapeHtml(passo)}</p>
+                            </li>
+                        `).join("")}
+                    </ol>`
+                    : `<p class="modal__visao-geral__empty">A mecânica ainda não foi cadastrada.</p>`
+            }
+        </section>
+    `;
+
+    const blocoAngulos = `
+        <section class="modal__visao-bloco">
+            <p class="modal__visao-geral__label">Ângulos de divulgação</p>
+            ${
+                angulos.length
+                    ? `<div class="modal__angulos-list">
+                        ${angulos.map((angulo) => `
+                            <article class="modal__angulo-card">
+                                <h4>${escapeHtml(angulo.titulo || "Ângulo")}</h4>
+                                <p>${escapeHtml(angulo.descricao || "")}</p>
+                            </article>
+                        `).join("")}
+                    </div>`
+                    : `<p class="modal__visao-geral__empty">Nenhum ângulo cadastrado.</p>`
+            }
+        </section>
+    `;
+
+    if (!resumo && !publico && !temObjetivoAtivo && !mecanica.length && !angulos.length) {
         container.innerHTML = `
             <div class="modal__visao-geral">
-                <h3>Visão Geral</h3>
-                <p>A visão geral desta campanha ainda não foi cadastrada.</p>
+                <p class="modal__visao-geral__empty">
+                    As informações de visão geral ainda não foram cadastradas.
+                </p>
             </div>
         `;
         return;
@@ -409,83 +559,162 @@ function renderizarVisaoGeral(visaoGeral) {
 
     container.innerHTML = `
         <div class="modal__visao-geral">
-            <h3>${escapeHtml(visaoGeral.titulo || "Visão Geral")}</h3>
-            <p>${escapeHtml(texto)}</p>
+            ${blocoResumo}
+            ${blocoPublico}
+            ${blocoObjetivo}
+            ${blocoMecanica}
+            ${blocoAngulos}
         </div>
     `;
 }
 
+function agruparCopiesPorCanal(copies = []) {
+    const grupos = new Map();
+
+    copies.forEach((copy) => {
+        const canal = String(copy.canal || copy.tipo || "Geral").trim() || "Geral";
+        const chave = canal.toUpperCase();
+
+        if (!grupos.has(chave)) {
+            grupos.set(chave, {
+                label: chave,
+                items: []
+            });
+        }
+
+        grupos.get(chave).items.push(copy);
+    });
+
+    return Array.from(grupos.values());
+}
+
+function tituloCopyCard(copy) {
+    const titulo = String(copy.titulo || "").trim();
+    if (titulo) return titulo;
+
+    const canal = String(copy.canal || "").trim();
+    const tipo = String(copy.tipo || "").trim();
+
+    if (canal && tipo) return `${canal} — ${tipo}`;
+    return canal || tipo || "Copy";
+}
+
 function renderizarCopies(copies) {
     const container = document.getElementById("copiesContent");
-    container.innerHTML = "";
+    if (!container) return;
 
-    if (!copies.length) {
-        container.innerHTML = "<p>Nenhuma copy disponível no momento.</p>";
+    const lista = Array.isArray(copies) ? copies : [];
+
+    if (!lista.length) {
+        container.innerHTML = `
+            <div class="modal__copies">
+                <p class="modal__visao-geral__empty">Nenhuma copy disponível no momento.</p>
+            </div>
+        `;
         return;
     }
 
-    copies.forEach((copy) => {
-        const item = document.createElement("div");
-        item.className = "modal__copy-item";
-        item.innerHTML = `
-            <h3>${escapeHtml(copy.titulo || "Copy")}</h3>
-            <p>${escapeHtml(copy.texto || "")}</p>
-            <button type="button" class="btn btn--outline" data-action="copy">
-                <i class="fa-regular fa-copy"></i>
-                Copiar texto
-            </button>
-        `;
+    const grupos = agruparCopiesPorCanal(lista);
 
-        item.querySelector('[data-action="copy"]').addEventListener("click", async () => {
+    container.innerHTML = `
+        <div class="modal__copies">
+            ${grupos.map((grupo) => `
+                <section class="modal__copies-group">
+                    <p class="modal__copies-group__label">${escapeHtml(grupo.label)}</p>
+                    <div class="modal__copies-group__list">
+                        ${grupo.items.map((copy, index) => `
+                            <article class="modal__copy-card" data-copy-group="${escapeHtml(grupo.label)}" data-copy-index="${index}">
+                                <div class="modal__copy-card__top">
+                                    <h3>${escapeHtml(tituloCopyCard(copy))}</h3>
+                                    <button type="button" class="modal__copy-btn" data-action="copy">
+                                        <i class="fa-regular fa-copy"></i>
+                                        Copiar
+                                    </button>
+                                </div>
+                                <p class="modal__copy-card__text">${escapeHtml(copy.texto || "")}</p>
+                            </article>
+                        `).join("")}
+                    </div>
+                </section>
+            `).join("")}
+        </div>
+    `;
+
+    container.querySelectorAll(".modal__copy-card").forEach((card) => {
+        const btn = card.querySelector('[data-action="copy"]');
+        const texto = card.querySelector(".modal__copy-card__text")?.textContent || "";
+
+        if (!btn) return;
+
+        btn.addEventListener("click", async () => {
             try {
-                await navigator.clipboard.writeText(copy.texto || "");
-                const btn = item.querySelector('[data-action="copy"]');
+                await navigator.clipboard.writeText(texto);
                 const original = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+                btn.classList.add("is-copied");
                 setTimeout(() => {
                     btn.innerHTML = original;
+                    btn.classList.remove("is-copied");
                 }, 1600);
             } catch {
                 alert("Não foi possível copiar o texto.");
             }
         });
-
-        container.appendChild(item);
     });
 }
 
 function renderizarRegras(regras) {
-    const container =
-        document.getElementById("regrasContent")
-        || document.getElementById("modal-rules");
+    // Modal unificado (home / campanhas ativas)
+    const container = document.getElementById("regrasContent");
 
     if (!container) {
-        console.warn("Container de regras não encontrado");
+        console.warn("Container #regrasContent não encontrado");
         return;
     }
 
     const lista = Array.isArray(regras) ? regras : [];
 
     if (!lista.length) {
-        container.innerHTML = "<p>Regras em breve.</p>";
+        container.innerHTML = `
+            <div class="modal__regras">
+                <p class="modal__visao-geral__empty">Nenhuma regra cadastrada.</p>
+            </div>
+        `;
         return;
     }
 
     container.innerHTML = `
-        <ul>
-            ${lista.map((regra) => {
-                if (typeof regra === "string") {
-                    return `<li><p>${escapeHtml(regra)}</p></li>`;
-                }
+        <div class="modal__regras">
+            <p class="modal__visao-geral__label">Regras</p>
+            <ol class="modal__regras-list">
+                ${lista.map((regra) => {
+                    if (typeof regra === "string") {
+                        return `
+                            <li class="modal__regra-item">
+                                <span class="modal__regra-index" aria-hidden="true"></span>
+                                <div>
+                                    <p>${escapeHtml(regra)}</p>
+                                </div>
+                            </li>
+                        `;
+                    }
 
-                return `
-                    <li>
-                        <strong>${escapeHtml(regra.titulo || "Regra")}</strong>
-                        <p>${escapeHtml(regra.descricao || "")}</p>
-                    </li>
-                `;
-            }).join("")}
-        </ul>
+                    return `
+                        <li class="modal__regra-item">
+                            <span class="modal__regra-index" aria-hidden="true"></span>
+                            <div>
+                                <strong>${escapeHtml(regra.titulo || "Regra")}</strong>
+                                ${
+                                    regra.descricao
+                                        ? `<p>${escapeHtml(regra.descricao)}</p>`
+                                        : ""
+                                }
+                            </div>
+                        </li>
+                    `;
+                }).join("")}
+            </ol>
+        </div>
     `;
 }
 

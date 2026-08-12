@@ -105,9 +105,13 @@ router.post("/", requireAuth, async (req, res) => {
 
         const {
             titulo,
+            texto_header,
             descricao,
             categoria,
             objetivo,
+            resumo,
+            publico_recomendado,
+            mecanica,
             premio,
             cupom,
             deposito_minimo,
@@ -157,14 +161,33 @@ router.post("/", requireAuth, async (req, res) => {
 
             titulo: titulo.trim(),
 
+            texto_header:
+                texto_header?.trim() || null,
+
             descricao:
                 descricao?.trim() || null,
+
+            resumo:
+                resumo?.trim() || null,
 
             categoria:
                 categoria?.trim() || null,
 
             objetivo:
                 objetivo?.trim() || null,
+
+            publico_recomendado:
+                publico_recomendado?.trim() || null,
+
+            mecanica: Array.isArray(mecanica)
+                ? mecanica
+                    .map((item) => String(item || "").trim())
+                    .filter(Boolean)
+                : (
+                    typeof mecanica === "string" && mecanica.trim()
+                        ? [mecanica.trim()]
+                        : null
+                ),
 
             premio:
                 premio?.trim() || null,
@@ -259,9 +282,13 @@ router.put("/:id", requireAuth, async (req, res) => {
 
         const {
             titulo,
+            texto_header,
             descricao,
             categoria,
             objetivo,
+            resumo,
+            publico_recomendado,
+            mecanica,
             premio,
             cupom,
             deposito_minimo,
@@ -311,14 +338,33 @@ router.put("/:id", requireAuth, async (req, res) => {
 
             titulo: titulo.trim(),
 
+            texto_header:
+                texto_header?.trim() || null,
+
             descricao:
                 descricao?.trim() || null,
+
+            resumo:
+                resumo?.trim() || null,
 
             categoria:
                 categoria?.trim() || null,
 
             objetivo:
                 objetivo?.trim() || null,
+
+            publico_recomendado:
+                publico_recomendado?.trim() || null,
+
+            mecanica: Array.isArray(mecanica)
+                ? mecanica
+                    .map((item) => String(item || "").trim())
+                    .filter(Boolean)
+                : (
+                    typeof mecanica === "string" && mecanica.trim()
+                        ? [mecanica.trim()]
+                        : null
+                ),
 
             premio:
                 premio?.trim() || null,

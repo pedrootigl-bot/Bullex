@@ -1,7 +1,11 @@
 console.log("campanha modal carregado");
 
 
-async function abrirModalCampanha(id){
+/**
+ * Abre o modal unificado (mesmo da home / Entender campanha),
+ * com resumo, objetivo, mecânica e ângulos.
+ */
+async function abrirModalCampanha(id, opcoes = {}){
 
     if(!id){
         console.warn(
@@ -10,74 +14,16 @@ async function abrirModalCampanha(id){
         return;
     }
 
-
-    try{
-
-        const resposta = await fetch(
-            `http://localhost:3000/api/campanhas/${id}`
-        );
-
-
-        if(!resposta.ok){
-
-            throw new Error(
-                `Erro HTTP: ${resposta.status}`
-            );
-
-        }
-
-
-        const campanha = await resposta.json();
-
-        console.log("Campanha carregada:", campanha);
-
-
-
-        // Configura botão baixar kit completo
-        const downloadKit = document.getElementById("downloadKit");
-
-        if (downloadKit) {
-
-            downloadKit.href =
-                `http://localhost:3000/api/download/kit/${campanha.id}`;
-
-            downloadKit.removeAttribute("target");
-            downloadKit.removeAttribute("rel");
-            downloadKit.setAttribute("download", "");
-
-        }
-
-
-
-        preencherModalCampanha(campanha);
-
-
-        await carregarMateriais(campanha.id);
-        await carregarCopies(campanha.id);
-        await carregarRegras(campanha.id);
-
-
-
-        const modal =
-        document.querySelector("#campaign-modal");
-
-
-        if(modal){
-
-            modal.classList.add("active");
-            document.body.style.overflow = "hidden";
-
-        }
-
-
-    }catch(error){
-
-        console.error(
-            "Erro ao carregar campanha no modal:",
-            error
-        );
-
+    if (typeof abrirModal === "function") {
+        abrirModal(id, {
+            abaInicial: opcoes.abaInicial || opcoes.aba || "visao-geral"
+        });
+        return;
     }
+
+    console.error(
+        "abrirModal não encontrado. Verifique se js/modal.js foi carregado."
+    );
 
 }
 
@@ -496,7 +442,7 @@ async function carregarRegras(campanhaId){
         const regras = await response.json();
 
 
-        renderizarRegras(regras);
+        renderizarRegrasCampanhaModalLegado(regras);
 
 
     } catch(error){
@@ -509,13 +455,13 @@ async function carregarRegras(campanhaId){
 
 
 
-function renderizarRegras(regras) {
+function renderizarRegrasCampanhaModalLegado(regras) {
 
     const container = document.getElementById("modal-rules");
 
 
     if (!container) {
-        console.warn("Container de regras não encontrado");
+        console.warn("Container de regras legado não encontrado");
         return;
     }
 
@@ -869,6 +815,9 @@ function formatarDataModal(data){
 
 function fecharModalCampanha(){
 
+    if (typeof fecharModal === "function") {
+        fecharModal();
+    }
 
     const modal =
     document.querySelector("#campaign-modal");

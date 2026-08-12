@@ -204,7 +204,12 @@ function preencherHeroComCampanha(campanha) {
     const hero = document.querySelector("#hero");
     if (!hero || !campanha) return;
 
-    const titulo = campanha.titulo || "Campanha ativa";
+    // Título grande do hero: campo "Texto do header" (fallback no título da campanha)
+    const tituloHeader =
+        String(campanha.texto_header || "").trim()
+        || campanha.titulo
+        || "Campanha ativa";
+    const tituloCampanha = campanha.titulo || tituloHeader;
     const descricao =
         campanha.descricao
         || campanha.objetivo
@@ -226,7 +231,7 @@ function preencherHeroComCampanha(campanha) {
     const elCaptionCupom = document.querySelector("#heroCaptionCupom");
     const elCaptionTitulo = document.querySelector("#heroCaptionTitulo");
 
-    if (elTitulo) elTitulo.textContent = titulo;
+    if (elTitulo) elTitulo.textContent = tituloHeader;
     if (elLead) elLead.textContent = descricao || "Campanha ativa no momento.";
     if (elPeriod) elPeriod.textContent = formatarPeriodoHero(campanha);
     if (elCupom) elCupom.textContent = cupom;
@@ -236,17 +241,22 @@ function preencherHeroComCampanha(campanha) {
     if (elPremio) {
         elPremio.textContent = campanha.premio || campanha.valor || "—";
     }
-    if (elFocus) elFocus.textContent = formatarFocoHero(campanha.categoria);
+    if (elFocus) {
+        elFocus.textContent = formatarFocoHero(
+            campanha.publico_recomendado || campanha.objetivo || campanha.categoria
+        );
+    }
     if (elCountdown) elCountdown.textContent = formatarCountdownHero(campanha.data_fim);
     if (elStatus) elStatus.textContent = formatarStatusHero(campanha.status);
 
     if (elImage) {
         elImage.src = imagemSrc;
-        elImage.alt = `${titulo}${cupom && cupom !== "—" ? ` — ${cupom}` : ""}`;
+        elImage.alt = `${tituloHeader}${cupom && cupom !== "—" ? ` — ${cupom}` : ""}`;
     }
 
     if (elCaptionCupom) elCaptionCupom.textContent = cupom;
-    if (elCaptionTitulo) elCaptionTitulo.textContent = titulo;
+    // Caption do card visual segue com o título da campanha
+    if (elCaptionTitulo) elCaptionTitulo.textContent = tituloCampanha;
 
     hero.dataset.campanhaId = String(campanha.id || "");
     revelarHeroFadeIn();

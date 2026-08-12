@@ -48,26 +48,40 @@
                             placeholder="Ex: Campanha Haval H6 GT"
                             required
                         >
+                        <small class="form-hint">Nome da campanha (lista, modal, cards de campanhas).</small>
                     </div>
 
                     <div class="form-group form-group--full">
-                        <label for="descricao">Descrição</label>
+                        <label for="texto_header">Texto do header</label>
+                        <input
+                            type="text"
+                            id="texto_header"
+                            name="texto_header"
+                            placeholder="Ex: Haval H9 GT"
+                        >
+                        <small class="form-hint">Usado somente no hero da home (título grande da seção principal).</small>
+                    </div>
+
+                    <div class="form-group form-group--full">
+                        <label for="descricao">Descrição curta</label>
                         <textarea
                             id="descricao"
                             name="descricao"
-                            rows="5"
-                            placeholder="Descreva a campanha..."
+                            rows="2"
+                            placeholder="Ex: O GT dos traders pode ser seu."
                         ></textarea>
+                        <small class="form-hint">Aparece abaixo do título no modal da campanha.</small>
                     </div>
 
                     <div class="form-group form-group--full">
-                        <label for="objetivo">Objetivo</label>
+                        <label for="resumo">Resumo</label>
                         <textarea
-                            id="objetivo"
-                            name="objetivo"
-                            rows="3"
-                            placeholder="Qual o objetivo da campanha?"
+                            id="resumo"
+                            name="resumo"
+                            rows="4"
+                            placeholder="Ex: Campanha voltada para engajamento, movimentação nas redes sociais..."
                         ></textarea>
+                        <small class="form-hint">Texto da seção RESUMO na aba Visão geral do modal.</small>
                     </div>
 
                     <div class="form-group form-group--full">
@@ -200,6 +214,77 @@
                 </div>
             </section>
 
+            <section class="form-section form-section--visao">
+                <div class="form-section__header">
+                    <div>
+                        <span class="form-section__eyebrow">Divulgação</span>
+                        <h2>Visão geral da campanha</h2>
+                        <p>Público, objetivo, mecânica e ângulos exibidos na página e no modal.</p>
+                    </div>
+                </div>
+
+                <div class="visao-form">
+                    <div class="visao-field">
+                        <label for="publico_recomendado">Público recomendado</label>
+                        <input
+                            type="text"
+                            id="publico_recomendado"
+                            name="publico_recomendado"
+                            placeholder="Ex: Retenção · Reativação · Aquisição de novos usuários"
+                        >
+                    </div>
+
+                    <div class="visao-field">
+                        <span class="visao-field__label">Objetivo</span>
+                        <div
+                            class="objetivo-chips"
+                            id="objetivoGroup"
+                            role="group"
+                            aria-label="Objetivos da campanha"
+                        >
+                            <label class="objetivo-chip">
+                                <input type="checkbox" name="objetivo" value="Retenção">
+                                <span>Retenção</span>
+                            </label>
+                            <label class="objetivo-chip">
+                                <input type="checkbox" name="objetivo" value="Redepósito">
+                                <span>Redepósito</span>
+                            </label>
+                            <label class="objetivo-chip">
+                                <input type="checkbox" name="objetivo" value="Aquisição">
+                                <span>Aquisição</span>
+                            </label>
+                            <label class="objetivo-chip">
+                                <input type="checkbox" name="objetivo" value="Volume">
+                                <span>Volume</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="visao-field">
+                        <div class="visao-field__row">
+                            <span class="visao-field__label">Mecânica</span>
+                            <button type="button" id="adicionarMecanicaBtn" class="btn-add-inline">
+                                <i class="fa-solid fa-plus"></i>
+                                Adicionar passo
+                            </button>
+                        </div>
+                        <ol id="mecanicaContainer" class="mecanica-list"></ol>
+                    </div>
+
+                    <div class="visao-field">
+                        <div class="visao-field__row">
+                            <span class="visao-field__label">Ângulos de divulgação</span>
+                            <button type="button" id="adicionarAnguloBtn" class="btn-add-inline">
+                                <i class="fa-solid fa-plus"></i>
+                                Adicionar ângulo
+                            </button>
+                        </div>
+                        <div id="angulosContainer" class="angulos-list"></div>
+                    </div>
+                </div>
+            </section>
+
             <section class="form-section form-section--copies">
                 <div class="form-section__header">
                     <div>
@@ -217,17 +302,18 @@
                 </button>
             </section>
 
-            <section class="form-section">
+            <section class="form-section form-section--regras">
                 <div class="form-section__header">
                     <div>
+                        <span class="form-section__eyebrow">Condições</span>
                         <h2>Regras da campanha</h2>
                         <p>Adicione as regras e condições da campanha.</p>
                     </div>
                 </div>
 
-                <div id="regrasContainer"></div>
+                <div id="regrasContainer" class="regras-list"></div>
 
-                <button type="button" id="adicionarRegraBtn" class="btn-secondary">
+                <button type="button" id="adicionarRegraBtn" class="btn-add-regra">
                     <i class="fa-solid fa-plus"></i>
                     Adicionar regra
                 </button>

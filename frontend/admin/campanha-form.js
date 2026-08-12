@@ -11,6 +11,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const adicionarRegraBtn = document.getElementById("adicionarRegraBtn");
     const materiaisContainer = document.getElementById("materiaisContainer");
     const adicionarMaterialBtn = document.getElementById("adicionarMaterialBtn");
+    const mecanicaContainer = document.getElementById("mecanicaContainer");
+    const adicionarMecanicaBtn = document.getElementById("adicionarMecanicaBtn");
+    const angulosContainer = document.getElementById("angulosContainer");
+    const adicionarAnguloBtn = document.getElementById("adicionarAnguloBtn");
     const voltarBtn = document.getElementById("voltarBtn");
     const cancelarBtn = document.getElementById("cancelarBtn");
     const salvarBtn = document.getElementById("salvarBtn");
@@ -28,6 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let contadorCopies = 0;
     let contadorRegras = 0;
     let contadorMateriais = 0;
+    let contadorAngulos = 0;
     let uploadImagemEmAndamento = false;
     let uploadMaterialEmAndamento = 0;
 
@@ -418,10 +423,12 @@ const { error } = await supabaseClient.storage
 
         regras.forEach((regra, index) => {
             const ordemInput = regra.querySelector(".regra-ordem");
-            const titulo = regra.querySelector("h3");
+            const badge = regra.querySelector(".regra-item__badge");
+            const titulo = regra.querySelector(".regra-item__header h3");
 
             if (ordemInput) ordemInput.value = index + 1;
-            if (titulo) titulo.textContent = `Regra ${index + 1}`;
+            if (badge) badge.textContent = `REGRA ${index + 1}`;
+            if (titulo) titulo.textContent = `Condição ${index + 1}`;
         });
     }
 
@@ -527,7 +534,7 @@ const { error } = await supabaseClient.storage
         contadorRegras += 1;
 
         const regraElement = document.createElement("div");
-        regraElement.className = "regra-item copy-item";
+        regraElement.className = "regra-item";
         regraElement.dataset.regra = String(contadorRegras);
 
         if (dados.id) {
@@ -535,35 +542,49 @@ const { error } = await supabaseClient.storage
         }
 
         regraElement.innerHTML = `
-            <div class="copy-item__content">
-                <h3>Regra ${contadorRegras}</h3>
-
-                <label>Título</label>
-                <input
-                    type="text"
-                    class="regra-titulo"
-                    placeholder="Ex: Depósito mínimo"
-                    value="${escapeHtml(dados.titulo || "")}"
-                >
-
-                <label>Descrição</label>
-                <textarea
-                    class="regra-descricao"
-                    rows="4"
-                    placeholder="Descreva a regra..."
-                >${escapeHtml(dados.descricao || "")}</textarea>
-
-                <label>Ordem</label>
-                <input
-                    type="number"
-                    class="regra-ordem"
-                    value="${escapeHtml(dados.ordem || contadorRegras)}"
-                    min="1"
-                >
-
-                <button type="button" class="remover-regra btn-secondary">
-                    Remover Regra
+            <div class="regra-item__header">
+                <div>
+                    <span class="regra-item__badge">REGRA ${contadorRegras}</span>
+                    <h3>Condição ${contadorRegras}</h3>
+                </div>
+                <button type="button" class="remover-regra" aria-label="Remover regra">
+                    <i class="fa-solid fa-trash"></i>
+                    Remover
                 </button>
+            </div>
+
+            <div class="regra-item__content">
+                <div class="regra-field regra-field--titulo">
+                    <label for="regra-titulo-${contadorRegras}">Título</label>
+                    <input
+                        id="regra-titulo-${contadorRegras}"
+                        type="text"
+                        class="regra-titulo"
+                        placeholder="Ex: Depósito mínimo"
+                        value="${escapeHtml(dados.titulo || "")}"
+                    >
+                </div>
+
+                <div class="regra-field regra-field--ordem">
+                    <label for="regra-ordem-${contadorRegras}">Ordem</label>
+                    <input
+                        id="regra-ordem-${contadorRegras}"
+                        type="number"
+                        class="regra-ordem"
+                        value="${escapeHtml(dados.ordem || contadorRegras)}"
+                        min="1"
+                    >
+                </div>
+
+                <div class="regra-field regra-field--full">
+                    <label for="regra-descricao-${contadorRegras}">Descrição</label>
+                    <textarea
+                        id="regra-descricao-${contadorRegras}"
+                        class="regra-descricao"
+                        rows="5"
+                        placeholder="Descreva a regra e as condições..."
+                    >${escapeHtml(dados.descricao || "")}</textarea>
+                </div>
             </div>
         `;
 
@@ -975,7 +996,7 @@ const { error } = await supabaseClient.storage
         );
 
         const selecionadas = String(categoriaValor || "")
-            .split(",")
+            .split(/[,·|]/)
             .map((item) => item.trim())
             .filter(Boolean);
 
@@ -984,13 +1005,164 @@ const { error } = await supabaseClient.storage
         });
     }
 
+    function pegarObjetivosSelecionados() {
+        const checks = document.querySelectorAll(
+            '#objetivoGroup input[name="objetivo"]:checked'
+        );
+
+        return Array.from(checks)
+            .map((input) => input.value.trim())
+            .filter(Boolean);
+    }
+
+    function preencherObjetivos(objetivoValor) {
+        const checks = document.querySelectorAll(
+            '#objetivoGroup input[name="objetivo"]'
+        );
+
+        const selecionados = String(objetivoValor || "")
+            .split(/[,·|]/)
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        checks.forEach((input) => {
+            input.checked = selecionados.includes(input.value);
+        });
+    }
+
+    function adicionarPassoMecanica(texto = "") {
+        if (!mecanicaContainer) return;
+
+        const item = document.createElement("li");
+        item.className = "mecanica-item";
+        item.innerHTML = `
+            <span class="mecanica-item__index" aria-hidden="true"></span>
+            <textarea
+                class="mecanica-texto"
+                rows="2"
+                placeholder="Descreva o passo da mecânica..."
+            >${escapeHtml(texto || "")}</textarea>
+            <button type="button" class="mecanica-item__remove" aria-label="Remover passo">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+
+        mecanicaContainer.appendChild(item);
+    }
+
+    function pegarMecanica() {
+        const itens = mecanicaContainer?.querySelectorAll(".mecanica-texto") || [];
+
+        return Array.from(itens)
+            .map((el) => el.value.trim())
+            .filter(Boolean);
+    }
+
+    function preencherMecanica(valor) {
+        if (!mecanicaContainer) return;
+
+        mecanicaContainer.innerHTML = "";
+
+        let lista = [];
+
+        if (Array.isArray(valor)) {
+            lista = valor;
+        } else if (typeof valor === "string" && valor.trim()) {
+            try {
+                const parsed = JSON.parse(valor);
+                lista = Array.isArray(parsed) ? parsed : [valor];
+            } catch {
+                lista = valor
+                    .split(/\n+/)
+                    .map((item) => item.replace(/^\d+[\).\s-]*/, "").trim())
+                    .filter(Boolean);
+            }
+        }
+
+        if (lista.length === 0) {
+            adicionarPassoMecanica();
+            adicionarPassoMecanica();
+            adicionarPassoMecanica();
+            adicionarPassoMecanica();
+            return;
+        }
+
+        lista.forEach((passo) => {
+            adicionarPassoMecanica(
+                typeof passo === "string" ? passo : String(passo?.texto || passo || "")
+            );
+        });
+    }
+
+    function adicionarAngulo(dados = {}) {
+        if (!angulosContainer) return;
+
+        contadorAngulos += 1;
+
+        const item = document.createElement("div");
+        item.className = "angulo-item";
+        item.dataset.angulo = String(contadorAngulos);
+
+        if (dados.id) {
+            item.dataset.id = String(dados.id);
+        }
+
+        item.innerHTML = `
+            <div class="angulo-item__top">
+                <div class="angulo-item__fields">
+                    <input
+                        type="text"
+                        class="angulo-titulo"
+                        placeholder="Ex: Operou, acelerou"
+                        value="${escapeHtml(dados.titulo || "")}"
+                    >
+                    <textarea
+                        class="angulo-descricao"
+                        rows="3"
+                        placeholder="Descreva quando usar este ângulo..."
+                    >${escapeHtml(dados.descricao || "")}</textarea>
+                </div>
+                <button type="button" class="angulo-item__remove" aria-label="Remover ângulo">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `;
+
+        angulosContainer.appendChild(item);
+    }
+
+    function pegarAngulos() {
+        const itens = angulosContainer?.querySelectorAll(".angulo-item") || [];
+        const angulos = [];
+
+        itens.forEach((element, index) => {
+            const titulo = element.querySelector(".angulo-titulo")?.value.trim() || "";
+            const descricao = element.querySelector(".angulo-descricao")?.value.trim() || "";
+            const id = element.dataset.id ? Number(element.dataset.id) : null;
+
+            angulos.push({
+                id,
+                titulo,
+                descricao,
+                ordem: index + 1
+            });
+        });
+
+        return angulos;
+    }
+
     function pegarDadosCampanha() {
         return {
             titulo: document.getElementById("titulo")?.value.trim() || "",
+            texto_header: document.getElementById("texto_header")?.value.trim() || "",
             descricao: document.getElementById("descricao")?.value.trim() || "",
+            resumo: document.getElementById("resumo")?.value.trim() || "",
             // Mantém o campo string no banco; múltiplas categorias separadas por vírgula
             categoria: pegarCategoriasSelecionadas().join(", "),
-            objetivo: document.getElementById("objetivo")?.value.trim() || "",
+            publico_recomendado:
+                document.getElementById("publico_recomendado")?.value.trim() || "",
+            objetivo: pegarObjetivosSelecionados().join(" · "),
+            mecanica: pegarMecanica(),
             premio: document.getElementById("premio")?.value.trim() || "",
             cupom: document.getElementById("cupom")?.value.trim() || "",
             deposito_minimo: document.getElementById("deposito_minimo")?.value || "",
@@ -1004,8 +1176,10 @@ const { error } = await supabaseClient.storage
     function preencherFormulario(campanha) {
         const campos = [
             "titulo",
+            "texto_header",
             "descricao",
-            "objetivo",
+            "resumo",
+            "publico_recomendado",
             "premio",
             "cupom",
             "deposito_minimo",
@@ -1022,6 +1196,8 @@ const { error } = await supabaseClient.storage
         });
 
         preencherCategorias(campanha.categoria);
+        preencherObjetivos(campanha.objetivo);
+        preencherMecanica(campanha.mecanica);
 
         if (campanha.imagem_card) {
             mostrarPreviewImagemCard(campanha.imagem_card);
@@ -1068,16 +1244,6 @@ const { error } = await supabaseClient.storage
                 alert(`Digite o texto do Copy ${n}.`);
                 return false;
             }
-
-            if (!copy.canal) {
-                alert(`Informe o canal do Copy ${n}.`);
-                return false;
-            }
-
-            if (!copy.tipo) {
-                alert(`Informe o tipo do Copy ${n}.`);
-                return false;
-            }
         }
 
         return true;
@@ -1088,9 +1254,14 @@ const { error } = await supabaseClient.storage
             const regra = regras[i];
             const n = i + 1;
 
-            if (!regra.titulo) {
-                alert(`Digite o título da Regra ${n}.`);
+            if (!regra.titulo && !regra.descricao) {
+                alert(`Preencha a Regra ${n}.`);
                 return false;
+            }
+
+            // Garante título para o banco
+            if (!regra.titulo) {
+                regra.titulo = `Regra ${n}`;
             }
         }
 
@@ -1111,64 +1282,62 @@ const { error } = await supabaseClient.storage
         return true;
     }
 
-    async function criarCopies(campanhaCriadaId, copies) {
-        for (let i = 0; i < copies.length; i += 1) {
-            const copy = copies[i];
-
-            const resposta = await fetch(`${API}/api/copies`, {
-                method: "POST",
+    async function sincronizarCopies(campanhaCriadaId, copies) {
+        const resposta = await fetch(
+            `${API}/api/copies/por-campanha/${Number(campanhaCriadaId)}`,
+            {
+                method: "PUT",
                 headers: await getAuthHeaders({
                     "Content-Type": "application/json"
                 }),
-                body: JSON.stringify({
-                    campanha_id: Number(campanhaCriadaId),
-                    titulo: copy.titulo,
-                    texto: copy.texto,
-                    canal: copy.canal,
-                    tipo: copy.tipo,
-                    ordem: Number(copy.ordem)
-                })
-            });
-
-            const resultado = await resposta.json().catch(() => ({}));
-
-            if (!resposta.ok) {
-                throw new Error(
-                    resultado.erro ||
-                    resultado.error ||
-                    `Erro ao criar o Copy ${i + 1}.`
-                );
+                body: JSON.stringify({ copies })
             }
+        );
+
+        const resultado = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+            throw new Error(
+                resultado.erro ||
+                resultado.error ||
+                resultado.detalhe ||
+                "Erro ao salvar as copies."
+            );
         }
+
+        return resultado.copies || [];
     }
 
-    async function criarRegras(campanhaCriadaId, regras) {
-        for (let i = 0; i < regras.length; i += 1) {
-            const regra = regras[i];
+    async function sincronizarRegras(campanhaCriadaId, regras) {
+        const lista = (Array.isArray(regras) ? regras : []).map((regra, index) => ({
+            titulo: String(regra.titulo || "").trim() || `Regra ${index + 1}`,
+            descricao: String(regra.descricao || "").trim() || null,
+            ordem: Number(regra.ordem) > 0 ? Number(regra.ordem) : index + 1
+        }));
 
-            const resposta = await fetch(`${API}/api/regras`, {
-                method: "POST",
+        const resposta = await fetch(
+            `${API}/api/regras/por-campanha/${Number(campanhaCriadaId)}`,
+            {
+                method: "PUT",
                 headers: await getAuthHeaders({
                     "Content-Type": "application/json"
                 }),
-                body: JSON.stringify({
-                    campanha_id: Number(campanhaCriadaId),
-                    titulo: regra.titulo,
-                    descricao: regra.descricao,
-                    ordem: Number(regra.ordem)
-                })
-            });
-
-            const resultado = await resposta.json().catch(() => ({}));
-
-            if (!resposta.ok) {
-                throw new Error(
-                    resultado.erro ||
-                    resultado.error ||
-                    `Erro ao criar a Regra ${i + 1}.`
-                );
+                body: JSON.stringify({ regras: lista })
             }
+        );
+
+        const resultado = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+            throw new Error(
+                resultado.detalhe ||
+                resultado.erro ||
+                resultado.error ||
+                "Erro ao salvar as regras."
+            );
         }
+
+        return resultado.regras || [];
     }
 
     async function criarMateriais(campanhaCriadaId, materiais) {
@@ -1200,6 +1369,32 @@ const { error } = await supabaseClient.storage
         }
     }
 
+    async function sincronizarAngulos(campanhaCriadaId, angulos) {
+        const resposta = await fetch(
+            `${API}/api/angulos/${Number(campanhaCriadaId)}`,
+            {
+                method: "PUT",
+                headers: await getAuthHeaders({
+                    "Content-Type": "application/json"
+                }),
+                body: JSON.stringify({ angulos })
+            }
+        );
+
+        const resultado = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+            throw new Error(
+                resultado.erro ||
+                resultado.error ||
+                resultado.detalhe ||
+                "Erro ao salvar os ângulos de divulgação."
+            );
+        }
+
+        return resultado.angulos || [];
+    }
+
     async function carregarCampanhaParaEdicao() {
         const resposta = await fetch(`${API}/api/campanhas/${campanhaId}`);
         const campanha = await resposta.json();
@@ -1211,6 +1406,15 @@ const { error } = await supabaseClient.storage
         }
 
         preencherFormulario(campanha);
+
+        if (copiesContainer) copiesContainer.innerHTML = "";
+        if (regrasContainer) regrasContainer.innerHTML = "";
+        if (materiaisContainer) materiaisContainer.innerHTML = "";
+        if (angulosContainer) angulosContainer.innerHTML = "";
+        contadorCopies = 0;
+        contadorRegras = 0;
+        contadorMateriais = 0;
+        contadorAngulos = 0;
 
         const copiesResposta = await fetch(`${API}/api/copies/${campanhaId}`);
         const copies = await copiesResposta.json();
@@ -1224,10 +1428,12 @@ const { error } = await supabaseClient.storage
         const regrasResposta = await fetch(`${API}/api/regras/${campanhaId}`);
         const regras = await regrasResposta.json();
 
-        if (regrasResposta.ok && Array.isArray(regras)) {
+        if (regrasResposta.ok && Array.isArray(regras) && regras.length > 0) {
             regras
                 .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
                 .forEach((regra) => adicionarRegra(regra));
+        } else {
+            adicionarRegra();
         }
 
         const materiaisResposta = await fetch(`${API}/api/materiais/${campanhaId}`);
@@ -1238,6 +1444,20 @@ const { error } = await supabaseClient.storage
 
         if (materiaisResposta.ok) {
             materiais.forEach((material) => adicionarMaterial(material));
+        }
+
+        const angulosResposta = await fetch(`${API}/api/angulos/${campanhaId}`);
+        const angulos = await angulosResposta.json();
+
+        if (angulosResposta.ok && Array.isArray(angulos)) {
+            angulos
+                .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
+                .forEach((angulo) => adicionarAngulo(angulo));
+        }
+
+        if (!angulosContainer?.querySelector(".angulo-item")) {
+            adicionarAngulo();
+            adicionarAngulo();
         }
     }
 
@@ -1251,6 +1471,46 @@ const { error } = await supabaseClient.storage
 
     if (adicionarMaterialBtn) {
         adicionarMaterialBtn.addEventListener("click", () => adicionarMaterial());
+    }
+
+    if (adicionarMecanicaBtn) {
+        adicionarMecanicaBtn.addEventListener("click", () => adicionarPassoMecanica());
+    }
+
+    if (adicionarAnguloBtn) {
+        adicionarAnguloBtn.addEventListener("click", () => adicionarAngulo());
+    }
+
+    if (mecanicaContainer) {
+        mecanicaContainer.addEventListener("click", (event) => {
+            const removerBtn = event.target.closest(".mecanica-item__remove");
+            if (!removerBtn) return;
+
+            const item = removerBtn.closest(".mecanica-item");
+            if (!item) return;
+
+            item.remove();
+
+            if (!mecanicaContainer.querySelector(".mecanica-item")) {
+                adicionarPassoMecanica();
+            }
+        });
+    }
+
+    if (angulosContainer) {
+        angulosContainer.addEventListener("click", (event) => {
+            const removerBtn = event.target.closest(".angulo-item__remove");
+            if (!removerBtn) return;
+
+            const item = removerBtn.closest(".angulo-item");
+            if (!item) return;
+
+            item.remove();
+
+            if (!angulosContainer.querySelector(".angulo-item")) {
+                adicionarAngulo();
+            }
+        });
     }
 
     if (copiesContainer) {
@@ -1383,9 +1643,18 @@ const { error } = await supabaseClient.storage
             }
 
             const dados = pegarDadosCampanha();
-            const copies = pegarCopies();
-            const regras = pegarRegras();
-            const materiais = pegarMateriais();
+            const copies = pegarCopies().filter(
+                (copy) => copy.titulo || copy.texto || copy.canal || copy.tipo
+            );
+            const regras = pegarRegras().filter(
+                (regra) => regra.titulo || regra.descricao
+            );
+            const materiais = pegarMateriais().filter(
+                (material) => material.nome || material.url
+            );
+            const angulos = pegarAngulos().filter(
+                (angulo) => angulo.titulo || angulo.descricao
+            );
 
             if (
                 !validarCampanha(dados) ||
@@ -1429,26 +1698,16 @@ const { error } = await supabaseClient.storage
                 resultado.id ||
                 campanhaId;
 
-            // Em criação, envia todos.
-            // Em edição, envia apenas itens sem id (adicionados agora).
-            const copiesParaCriar = isEditando
-                ? copies.filter((copy) => !copy.id)
-                : copies;
-
-            const regrasParaCriar = isEditando
-                ? regras.filter((regra) => !regra.id)
-                : regras;
-
+            // Em criação/edição: sincroniza copies, regras, ângulos e
+            // cria apenas materiais novos (sem id).
             const materiaisParaCriar = isEditando
                 ? materiais.filter((material) => !material.id)
                 : materiais;
 
-            if (idCriado && copiesParaCriar.length > 0) {
-                await criarCopies(idCriado, copiesParaCriar);
-            }
-
-            if (idCriado && regrasParaCriar.length > 0) {
-                await criarRegras(idCriado, regrasParaCriar);
+            if (idCriado) {
+                await sincronizarCopies(idCriado, copies);
+                await sincronizarRegras(idCriado, regras);
+                await sincronizarAngulos(idCriado, angulos);
             }
 
             if (idCriado && materiaisParaCriar.length > 0) {
@@ -1484,5 +1743,9 @@ const { error } = await supabaseClient.storage
         });
     } else {
         adicionarCopy();
+        adicionarRegra();
+        preencherMecanica([]);
+        adicionarAngulo();
+        adicionarAngulo();
     }
 });
