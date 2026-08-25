@@ -244,7 +244,7 @@ router.post("/", requireAuth, async (req, res) => {
                 texto_header?.trim() || null,
 
             descricao:
-                descricao?.trim() || null,
+                descricao?.trim() || "",
 
             resumo:
                 resumo?.trim() || null,
@@ -306,6 +306,16 @@ router.post("/", requireAuth, async (req, res) => {
 
 
         if (error) {
+
+            const mensagem = String(error.message || "");
+            if (
+                error.code === "23502"
+                && mensagem.toLowerCase().includes("descricao")
+            ) {
+                return res.status(400).json({
+                    erro: "A descrição da campanha é obrigatória no banco. Preencha o campo Descrição."
+                });
+            }
 
             return responderErroInterno(
                 res,
@@ -437,7 +447,7 @@ router.put("/:id", requireAuth, async (req, res) => {
                 texto_header?.trim() || null,
 
             descricao:
-                descricao?.trim() || null,
+                descricao?.trim() || "",
 
             resumo:
                 resumo?.trim() || null,
