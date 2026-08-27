@@ -3,7 +3,7 @@
  * Monta o sino no topbar/header e consome /api/notificacoes
  */
 (function initCentralNotificacoes() {
-    const API = "http://localhost:3000";
+    const API = (typeof getApiBase === "function" ? getApiBase() : "http://localhost:3000");
     let aberta = false;
     let carregando = false;
     let cache = [];

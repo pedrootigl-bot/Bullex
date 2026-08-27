@@ -8,7 +8,8 @@
     <title>Bullex Partner Hub</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="assets/images/favicon.ico">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="assets/images/favicon.png">
 
     <!-- Google Fonts — Partner Hub -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -129,31 +130,45 @@
 
                     <div class="hero__visual">
 
-                        <article class="hero__visual-card">
+                        <div class="hero-accordion" id="heroAccordion" role="list" aria-label="Campanhas em destaque">
+                            <!-- painéis montados via JS -->
+                        </div>
 
-                            <div class="hero__badges">
-                                <span class="hero__badge" id="heroBadgeTermina">
-                                    TERMINA <strong id="heroCountdown">—</strong>
-                                </span>
-                                <span class="hero__badge hero__badge--status" id="heroBadgeStatus">
-                                    —
-                                </span>
-                            </div>
+                        <div class="hero__nav" id="heroCarouselNav" hidden>
+                            <button
+                                type="button"
+                                class="hero__nav-btn"
+                                id="heroPrevBtn"
+                                aria-label="Campanha anterior"
+                            >
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </button>
+                            <button
+                                type="button"
+                                class="hero__nav-btn"
+                                id="heroNextBtn"
+                                aria-label="Próxima campanha"
+                            >
+                                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                            </button>
+                        </div>
 
-                            <div class="hero__visual-media">
-                                <img
-                                    id="heroImage"
-                                    src="images/post.png"
-                                    alt="Campanha ativa"
-                                >
-                            </div>
+                        <div class="hero__badges hero__badges--overlay">
+                            <span class="hero__badge" id="heroBadgeTermina">
+                                TERMINA <strong id="heroCountdown">—</strong>
+                            </span>
+                            <span class="hero__badge hero__badge--status" id="heroBadgeStatus">
+                                —
+                            </span>
+                        </div>
 
-                            <div class="hero__visual-caption">
-                                <strong id="heroCaptionCupom">—</strong>
-                                <span id="heroCaptionTitulo">—</span>
-                            </div>
+                        <!-- fallback / acessibilidade (atualizado no JS) -->
+                        <img id="heroImage" class="hero__image-fallback" src="images/post.png" alt="" hidden>
 
-                        </article>
+                        <div class="hero__visual-caption" hidden>
+                            <strong id="heroCaptionCupom">—</strong>
+                            <span id="heroCaptionTitulo">—</span>
+                        </div>
 
                     </div>
 
@@ -723,35 +738,6 @@
 
 
 
-
-                <!-- SUPORTE -->
-
-                <div class="footer__contact">
-
-                    <h3>
-                        Atendimento
-                    </h3>
-
-
-                    <a href="#">
-                        WhatsApp
-                    </a>
-
-
-                    <a href="#">
-                        E-mail
-                    </a>
-
-
-                    <a href="#suporte">
-                        Central de ajuda
-                    </a>
-
-
-                </div>
-
-
-
             </div>
 
 
@@ -983,16 +969,17 @@
             </div>
 
             <!-- JavaScript -->
+            <script src="js/api-config.js?v=20260827f1"></script>
             <script src="js/loader.js"></script>
-            <script src="js/api.js"></script>
+            <script src="js/api.js?v=20260827f1"></script>
             <script src="js/navbar.js"></script>
-            <script src="js/stats.js"></script>
-            <script src="js/destaque.js?v=20260812c"></script>
-            <script src="js/campanha.js"></script>
-            <script src="js/calendario.js?v=20260812nome"></script>
-            <script src="js/modal.js?v=20260812preview-x"></script>
-            <script src="js/campanha-modal.js?v=20260812preview-x"></script>
-            <script src="js/materiais.js"></script>
+            <script src="js/stats.js?v=20260827f1"></script>
+            <script src="js/destaque.js?v=20260827h8"></script>
+            <script src="js/campanha.js?v=20260827f1"></script>
+            <script src="js/calendario.js?v=20260827f1"></script>
+            <script src="js/modal.js?v=20260827f1"></script>
+            <script src="js/campanha-modal.js?v=20260827f1"></script>
+            <script src="js/materiais.js?v=20260827f1"></script>
             <script src="js/main.js"></script>
 </body>
 

@@ -56,7 +56,7 @@ async function carregarMateriais(campanhaId){
 
 
         const resposta = await fetch(
-            `http://localhost:3000/api/materiais/${campanhaId}`
+            apiUrl(`/api/materiais/${campanhaId}`)
         );
 
 
@@ -284,7 +284,7 @@ async function carregarCopies(campanhaId){
 
 
         const resposta = await fetch(
-            `http://localhost:3000/api/copies/${campanhaId}`
+            apiUrl(`/api/copies/${campanhaId}`)
         );
 
 
@@ -429,7 +429,7 @@ async function carregarRegras(campanhaId){
     try {
 
         const response = await fetch(
-                `http://localhost:3000/api/regras/${campanhaId}`
+                apiUrl(`/api/regras/${campanhaId}`)
 
         );
 

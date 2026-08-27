@@ -12,10 +12,12 @@ const {
     hojeISO,
     dataISO,
     sincronizarStatusCampanhas,
+    calcularDataInicioAquecimento,
     STATUS
 } = require("../utils/campanhaStatus");
 
 const TIPOS = Object.freeze({
+    EM_AQUECIMENTO: "campanha_em_aquecimento",
     INICIADA: "campanha_iniciada",
     ENCERRANDO: "campanha_encerrando",
     ENCERRADA: "campanha_encerrada",
@@ -202,9 +204,30 @@ function eventosDaCampanha(campanha, hoje = hojeISO()) {
     const diasParaFim = diffDias(hoje, fim);
     const jaIniciou = !inicio || hoje >= inicio;
     const jaEncerrou = Boolean(fim && hoje >= fim);
+    const inicioAquecimento = calcularDataInicioAquecimento(inicio);
+    const naJanelaAquecimento = Boolean(
+        inicio
+        && inicioAquecimento
+        && hoje >= inicioAquecimento
+        && hoje < inicio
+    );
+    const estaEmAquecimento =
+        status === STATUS.EM_AQUECIMENTO
+        || (naJanelaAquecimento && status !== STATUS.ATIVA);
     const estaAtiva =
         status === STATUS.ATIVA
         || (jaIniciou && !jaEncerrou);
+
+    // Pré-campanha / aquecimento (dedupe: campanha_id + tipo)
+    if (estaEmAquecimento && !jaEncerrou) {
+        eventos.push({
+            campanhaId: id,
+            tipo: TIPOS.EM_AQUECIMENTO,
+            titulo: "Campanha em aquecimento",
+            mensagem:
+                `A campanha ${nome} entrou em aquecimento e já pode ser divulgada.`
+        });
+    }
 
     if (estaAtiva) {
         eventos.push({

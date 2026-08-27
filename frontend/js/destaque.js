@@ -62,10 +62,15 @@ function ehCampanhaAtiva(campanha) {
     return String(campanha?.status || "").toLowerCase().trim() === "ativa";
 }
 
+function ehCampanhaEmAquecimento(campanha) {
+    return String(campanha?.status || "").toLowerCase().trim() === "em_aquecimento";
+}
+
 /**
  * Regras do hero / destaque:
- * 1) Entre campanhas ativas (status sincronizado pelas datas), usa a mais antiga.
- * 2) Se nenhuma estiver ativa, null (fallback da API /destaque).
+ * 1) Campanhas ativas (mais antiga primeiro)
+ * 2) Se não houver ativa, campanhas em aquecimento (hub)
+ * 3) Senão null (fallback /api/destaque)
  */
 function escolherCampanhaPostDoDia(campanhas = []) {
     const lista = ordenarCampanhasMaisAntigasPrimeiro(campanhas);
@@ -73,6 +78,14 @@ function escolherCampanhaPostDoDia(campanhas = []) {
 
     if (ativas.length > 0) {
         return ativas[0];
+    }
+
+    const aquecimento = lista.filter((campanha) =>
+        ehCampanhaEmAquecimento(campanha)
+    );
+
+    if (aquecimento.length > 0) {
+        return aquecimento[0];
     }
 
     return null;
@@ -152,6 +165,7 @@ function formatarCountdownHero(dataFim) {
 function formatarStatusHero(status) {
     const s = String(status || "").trim().toLowerCase();
     if (s === "ativa") return "DESTAQUE · ATIVA";
+    if (s === "em_aquecimento") return "DESTAQUE · EM AQUECIMENTO";
     if (s === "agendada") return "DESTAQUE · AGENDADA";
     if (s === "finalizada") return "DESTAQUE · FINALIZADA";
     return s ? `DESTAQUE · ${s.toUpperCase()}` : "DESTAQUE";
@@ -177,9 +191,11 @@ function imagemCampanhaHero(campanha) {
     );
 }
 
-function preencherHeroComCampanha(campanha) {
+function preencherHeroComCampanha(campanha, opcoes = {}) {
     const hero = document.querySelector("#hero");
     if (!hero || !campanha) return;
+
+    const revelar = opcoes.revelar !== false;
 
     // Título grande do hero: campo "Texto do header" (fallback no título da campanha)
     const tituloHeader =
@@ -236,7 +252,10 @@ function preencherHeroComCampanha(campanha) {
     if (elCaptionTitulo) elCaptionTitulo.textContent = tituloCampanha;
 
     hero.dataset.campanhaId = String(campanha.id || "");
-    revelarHeroFadeIn();
+
+    if (revelar) {
+        revelarHeroFadeIn();
+    }
 }
 
 function revelarHeroFadeIn() {
@@ -249,10 +268,246 @@ function revelarHeroFadeIn() {
     hero.classList.add("hero--loaded", "is-visible");
 }
 
+/* ==================================================
+   HERO NAV — accordion manual (setas anterior/próximo)
+================================================== */
+
+let heroCarouselIndex = 0;
+let heroCarouselCampanhas = [];
+let heroCarouselBusy = false;
+
+function campanhaVisivelNoHero(campanha) {
+    const status = String(campanha?.status || "")
+        .toLowerCase()
+        .trim();
+    return status === "ativa" || status === "em_aquecimento";
+}
+
+function listarCampanhasParaHero(campanhas = []) {
+    return ordenarCampanhasMaisAntigasPrimeiro(
+        (Array.isArray(campanhas) ? campanhas : []).filter(
+            campanhaVisivelNoHero
+        )
+    );
+}
+
+function atualizarHeroNav(total) {
+    const nav = document.querySelector("#heroCarouselNav");
+    if (!nav) return;
+    nav.hidden = total <= 1;
+}
+
+function atualizarHeroAccordion(indice) {
+    const accordion = document.querySelector("#heroAccordion");
+    if (!accordion) return;
+
+    accordion.querySelectorAll(".hero-accordion__panel").forEach((painel, i) => {
+        const ativo = i === indice;
+        painel.classList.toggle("is-active", ativo);
+        painel.setAttribute("aria-current", ativo ? "true" : "false");
+    });
+}
+
+function montarHeroAccordion(campanhas = []) {
+    const accordion = document.querySelector("#heroAccordion");
+    if (!accordion) return;
+
+    const lista = Array.isArray(campanhas) ? campanhas : [];
+
+    if (!lista.length) {
+        accordion.innerHTML = "";
+        accordion.classList.remove("hero-accordion--single");
+        return;
+    }
+
+    accordion.classList.toggle("hero-accordion--single", lista.length === 1);
+    accordion.innerHTML = lista.map((campanha, i) => {
+        const tituloHeader =
+            String(campanha.texto_header || "").trim()
+            || campanha.titulo
+            || `Campanha ${i + 1}`;
+        const titulo = campanha.titulo || tituloHeader;
+        const cupom = campanha.cupom || "";
+        const src = imagemCampanhaHero(campanha);
+        const ativo = i === 0 ? " is-active" : "";
+
+        return `
+            <div
+                class="hero-accordion__panel${ativo}"
+                role="listitem"
+                data-hero-index="${i}"
+                aria-current="${i === 0 ? "true" : "false"}"
+            >
+                <img src="${escapeAttrHero(src)}" alt="${escapeAttrHero(tituloHeader)}" loading="${i === 0 ? "eager" : "lazy"}">
+                <span class="hero-accordion__caption">
+                    <strong>${escapeHtmlHero(cupom || tituloHeader)}</strong>
+                    <span>${escapeHtmlHero(titulo)}</span>
+                </span>
+            </div>
+        `;
+    }).join("");
+}
+
+function escapeHtmlHero(valor) {
+    return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function escapeAttrHero(valor) {
+    return escapeHtmlHero(valor).replace(/'/g, "&#39;");
+}
+
+const HERO_SWITCH_FADE_OUT_MS = 400;
+const HERO_SWITCH_FADE_IN_MS = 720;
+
+function esperarMs(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function esperarProximoFrame() {
+    return new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
+}
+
+function textosHeaderHero() {
+    return [
+        document.querySelector("#heroTitle"),
+        document.querySelector("#heroLead"),
+    ].filter(Boolean);
+}
+
+function fadeOutTextosHeader() {
+    textosHeaderHero().forEach((el) => {
+        el.classList.remove("hero-text--fade-in");
+        el.classList.add("hero-text--fade-out");
+    });
+}
+
+function fadeInTextosHeader() {
+    textosHeaderHero().forEach((el, index) => {
+        el.style.setProperty("--hero-text-delay", `${index * 90}ms`);
+        el.classList.remove("hero-text--fade-in");
+        // mantém invisível até a animação de entrada começar
+        el.classList.add("hero-text--fade-out");
+        void el.offsetWidth;
+        el.classList.remove("hero-text--fade-out");
+        el.classList.add("hero-text--fade-in");
+    });
+}
+
+async function mostrarSlideHero(indice, { animar = true } = {}) {
+    const lista = heroCarouselCampanhas;
+    if (!lista.length || heroCarouselBusy) return;
+
+    const total = lista.length;
+    const i = ((indice % total) + total) % total;
+    if (animar && i === heroCarouselIndex) return;
+
+    heroCarouselIndex = i;
+    const campanha = lista[i];
+    const hero = document.querySelector("#hero");
+    const reduzirMovimento =
+        typeof window.matchMedia === "function"
+        && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    heroCarouselBusy = true;
+
+    try {
+        if (animar && hero && !reduzirMovimento) {
+            atualizarHeroAccordion(i);
+            hero.classList.add("hero--switching");
+            fadeOutTextosHeader();
+            await esperarMs(HERO_SWITCH_FADE_OUT_MS);
+        }
+
+        await preencherDestaqueComCampanha(campanha, {
+            revelarHero: !animar
+        });
+
+        if (!animar || reduzirMovimento) {
+            atualizarHeroAccordion(i);
+        }
+
+        if (animar && hero && !reduzirMovimento) {
+            await esperarProximoFrame();
+            hero.classList.remove("hero--switching");
+            fadeInTextosHeader();
+            await esperarMs(HERO_SWITCH_FADE_IN_MS);
+        } else if (animar && hero) {
+            hero.classList.remove("hero--switching");
+            textosHeaderHero().forEach((el) => {
+                el.classList.remove("hero-text--fade-out", "hero-text--fade-in");
+            });
+        }
+    } finally {
+        heroCarouselBusy = false;
+    }
+}
+
+function irParaSlideHero(indice) {
+    mostrarSlideHero(indice);
+}
+
+function heroCampanhaAnterior() {
+    irParaSlideHero(heroCarouselIndex - 1);
+}
+
+function heroCampanhaProxima() {
+    irParaSlideHero(heroCarouselIndex + 1);
+}
+
+function ligarControlesHeroCarrossel() {
+    const prevBtn = document.querySelector("#heroPrevBtn");
+    const nextBtn = document.querySelector("#heroNextBtn");
+
+    // Somente as setas mudam a campanha
+    if (prevBtn && !prevBtn.dataset.bound) {
+        prevBtn.dataset.bound = "1";
+        prevBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            heroCampanhaAnterior();
+        });
+    }
+
+    if (nextBtn && !nextBtn.dataset.bound) {
+        nextBtn.dataset.bound = "1";
+        nextBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            heroCampanhaProxima();
+        });
+    }
+}
+
+/**
+ * Monta o accordion do hero.
+ * Com 2+ campanhas, exibe setas anterior/próximo (sem autoplay).
+ */
+async function iniciarHeroCarrossel(campanhas = []) {
+    heroCarouselCampanhas = listarCampanhasParaHero(campanhas);
+    heroCarouselIndex = 0;
+
+    montarHeroAccordion(heroCarouselCampanhas);
+    atualizarHeroNav(heroCarouselCampanhas.length);
+    ligarControlesHeroCarrossel();
+
+    if (!heroCarouselCampanhas.length) {
+        return false;
+    }
+
+    await mostrarSlideHero(0, { animar: false });
+    return true;
+}
+
 async function buscarCopiesCampanha(campanhaId) {
     try {
         const resposta = await fetch(
-            `http://localhost:3000/api/copies/${campanhaId}`
+            apiUrl(`/api/copies/${campanhaId}`)
         );
 
         if (!resposta.ok) return [];
@@ -267,7 +522,7 @@ async function buscarCopiesCampanha(campanhaId) {
 
 async function obterCampanhaParaDestaque() {
     const resposta = await fetch(
-        "http://localhost:3000/api/campanhas"
+        apiUrl("/api/campanhas")
     );
 
     if (!resposta.ok) {
@@ -282,7 +537,7 @@ async function obterCampanhaParaDestaque() {
     return escolherCampanhaPostDoDia(campanhas);
 }
 
-async function preencherDestaqueComCampanha(campanha) {
+async function preencherDestaqueComCampanha(campanha, opcoes = {}) {
     const tag = document.querySelector("#highlightTag");
     const titulo = document.querySelector("#highlightTitle");
     const descricao = document.querySelector("#highlightDescription");
@@ -372,13 +627,15 @@ async function preencherDestaqueComCampanha(campanha) {
     // Mantém referência global para modal/kit/materiais/copies/regras
     window.campanhaDestaqueAtual = campanha;
 
-    // Hero: título, textos, datas, cupom, prêmio e imagem da campanha ativa
-    preencherHeroComCampanha(campanha);
+    // Hero: texto_header + demais campos da campanha atual do carrossel
+    preencherHeroComCampanha(campanha, {
+        revelar: opcoes.revelarHero !== false
+    });
 }
 
 async function carregarDestaqueFallbackApi() {
     const resposta = await fetch(
-        "http://localhost:3000/api/destaque"
+        apiUrl("/api/destaque")
     );
 
     if (!resposta.ok) {
@@ -418,15 +675,26 @@ async function carregarDestaqueFallbackApi() {
 }
 
 /**
- * Carrega o Post do Dia pela campanha mais relevante.
+ * Carrega o Post do Dia / Hero.
+ * Com 2+ campanhas ativas (ou em aquecimento), o hero vira accordion com setas.
  * Fallback: API /api/destaque
  */
 async function carregarDestaque() {
     try {
-        const campanha = await obterCampanhaParaDestaque();
+        const resposta = await fetch(apiUrl("/api/campanhas"));
 
-        if (campanha) {
-            await preencherDestaqueComCampanha(campanha);
+        if (!resposta.ok) {
+            throw new Error("Erro ao buscar campanhas");
+        }
+
+        const dados = await resposta.json();
+        const campanhas = Array.isArray(dados)
+            ? dados
+            : (dados.campanhas ?? []);
+
+        const preencheu = await iniciarHeroCarrossel(campanhas);
+
+        if (preencheu) {
             return;
         }
 

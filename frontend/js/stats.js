@@ -28,7 +28,7 @@ async function carregarStats() {
 async function obterStats() {
 
     const resposta = await fetch(
-        "http://localhost:3000/api/stats"
+        apiUrl("/api/stats")
     );
 
 

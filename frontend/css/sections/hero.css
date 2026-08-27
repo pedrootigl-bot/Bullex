@@ -107,6 +107,7 @@
     column-gap: clamp(1.1rem, 2.8vw, 2.1rem);
     row-gap: 0.85rem;
     width: 100%;
+    min-width: 0;
 }
 
 .hero__intro {
@@ -116,6 +117,9 @@
     align-items: flex-start;
     gap: 1.15rem;
     max-width: 36rem;
+    width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .hero__details {
@@ -125,6 +129,8 @@
     align-items: flex-start;
     gap: 0.75rem;
     max-width: 36rem;
+    width: 100%;
+    min-width: 0;
     align-self: start;
 }
 
@@ -132,31 +138,47 @@
     grid-area: visual;
     position: relative;
     width: 100%;
-    max-width: 520px;
+    max-width: 560px;
+    min-width: 0;
     margin-left: 0;
     display: flex;
     justify-content: flex-start;
     align-items: stretch;
     align-self: center;
+    min-height: min(100dvh - 12rem, 480px);
+    max-height: 620px;
+    aspect-ratio: 4 / 5;
 }
 
 .hero__intro h1,
-.hero__content h1 {
+.hero__content h1,
+#heroTitle {
     margin: 0;
+    width: 100%;
+    max-width: 100%;
     font-size: clamp(2.35rem, 4.6vw, 3.35rem);
-    line-height: 1.08;
+    line-height: 1.12;
     font-weight: 800;
     color: #fff;
     letter-spacing: -0.035em;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
 }
 
-.hero__lead {
+.hero__lead,
+#heroLead {
     margin: 0;
+    width: 100%;
     max-width: 34rem;
     color: #9ca3af;
     font-size: 1.02rem;
     line-height: 1.65;
     font-weight: 500;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .hero__period {
@@ -433,10 +455,18 @@
     .hero {
         min-height: auto;
         padding: 6.5rem 0 2.5rem;
+        overflow-x: clip;
+        overflow-y: visible;
+    }
+
+    .hero > .container {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
     }
 
     .hero__grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         grid-template-areas:
             "intro"
             "visual"
@@ -448,13 +478,22 @@
     .hero__details {
         max-width: none;
         width: 100%;
+        min-width: 0;
         text-align: center;
         align-items: center;
     }
 
+    .hero__intro h1,
+    #heroTitle {
+        font-size: clamp(1.75rem, 6.2vw, 2.55rem);
+        line-height: 1.18;
+        letter-spacing: -0.025em;
+        text-wrap: balance;
+    }
+
     .hero__visual {
         width: 100%;
-        max-width: 520px;
+        max-width: min(520px, 100%);
         margin: 0 auto;
     }
 
@@ -464,8 +503,9 @@
         max-height: none;
     }
 
-    .hero__lead {
-        max-width: 40rem;
+    .hero__lead,
+    #heroLead {
+        max-width: min(40rem, 100%);
     }
 
     .hero__actions-buttons {
@@ -473,7 +513,7 @@
     }
 
     .hero__focus {
-        max-width: 28rem;
+        max-width: min(28rem, 100%);
     }
 }
 
@@ -484,15 +524,22 @@
 
     .hero__intro,
     .hero__details {
-        gap: 1rem;
+        gap: 0.85rem;
+        padding-inline: 0;
     }
 
-    .hero__intro h1 {
-        font-size: clamp(1.9rem, 8vw, 2.4rem);
+    .hero__intro h1,
+    #heroTitle {
+        font-size: clamp(1.45rem, 7.2vw, 2.05rem);
+        line-height: 1.2;
+        letter-spacing: -0.02em;
     }
 
-    .hero__lead {
-        font-size: 0.95rem;
+    .hero__lead,
+    #heroLead {
+        font-size: 0.92rem;
+        line-height: 1.55;
+        max-width: 100%;
     }
 
     .hero__meta {
@@ -503,10 +550,13 @@
 
     .hero__meta .info-card {
         padding: 0.4rem 0.65rem;
+        min-width: 0;
     }
 
     .hero__meta .info-card__value {
         font-size: clamp(0.72rem, 2.4vw, 0.88rem);
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
     .hero__actions-buttons {
@@ -520,6 +570,9 @@
 
     .hero__visual {
         max-width: 100%;
+        min-height: 220px;
+        max-height: none;
+        aspect-ratio: 4 / 5;
     }
 
     .hero__visual-card {
@@ -536,12 +589,321 @@
     .hero__badge {
         font-size: 0.62rem;
         padding: 0.4rem 0.65rem;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 }
 
 @media (max-width: 420px) {
+    .hero__intro h1,
+    #heroTitle {
+        font-size: clamp(1.28rem, 7.8vw, 1.7rem);
+        line-height: 1.22;
+    }
+
+    .hero__lead,
+    #heroLead {
+        font-size: 0.88rem;
+    }
+
     .hero__badges {
         flex-direction: column;
         align-items: flex-start;
+    }
+}
+
+/* ==================================================
+   HERO CARROSSEL
+================================================== */
+
+.hero__details {
+    will-change: opacity, transform;
+    transition:
+        opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero.hero--switching .hero__details {
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition:
+        opacity 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero__badges--overlay {
+    transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero.hero--switching .hero__badges--overlay {
+    opacity: 0.25;
+    transition: opacity 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Fade dos textos do header (título + lead) na troca de campanha */
+#heroTitle,
+#heroLead {
+    will-change: opacity, transform;
+}
+
+#heroTitle.hero-text--fade-out,
+#heroLead.hero-text--fade-out {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes hero-text-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#heroTitle.hero-text--fade-in,
+#heroLead.hero-text--fade-in {
+    animation: hero-text-fade-in 0.72s cubic-bezier(0.22, 1, 0.36, 1)
+        var(--hero-text-delay, 0ms) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero.hero--switching .hero__details,
+    .hero.hero--switching .hero__badges--overlay {
+        opacity: 1;
+        transform: none;
+        transition: none;
+        pointer-events: auto;
+    }
+
+    #heroTitle.hero-text--fade-out,
+    #heroLead.hero-text--fade-out,
+    #heroTitle.hero-text--fade-in,
+    #heroLead.hero-text--fade-in {
+        opacity: 1;
+        transform: none;
+        transition: none;
+        animation: none;
+    }
+
+    .hero-accordion__panel {
+        transition: none !important;
+    }
+}
+
+/* ==================================================
+   HERO — Accordion Gallery
+================================================== */
+
+.hero-accordion {
+    display: flex;
+    gap: 0.55rem;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    max-height: inherit;
+}
+
+.hero-accordion__panel {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    overflow: hidden;
+    cursor: default;
+    background: #0a0f0c;
+    color: #fff;
+    text-align: left;
+    filter: brightness(0.72) saturate(0.92);
+    transition:
+        flex 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.55s ease,
+        box-shadow 0.55s ease;
+}
+
+.hero-accordion__panel img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.04);
+    transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-accordion__panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        180deg,
+        transparent 42%,
+        rgba(0, 0, 0, 0.78) 100%
+    );
+    opacity: 0.85;
+}
+
+.hero-accordion__caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 1rem 0.9rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+        opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s,
+        transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s;
+}
+
+.hero-accordion__caption strong {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #76E000;
+    letter-spacing: -0.01em;
+}
+
+.hero-accordion__caption span {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.88);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hero-accordion__panel.is-active {
+    flex: 5 1 0;
+    filter: brightness(1) saturate(1.05);
+    border-color: rgba(104, 218, 0, 0.4);
+    box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(104, 218, 0, 0.12);
+    z-index: 2;
+}
+
+.hero-accordion__panel.is-active .hero-accordion__caption {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hero-accordion__panel.is-active img {
+    transform: scale(1.08);
+}
+
+.hero-accordion--single .hero-accordion__panel {
+    flex: 1 1 auto !important;
+    filter: brightness(1) saturate(1.02);
+    border-radius: 22px;
+}
+
+.hero-accordion--single .hero-accordion__caption {
+    opacity: 1;
+    transform: none;
+}
+
+.hero__badges--overlay {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.85rem;
+    right: 0.85rem;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.hero__image-fallback {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hero__nav {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.55rem;
+    pointer-events: none;
+}
+
+.hero__nav[hidden] {
+    display: none !important;
+}
+
+.hero__nav-btn {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background: rgba(10, 12, 10, 0.72);
+    color: #fff;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        color 0.2s ease;
+}
+
+.hero__nav-btn:hover {
+    background: rgba(118, 224, 0, 0.92);
+    border-color: rgba(118, 224, 0, 0.95);
+    color: #0a0a0a;
+    transform: scale(1.05);
+}
+
+.hero__nav-btn:focus-visible {
+    outline: 2px solid #76E000;
+    outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+    .hero__visual {
+        aspect-ratio: 16 / 11;
+        max-height: 380px;
+        min-height: 240px;
+    }
+
+    .hero-accordion {
+        gap: 0.4rem;
+    }
+
+    .hero-accordion__panel {
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero-accordion__caption strong {
+        font-size: 0.82rem;
+    }
+
+    .hero-accordion__caption span {
+        font-size: 0.7rem;
     }
 }

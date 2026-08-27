@@ -10,7 +10,7 @@ async function carregarMateriaisSecao(campanhaId) {
 
 
         const resposta = await fetch(
-            `http://localhost:3000/api/materiais/${campanhaId}`
+            apiUrl(`/api/materiais/${campanhaId}`)
         );
 
 

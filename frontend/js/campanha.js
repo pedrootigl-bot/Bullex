@@ -27,29 +27,58 @@ function parseDataCampanha(valor){
 
 
 /**
- * Campanha visível no site público somente quando status = ativa.
- * Agendada e Finalizada ficam no admin; o backend sincroniza o status pelas datas.
+ * Campanha visível no hub público: ativa OU em aquecimento (pre_active).
+ * Agendada e Finalizada ficam só no admin.
  */
 function campanhaEstaVisivel(campanha){
     const status = String(campanha?.status || "")
         .toLowerCase()
         .trim();
 
-    return status === "ativa";
+    return status === "ativa" || status === "em_aquecimento";
+}
+
+function statusHubCampanha(campanha){
+    const status = String(campanha?.status || "")
+        .toLowerCase()
+        .trim();
+
+    if (status === "em_aquecimento") return "pre_active";
+    return status || "";
+}
+
+function rotuloStatusHub(campanha){
+    const hub = statusHubCampanha(campanha);
+    if (hub === "pre_active") return "EM AQUECIMENTO";
+    if (hub === "ativa") return "ATIVA";
+    return String(campanha?.status || "Campanha").toUpperCase();
 }
 
 
 async function carregarCampanhas(){
 
     const resposta = await fetch(
-        "http://localhost:3000/api/campanhas"
+        apiUrl("/api/campanhas")
     );
+
+    if (!resposta.ok) {
+        console.error("Erro ao carregar campanhas:", resposta.status);
+        campanhas = [];
+        renderizarCampanhas();
+        return;
+    }
 
     const dados = await resposta.json();
     const lista = Array.isArray(dados) ? dados : (dados.campanhas ?? []);
 
     campanhas = lista.filter(campanhaEstaVisivel);
 
+    console.log(
+        "[hub] campanhas API:",
+        lista.length,
+        "| visíveis:",
+        campanhas.length
+    );
 
     renderizarCampanhas();
 
@@ -116,13 +145,18 @@ function renderizarCampanhas(){
         card.classList.add("campaign-card");
 
         const categorias = categoriasDaCampanha(campanha);
+        const hubStatus = statusHubCampanha(campanha);
+        const rotuloStatus = rotuloStatusHub(campanha);
         const tagsHtml = categorias.length
             ? categorias.map((categoria) => `
                 <span>${escapeHtmlCampanha(categoria)}</span>
             `).join("")
-            : `<span>${escapeHtmlCampanha(campanha.status || "Campanha")}</span>`;
+            : "";
 
         const dataFim = formatarDataBR(campanha.data_fim);
+
+        card.classList.toggle("is-pre-active", hubStatus === "pre_active");
+        card.dataset.status = hubStatus;
 
         card.innerHTML = `
 
@@ -136,6 +170,9 @@ function renderizarCampanhas(){
 
 
                 <div class="tags">
+                    <span class="campaign-status campaign-status--${escapeHtmlCampanha(hubStatus || "ativa")}" data-status="${escapeHtmlCampanha(hubStatus)}">
+                        ${escapeHtmlCampanha(rotuloStatus)}
+                    </span>
                     ${tagsHtml}
                 </div>
 

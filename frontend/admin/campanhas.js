@@ -1,4 +1,4 @@
-const API = "http://localhost:3000";
+const API = (typeof getApiBase === "function" ? getApiBase() : "http://localhost:3000");
 
 const container = document.querySelector("#campanhasContainer");
 let campanhasCache = [];
@@ -29,6 +29,7 @@ function normalizarStatus(status) {
 function statusClass(status) {
     const s = normalizarStatus(status);
     if (s === "ativa") return "is-ativa";
+    if (s === "em_aquecimento" || s === "pre_active") return "is-em-aquecimento is-pre-active";
     if (s === "agendada" || s.includes("program")) return "is-agendada is-programada";
     if (s === "finalizada" || s.includes("final") || s === "inativa") return "is-finalizada";
     if (s.includes("paus")) return "is-pausada";
@@ -38,6 +39,7 @@ function statusClass(status) {
 function rotuloStatus(status) {
     const s = normalizarStatus(status);
     if (s === "agendada") return "Agendada";
+    if (s === "em_aquecimento" || s === "pre_active") return "Em aquecimento";
     if (s === "ativa") return "Ativa";
     if (s === "finalizada") return "Finalizada";
     if (s === "inativa") return "Finalizada";

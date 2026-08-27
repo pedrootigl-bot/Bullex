@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Campanha - Bullex</title>
+    <link rel="icon" type="image/png" href="../assets/images/favicon.png">
 
     <link rel="stylesheet" href="../css/admin/admin.css">
-    <link rel="stylesheet" href="../css/admin/campanha-form.css?v=20260812m4">
+    <link rel="stylesheet" href="../css/admin/campanha-form.css?v=20260827s1">
     <link rel="stylesheet" href="../css/admin/admin-theme.css">
     <link rel="stylesheet" href="../css/admin/notificacoes-admin.css">
     <link rel="stylesheet"
@@ -116,12 +117,15 @@
                         <label for="status">Status</label>
                         <select id="status" name="status" disabled>
                             <option value="agendada">Agendada</option>
+                            <option value="em_aquecimento">Em aquecimento</option>
                             <option value="ativa">Ativa</option>
                             <option value="finalizada">Finalizada</option>
                         </select>
                         <small class="form-hint">
                             Calculado automaticamente pelas datas (não é editável manualmente):
-                            antes do início = Agendada, no período = Ativa, a partir da data fim = Finalizada.
+                            antes da janela = Agendada, nos 5 dias antes do início = Em aquecimento,
+                            no período = Ativa, a partir da data fim = Finalizada.
+                            Campanha já ativa não volta para aquecimento.
                         </small>
                     </div>
 
@@ -377,10 +381,29 @@
 
     </main>
 
+    <div
+        id="salvarCampanhaLoading"
+        class="salvar-loading"
+        hidden
+        aria-live="assertive"
+        aria-busy="true"
+        role="alertdialog"
+        aria-labelledby="salvarCampanhaLoadingTitle"
+        aria-describedby="salvarCampanhaLoadingText"
+    >
+        <div class="salvar-loading__backdrop"></div>
+        <div class="salvar-loading__card">
+            <i class="fa-solid fa-spinner fa-spin salvar-loading__spinner" aria-hidden="true"></i>
+            <strong id="salvarCampanhaLoadingTitle">Salvando campanha</strong>
+            <p id="salvarCampanhaLoadingText">Aguarde enquanto os dados são enviados...</p>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/api-config.js?v=20260827f1"></script>
     <script src="./supabase-client.js"></script>
     <script src="./notificacoes-admin.js?v=20260812n1"></script>
-    <script src="./campanha-form.js?v=20260812m4"></script>
+    <script src="./campanha-form.js?v=20260827s2"></script>
 
 </body>
 

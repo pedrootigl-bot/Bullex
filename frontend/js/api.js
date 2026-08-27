@@ -35,7 +35,7 @@ const destaqueMock = {
 async function obterStats(){
 
     const resposta = await fetch(
-        "http://localhost:3000/api/stats"
+        apiUrl("/api/stats")
     );
 
 
@@ -54,15 +54,11 @@ async function obterStats(){
 
 /**
  * Busca o destaque do dia.
- * Futuro:
- *   const response = await fetch("/api/destaque");
- *   if (!response.ok) throw new Error("Falha ao carregar destaque");
- *   return response.json();
  */
 async function obterDestaque() {
 
     const resposta = await fetch(
-        "http://localhost:3000/api/destaque"
+        apiUrl("/api/destaque")
     );
 
 

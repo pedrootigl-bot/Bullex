@@ -1,4 +1,4 @@
-const API = "http://localhost:3000";
+const API = (typeof getApiBase === "function" ? getApiBase() : "http://localhost:3000");
 
 document.addEventListener("DOMContentLoaded", async () => {
     const session = await requireAdminSession();
@@ -38,7 +38,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     let uploadImagemEmAndamento = false;
     let uploadMaterialEmAndamento = 0;
 
-    function calcularStatusPorDatas(dataInicio, dataFim) {
+    const WARMUP_DAYS = 5;
+
+    function adicionarDiasISOLocal(dataIso, dias) {
+        const base = String(dataIso || "").slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(base)) return null;
+        const [ano, mes, dia] = base.split("-").map(Number);
+        const dt = new Date(ano, mes - 1, dia);
+        dt.setDate(dt.getDate() + Number(dias));
+        return [
+            dt.getFullYear(),
+            String(dt.getMonth() + 1).padStart(2, "0"),
+            String(dt.getDate()).padStart(2, "0")
+        ].join("-");
+    }
+
+    function calcularStatusPorDatas(dataInicio, dataFim, statusAtual = null) {
         const hoje = new Date();
         const hojeISO = [
             hoje.getFullYear(),
@@ -48,9 +63,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const inicio = String(dataInicio || "").slice(0, 10);
         const fim = String(dataFim || "").slice(0, 10);
+        const atual = String(statusAtual || "").trim().toLowerCase();
 
-        if (inicio && hojeISO < inicio) return "agendada";
         if (fim && hojeISO >= fim) return "finalizada";
+        if (inicio && hojeISO >= inicio) return "ativa";
+
+        if (inicio && hojeISO < inicio) {
+            const inicioAquecimento = adicionarDiasISOLocal(inicio, -WARMUP_DAYS);
+            if (
+                inicioAquecimento
+                && hojeISO >= inicioAquecimento
+                && hojeISO < inicio
+            ) {
+                if (atual === "ativa") return "ativa";
+                return "em_aquecimento";
+            }
+            return "agendada";
+        }
+
         return "ativa";
     }
 
@@ -59,7 +89,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         const inicio = document.getElementById("data_inicio")?.value || "";
         const fim = document.getElementById("data_fim")?.value || "";
         if (!statusEl || (!inicio && !fim)) return;
-        statusEl.value = calcularStatusPorDatas(inicio, fim);
+        statusEl.value = calcularStatusPorDatas(
+            inicio,
+            fim,
+            statusEl.dataset.statusAtual || statusEl.value
+        );
     }
 
     ["data_inicio", "data_fim"].forEach((id) => {
@@ -1312,7 +1346,10 @@ const { error } = await supabaseClient.storage
             data_fim: document.getElementById("data_fim")?.value || "",
             status: calcularStatusPorDatas(
                 document.getElementById("data_inicio")?.value || "",
-                document.getElementById("data_fim")?.value || ""
+                document.getElementById("data_fim")?.value || "",
+                document.getElementById("status")?.dataset?.statusAtual
+                    || document.getElementById("status")?.value
+                    || null
             ),
             imagem_card: document.getElementById("imagem_card")?.value.trim() || ""
         };
@@ -1339,6 +1376,11 @@ const { error } = await supabaseClient.storage
             if (!el || campanha[campo] == null) return;
             el.value = campanha[campo];
         });
+
+        const statusEl = document.getElementById("status");
+        if (statusEl) {
+            statusEl.dataset.statusAtual = String(campanha.status || "");
+        }
 
         sincronizarStatusComDatas();
 
@@ -1845,6 +1887,59 @@ const { error } = await supabaseClient.storage
 
         const submitButton = form.querySelector('button[type="submit"]');
         const textoOriginal = submitButton?.innerHTML;
+        const loadingEl = document.getElementById("salvarCampanhaLoading");
+        const loadingTitle = document.getElementById("salvarCampanhaLoadingTitle");
+        const loadingText = document.getElementById("salvarCampanhaLoadingText");
+        const SAVE_TIMEOUT_MS = 90000;
+
+        function mostrarLoadingSalvar() {
+            if (loadingTitle) {
+                loadingTitle.textContent = isEditando
+                    ? "Salvando alterações"
+                    : "Salvando campanha";
+            }
+            if (loadingText) {
+                loadingText.textContent = isEditando
+                    ? "Atualizando campanha, copies, regras e materiais..."
+                    : "Criando campanha e enviando os conteúdos...";
+            }
+            if (loadingEl) {
+                loadingEl.hidden = false;
+                document.body.classList.add("is-saving-campanha");
+            }
+        }
+
+        function ocultarLoadingSalvar() {
+            if (loadingEl) {
+                loadingEl.hidden = true;
+            }
+            document.body.classList.remove("is-saving-campanha");
+        }
+
+        async function fetchComTimeout(url, options = {}, timeoutMs = SAVE_TIMEOUT_MS) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                return await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+            } catch (error) {
+                if (error?.name === "AbortError") {
+                    throw new Error(
+                        "O servidor demorou demais para responder. Verifique se a API está rodando em http://localhost:3000 e tente novamente."
+                    );
+                }
+                throw new Error(
+                    error?.message?.includes("Failed to fetch")
+                        ? "Não foi possível conectar à API (localhost:3000). Reinicie o backend e tente novamente."
+                        : (error?.message || "Falha de rede ao salvar a campanha.")
+                );
+            } finally {
+                clearTimeout(timer);
+            }
+        }
 
         if (submitButton) {
             submitButton.disabled = true;
@@ -1880,13 +1975,15 @@ const { error } = await supabaseClient.storage
                 return;
             }
 
+            mostrarLoadingSalvar();
+
             const url = isEditando
                 ? `${API}/api/campanhas/${campanhaId}`
                 : `${API}/api/campanhas`;
 
             const method = isEditando ? "PUT" : "POST";
 
-            const response = await fetch(url, {
+            const response = await fetchComTimeout(url, {
                 method,
                 headers: await getAuthHeaders({
                     "Content-Type": "application/json"
@@ -1922,6 +2019,8 @@ const { error } = await supabaseClient.storage
                 await sincronizarMateriais(idCriado, materiais);
             }
 
+            ocultarLoadingSalvar();
+
             alert(
                 isEditando
                     ? "Campanha atualizada com sucesso!"
@@ -1931,8 +2030,10 @@ const { error } = await supabaseClient.storage
             irParaCampanhas();
         } catch (error) {
             console.error("Erro ao salvar campanha:", error);
+            ocultarLoadingSalvar();
             alert(error.message || "Erro ao salvar campanha.");
         } finally {
+            ocultarLoadingSalvar();
             if (submitButton) {
                 submitButton.disabled = false;
                 submitButton.innerHTML =

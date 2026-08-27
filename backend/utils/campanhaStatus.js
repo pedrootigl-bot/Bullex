@@ -1,21 +1,23 @@
 /**
  * Status automático de campanhas (BULLEx)
  *
- * agendada   → hoje < data_inicio
- * ativa       → data_inicio <= hoje < data_fim
- * finalizada  → hoje >= data_fim
+ * agendada        → hoje < (data_inicio − CAMPAIGN_WARMUP_DAYS)
+ * em_aquecimento  → (data_inicio − N) ≤ hoje < data_inicio
+ * ativa           → data_inicio ≤ hoje < data_fim
+ * finalizada      → hoje ≥ data_fim
  *
- * Fonte da verdade: datas. O status no banco é espelhado
- * sob demanda (GET) e no save (POST/PUT).
+ * Fonte da verdade: datas (timezone America/Sao_Paulo).
+ * O status no banco é espelhado pelo scheduler / GET / save.
  *
- * Evolução futura:
- * - cron diário / webhook
- * - timezone configurável por conta
- * - flag status_manual_override
+ * Regra: campanha já "ativa" (ativação antecipada) NÃO é
+ * rebaixada para em_aquecimento.
  */
+
+const CAMPAIGN_WARMUP_DAYS = 5;
 
 const STATUS = Object.freeze({
     AGENDADA: "agendada",
+    EM_AQUECIMENTO: "em_aquecimento",
     ATIVA: "ativa",
     FINALIZADA: "finalizada"
 });
@@ -53,6 +55,27 @@ function dataISO(valor) {
     return `${y}-${m}-${d}`;
 }
 
+/**
+ * Soma/subtrai dias em uma data civil YYYY-MM-DD (calendário UTC).
+ */
+function adicionarDiasISO(dataIso, dias) {
+    const base = dataISO(dataIso);
+    if (!base) return null;
+    const [ano, mes, dia] = base.split("-").map(Number);
+    const dt = new Date(Date.UTC(ano, mes - 1, dia));
+    dt.setUTCDate(dt.getUTCDate() + Number(dias));
+    return dt.toISOString().slice(0, 10);
+}
+
+/**
+ * Início da janela de aquecimento (calculado — não é coluna no banco).
+ */
+function calcularDataInicioAquecimento(dataInicio) {
+    const inicio = dataISO(dataInicio);
+    if (!inicio) return null;
+    return adicionarDiasISO(inicio, -CAMPAIGN_WARMUP_DAYS);
+}
+
 function normalizarStatus(valor) {
     const bruto = String(valor || "")
         .trim()
@@ -62,16 +85,31 @@ function normalizarStatus(valor) {
 
     if (!bruto) return null;
 
-    if (bruto === STATUS.AGENDADA || bruto.includes("agend") || bruto.includes("program")) {
+    if (
+        bruto === STATUS.EM_AQUECIMENTO
+        || bruto === "pre_active"
+        || bruto.includes("aquec")
+        || bruto.includes("warmup")
+        || bruto.includes("pre_active")
+        || bruto.includes("pre-camp")
+    ) {
+        return STATUS.EM_AQUECIMENTO;
+    }
+
+    if (
+        bruto === STATUS.AGENDADA
+        || bruto.includes("agend")
+        || bruto.includes("program")
+    ) {
         return STATUS.AGENDADA;
     }
 
-    if (bruto === STATUS.FINALIZADA || bruto.includes("final") || bruto === "inativa" || bruto.includes("paus")) {
-        // "inativa" legado passa a ser tratado como finalizada na normalização
-        // quando não houver recálculo por datas.
-        if (bruto === "inativa" || bruto.includes("paus")) {
-            return STATUS.FINALIZADA;
-        }
+    if (
+        bruto === STATUS.FINALIZADA
+        || bruto.includes("final")
+        || bruto === "inativa"
+        || bruto.includes("paus")
+    ) {
         return STATUS.FINALIZADA;
     }
 
@@ -84,32 +122,85 @@ function normalizarStatus(valor) {
 
 /**
  * Calcula o status esperado com base nas datas.
+ * @param {string} dataInicio
+ * @param {string} dataFim
+ * @param {string} [hoje]
+ * @param {string|null} [statusAtual] — se já for "ativa", não rebaixa para aquecimento
  */
-function calcularStatusPorDatas(dataInicio, dataFim, hoje = hojeISO()) {
+function calcularStatusPorDatas(
+    dataInicio,
+    dataFim,
+    hoje = hojeISO(),
+    statusAtual = null
+) {
     const inicio = dataISO(dataInicio);
     const fim = dataISO(dataFim);
+    const atual = normalizarStatus(statusAtual);
 
     if (!inicio && !fim) {
         return STATUS.ATIVA;
-    }
-
-    if (inicio && hoje < inicio) {
-        return STATUS.AGENDADA;
     }
 
     if (fim && hoje >= fim) {
         return STATUS.FINALIZADA;
     }
 
+    if (inicio && hoje >= inicio) {
+        return STATUS.ATIVA;
+    }
+
+    // hoje < data_inicio (ainda não lançou)
+    const inicioAquecimento = calcularDataInicioAquecimento(inicio);
+
+    if (
+        inicio
+        && inicioAquecimento
+        && hoje >= inicioAquecimento
+        && hoje < inicio
+    ) {
+        // Ativação antecipada: não rebaixa ativa → em_aquecimento
+        if (atual === STATUS.ATIVA) {
+            return STATUS.ATIVA;
+        }
+        return STATUS.EM_AQUECIMENTO;
+    }
+
+    if (inicio && hoje < inicio) {
+        return STATUS.AGENDADA;
+    }
+
     return STATUS.ATIVA;
 }
 
+/** Hub público: ativa + em aquecimento */
 function statusPublicoVisivel(status) {
-    return normalizarStatus(status) === STATUS.ATIVA;
+    const normalizado = normalizarStatus(status);
+    return (
+        normalizado === STATUS.ATIVA
+        || normalizado === STATUS.EM_AQUECIMENTO
+    );
+}
+
+/** Mapeamento hub (compatível com Partner Hub / pre_active) */
+function statusHub(status) {
+    const normalizado = normalizarStatus(status);
+    if (normalizado === STATUS.EM_AQUECIMENTO) return "pre_active";
+    return normalizado;
+}
+
+function anexarCamposCalculados(campanha) {
+    if (!campanha) return campanha;
+    return {
+        ...campanha,
+        data_inicio_aquecimento: calcularDataInicioAquecimento(
+            campanha.data_inicio
+        )
+    };
 }
 
 /**
  * Atualiza no banco os status desatualizados e devolve a lista já corrigida.
+ * O scheduler só persiste o resultado deste cálculo.
  */
 async function sincronizarStatusCampanhas(supabase, campanhas = []) {
     const lista = Array.isArray(campanhas) ? campanhas : [];
@@ -123,7 +214,8 @@ async function sincronizarStatusCampanhas(supabase, campanhas = []) {
         const esperado = calcularStatusPorDatas(
             campanha.data_inicio,
             campanha.data_fim,
-            hoje
+            hoje,
+            campanha.status
         );
         const atual = String(campanha.status || "").trim().toLowerCase();
 
@@ -131,10 +223,12 @@ async function sincronizarStatusCampanhas(supabase, campanhas = []) {
             pendencias.push({ id: campanha.id, status: esperado });
         }
 
-        atualizadas.push({
-            ...campanha,
-            status: esperado
-        });
+        atualizadas.push(
+            anexarCamposCalculados({
+                ...campanha,
+                status: esperado
+            })
+        );
     }
 
     if (pendencias.length > 0 && supabase) {
@@ -166,13 +260,18 @@ async function sincronizarStatusCampanha(supabase, campanha) {
 }
 
 module.exports = {
+    CAMPAIGN_WARMUP_DAYS,
     STATUS,
     TIMEZONE_PADRAO,
     hojeISO,
     dataISO,
+    adicionarDiasISO,
+    calcularDataInicioAquecimento,
     normalizarStatus,
     calcularStatusPorDatas,
     statusPublicoVisivel,
+    statusHub,
+    anexarCamposCalculados,
     sincronizarStatusCampanhas,
     sincronizarStatusCampanha
 };

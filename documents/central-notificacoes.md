@@ -20,18 +20,21 @@ Usa a tabela existente `notificacoes`:
 
 Sem coluna extra:
 
-- `campanha_iniciada` / `campanha_encerrada` → 1 por `campanha_id + tipo`
+- `campanha_iniciada` / `campanha_em_aquecimento` / `campanha_encerrada` → 1 por `campanha_id + tipo`
 - `campanha_encerrando` → 1 por `campanha_id + tipo + mensagem` (7 dias / 3 dias / amanhã)
+
+Índice opcional: `database/add-notificacoes-unique-tipo-campanha.sql`.
 
 ## Eventos automáticos
 
-Reutiliza `campanhaStatus` (`agendada` → `ativa` → `finalizada`):
+Reutiliza `campanhaStatus` (`agendada` → `em_aquecimento` → `ativa` → `finalizada`):
 
-1. Iniciada (campanha ativa)
-2. Termina em 7 dias
-3. Termina em 3 dias
-4. Termina amanhã
-5. Encerrada
+1. Em aquecimento (`campanha_em_aquecimento`)
+2. Iniciada (campanha ativa)
+3. Termina em 7 dias
+4. Termina em 3 dias
+5. Termina amanhã
+6. Encerrada
 
 Timezone: `America/Sao_Paulo`.
 

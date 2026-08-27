@@ -271,11 +271,16 @@ function escolherCampanhaPadrao(){
         return futuras[0];
     }
 
-    // 3) Fallback atual
+    // 3) Fallback: ativa → em aquecimento → primeira da lista
     const marcadaAtiva = campanhasCalendario.find(
         campanha => String(campanha.status || "").toLowerCase() === "ativa"
     );
     if(marcadaAtiva) return marcadaAtiva;
+
+    const marcadaAquecimento = campanhasCalendario.find(
+        campanha => String(campanha.status || "").toLowerCase() === "em_aquecimento"
+    );
+    if(marcadaAquecimento) return marcadaAquecimento;
 
     return campanhasCalendario[0] || null;
 }
@@ -444,7 +449,7 @@ async function carregarCalendario(){
 
     try{
         const resposta = await fetch(
-            "http://localhost:3000/api/campanhas"
+            apiUrl("/api/campanhas")
         );
 
         if(!resposta.ok){
@@ -456,14 +461,13 @@ async function carregarCalendario(){
             ? dados
             : (dados.campanhas ?? []);
 
-        // Exibe no calendário apenas campanhas ativas
-        // (status sincronizado no backend pelas datas)
+        // Hub público: ativa + em aquecimento (pre_active)
         campanhasCalendario = lista.filter((campanha) => {
             const status = String(campanha.status || "")
                 .toLowerCase()
                 .trim();
 
-            return status === "ativa";
+            return status === "ativa" || status === "em_aquecimento";
         });
 
         if(!campanhaExibida){

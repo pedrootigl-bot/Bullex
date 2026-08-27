@@ -92,7 +92,7 @@ async function obterCampanha(id) {
     }
 
     const resposta = await fetch(
-        `http://localhost:3000/api/campanhas/${campanhaId}`
+        apiUrl(`/api/campanhas/${campanhaId}`)
     );
 
     if (!resposta.ok) {
@@ -102,10 +102,10 @@ async function obterCampanha(id) {
     const campanha = await resposta.json();
 
     const [materiais, copies, regras, angulos] = await Promise.all([
-        fetchJsonLista(`http://localhost:3000/api/materiais/${campanhaId}`),
-        fetchJsonLista(`http://localhost:3000/api/copies/${campanhaId}`),
-        fetchJsonLista(`http://localhost:3000/api/regras/${campanhaId}`),
-        fetchJsonLista(`http://localhost:3000/api/angulos/${campanhaId}`)
+        fetchJsonLista(apiUrl(`/api/materiais/${campanhaId}`)),
+        fetchJsonLista(apiUrl(`/api/copies/${campanhaId}`)),
+        fetchJsonLista(apiUrl(`/api/regras/${campanhaId}`)),
+        fetchJsonLista(apiUrl(`/api/angulos/${campanhaId}`))
     ]);
 
     return {
@@ -249,7 +249,7 @@ function popularCampanha(campanha) {
         // Só configura se for ID numérico válido (evita slug tipo "bullcar")
         if (Number.isFinite(idNumerico) && idNumerico > 0) {
             downloadKit.href =
-                `http://localhost:3000/api/download/kit/${idNumerico}`;
+                apiUrl(`/api/download/kit/${idNumerico}`);
             downloadKit.removeAttribute("aria-disabled");
             downloadKit.classList.remove("is-disabled");
         } else {
@@ -1072,7 +1072,7 @@ async function carregarKit(campanhaId){
     try{
 
         const response = await fetch(
-            `http://localhost:3000/api/kits/${campanhaId}`
+            apiUrl(`/api/kits/${campanhaId}`)
         );
 
         if(!response.ok){

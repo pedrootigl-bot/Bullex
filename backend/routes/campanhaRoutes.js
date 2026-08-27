@@ -8,7 +8,9 @@ const { responderErroInterno } = require("../utils/httpErrors");
 const {
     calcularStatusPorDatas,
     sincronizarStatusCampanhas,
-    sincronizarStatusCampanha
+    sincronizarStatusCampanha,
+    anexarCamposCalculados,
+    hojeISO
 } = require("../utils/campanhaStatus");
 const {
     sincronizarNotificacoesCampanhas
@@ -19,7 +21,8 @@ const { validarCampanha } = require("../services/campanhaValidacao.service");
 // ======================================================
 // BUSCAR TODAS AS CAMPANHAS
 // GET /api/campanhas
-// Sincroniza status (agendada/ativa/finalizada) pelas datas
+// Sincroniza status (agendada/em_aquecimento/ativa/finalizada) pelas datas
+// e anexa data_inicio_aquecimento (calculado)
 // ======================================================
 
 router.get("/", async (req, res) => {
@@ -285,8 +288,8 @@ router.post("/", requireAuth, async (req, res) => {
 
             data_fim,
 
-            // Datas mandam: status calculado automaticamente
-            status: calcularStatusPorDatas(data_inicio, data_fim),
+            // Datas mandam: status calculado automaticamente (inclui aquecimento)
+            status: calcularStatusPorDatas(data_inicio, data_fim, hojeISO()),
 
             imagem_card:
                 imagem_card?.trim() || null
@@ -345,10 +348,10 @@ router.post("/", requireAuth, async (req, res) => {
 
             mensagem: "Campanha criada com sucesso",
 
-            campanha: {
+            campanha: anexarCamposCalculados({
                 ...data,
                 pronta_publicacao: validacao.pronta
-            },
+            }),
 
             validacao
 
@@ -434,6 +437,26 @@ router.put("/:id", requireAuth, async (req, res) => {
 
         }
 
+        // Status atual no banco — evita rebaixar ativa → em_aquecimento
+        const { data: campanhaExistente, error: erroExistente } = await supabase
+            .from("campanhas")
+            .select("id,status")
+            .eq("id", campanhaId)
+            .maybeSingle();
+
+        if (erroExistente) {
+            return responderErroInterno(
+                res,
+                erroExistente,
+                "Erro ao buscar campanha para atualização"
+            );
+        }
+
+        if (!campanhaExistente) {
+            return res.status(404).json({
+                erro: "Campanha não encontrada"
+            });
+        }
 
         // ==============================================
         // DADOS ATUALIZADOS
@@ -488,8 +511,13 @@ router.put("/:id", requireAuth, async (req, res) => {
 
             data_fim,
 
-            // Datas mandam: status calculado automaticamente
-            status: calcularStatusPorDatas(data_inicio, data_fim),
+            // Datas mandam; preserva ativa se já estava ativa (não rebaixa)
+            status: calcularStatusPorDatas(
+                data_inicio,
+                data_fim,
+                hojeISO(),
+                campanhaExistente.status
+            ),
 
             imagem_card:
                 imagem_card?.trim() || null
@@ -539,10 +567,10 @@ router.put("/:id", requireAuth, async (req, res) => {
 
             mensagem: "Campanha atualizada com sucesso",
 
-            campanha: {
+            campanha: anexarCamposCalculados({
                 ...data,
                 pronta_publicacao: validacao.pronta
-            },
+            }),
 
             validacao
 

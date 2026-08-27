@@ -1,4 +1,4 @@
-const API = "http://localhost:3000";
+const API = (typeof getApiBase === "function" ? getApiBase() : "http://localhost:3000");
 
 const viewCampanhas = document.querySelector("#viewCampanhas");
 const viewMateriais = document.querySelector("#viewMateriais");
