@@ -248,19 +248,47 @@ function popularCampanha(campanha) {
 
         // Só configura se for ID numérico válido (evita slug tipo "bullcar")
         if (Number.isFinite(idNumerico) && idNumerico > 0) {
-            downloadKit.href =
-                apiUrl(`/api/download/kit/${idNumerico}`);
+            downloadKit.href = "#";
+            downloadKit.dataset.campanhaId = String(idNumerico);
             downloadKit.removeAttribute("aria-disabled");
             downloadKit.classList.remove("is-disabled");
         } else {
             downloadKit.href = "#";
+            delete downloadKit.dataset.campanhaId;
             downloadKit.setAttribute("aria-disabled", "true");
             downloadKit.classList.add("is-disabled");
         }
 
         downloadKit.removeAttribute("target");
         downloadKit.removeAttribute("rel");
-        downloadKit.setAttribute("download", `kit-${idNumerico || "campanha"}.zip`);
+        downloadKit.removeAttribute("download");
+
+        if (!downloadKit.dataset.boundKitDownload) {
+            downloadKit.dataset.boundKitDownload = "1";
+            downloadKit.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (downloadKit.classList.contains("is-disabled")) return;
+                if (downloadKit.getAttribute("aria-disabled") === "true") return;
+
+                const id = Number(downloadKit.dataset.campanhaId);
+                if (!Number.isFinite(id) || id <= 0) {
+                    window.BullexDownload?.markUnavailable?.({
+                        title: "Kit completo",
+                        message: "Campanha inválida para montar o kit."
+                    });
+                    return;
+                }
+
+                window.BullexDownload?.startDownload?.({
+                    type: "kit",
+                    campanhaId: id,
+                    nome: "Kit completo",
+                    label: "Preparando kit…"
+                });
+            });
+        }
     }
 
     renderizarAbas(campanha.abas || []);
@@ -545,7 +573,22 @@ function renderizarMateriais(materiais) {
         });
 
         row.querySelector(".modal__material-download")?.addEventListener("click", (event) => {
-            forcarDownloadArquivo(event, url, titulo);
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!url || url === "#") {
+                window.BullexDownload?.markUnavailable?.({
+                    title: titulo || "Material"
+                });
+                return;
+            }
+
+            window.BullexDownload?.startDownload?.({
+                type: "file",
+                url,
+                nome: titulo,
+                label: "Baixando arquivo"
+            });
         });
     });
 }
@@ -1134,16 +1177,26 @@ function nomeArquivoDeUrl(caminho, fallback = "material"){
 
 async function forcarDownloadArquivo(event, url, nomeBase){
 
+    if (event?.preventDefault) event.preventDefault();
+
     if(!url || url === "#"){
-        event.preventDefault();
+        window.BullexDownload?.markUnavailable?.({
+            title: nomeBase || "Arquivo"
+        });
         return;
     }
 
-    // Força download do arquivo local em vez de só abrir em nova aba
-    event.preventDefault();
+    if (window.BullexDownload?.startDownload) {
+        return window.BullexDownload.startDownload({
+            type: "file",
+            url,
+            nome: nomeBase || "Arquivo",
+            label: "Baixando arquivo"
+        });
+    }
 
+    // Fallback legado (sem download-asset.js)
     try{
-
         const resposta = await fetch(url);
 
         if(!resposta.ok){
@@ -1165,8 +1218,6 @@ async function forcarDownloadArquivo(event, url, nomeBase){
     }catch(error){
 
         console.error("Erro ao baixar arquivo:", error);
-
-        // Fallback: navega para o arquivo
         window.location.href = url;
 
     }

@@ -1,7 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const archiver = require("archiver");
+const { Readable } = require("stream");
+const { pipeline } = require("stream/promises");
 const supabase = require("../config/supabase");
+
+const BUCKETS_PERMITIDOS = ["campanhas", "stories"];
+const KIT_DOWNLOAD_CONCURRENCY = 6;
 
 /**
  * Extrai bucket + path de URL pública do Supabase Storage.
@@ -53,8 +58,12 @@ function pastaPorFormatoMaterial(item) {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
 
-    // Não usar tipo=imagem|video como pasta de postagem
-    if (legado === "imagem" || legado === "image" || legado === "video" || legado === "arquivo") {
+    if (
+        legado === "imagem"
+        || legado === "image"
+        || legado === "video"
+        || legado === "arquivo"
+    ) {
         return "outros";
     }
 
@@ -79,44 +88,174 @@ function nomeArquivoItem(item, fallbackIndex) {
     return nome || `arquivo-${fallbackIndex}`;
 }
 
+function nomeArquivoSeguro(nome, fallback = "arquivo") {
+    return String(nome || fallback)
+        .replace(/[\\/]+/g, "_")
+        .replace(/"/g, "")
+        .slice(0, 180) || fallback;
+}
+
+/**
+ * Executa mapper com concorrência limitada (ex.: até 6 downloads em paralelo).
+ */
+async function mapWithConcurrency(items, limit, mapper) {
+    const lista = Array.isArray(items) ? items : [];
+    const conc = Math.max(1, Math.min(Number(limit) || 1, lista.length || 1));
+    const results = new Array(lista.length);
+    let nextIndex = 0;
+
+    async function worker() {
+        while (nextIndex < lista.length) {
+            const index = nextIndex;
+            nextIndex += 1;
+            results[index] = await mapper(lista[index], index);
+        }
+    }
+
+    await Promise.all(
+        Array.from({ length: Math.min(conc, lista.length) }, () => worker())
+    );
+
+    return results;
+}
+
+async function baixarBufferViaStorage(bucket, path) {
+    const { data, error } = await supabase.storage
+        .from(bucket)
+        .download(path);
+
+    if (error || !data) return null;
+    return Buffer.from(await data.arrayBuffer());
+}
+
 async function baixarBufferItem(item) {
-    // 1) URL pública (campo atual de materiais.url)
     if (item.url) {
         const storage = extrairStorageDeUrl(item.url);
 
-        if (storage) {
-            const { data, error } = await supabase.storage
-                .from(storage.bucket)
-                .download(storage.path);
-
-            if (!error && data) {
-                return Buffer.from(await data.arrayBuffer());
-            }
+        if (storage && BUCKETS_PERMITIDOS.includes(storage.bucket)) {
+            const viaSdk = await baixarBufferViaStorage(
+                storage.bucket,
+                storage.path
+            );
+            if (viaSdk) return viaSdk;
         }
 
-        // Fallback: fetch direto da URL
         const resposta = await fetch(item.url);
         if (resposta.ok) {
             return Buffer.from(await resposta.arrayBuffer());
         }
     }
 
-    // 2) Campo legado arquivo (kits / stories)
     if (item.arquivo) {
         const caminho = String(item.arquivo).replace(/^\/+/, "");
 
-        for (const bucket of ["campanhas", "stories"]) {
-            const { data, error } = await supabase.storage
-                .from(bucket)
-                .download(caminho);
-
-            if (!error && data) {
-                return Buffer.from(await data.arrayBuffer());
-            }
+        for (const bucket of BUCKETS_PERMITIDOS) {
+            const buffer = await baixarBufferViaStorage(bucket, caminho);
+            if (buffer) return buffer;
         }
     }
 
     return null;
+}
+
+/**
+ * Preferência: stream HTTP da URL pública (headers cedo → notificação do browser).
+ * Fallback: Supabase Storage SDK (buffer completo).
+ */
+async function enviarArquivoComoStreamOuBuffer(res, { url, nomeSeguro }) {
+    const storage = extrairStorageDeUrl(url);
+
+    if (!storage || !BUCKETS_PERMITIDOS.includes(storage.bucket)) {
+        const err = new Error("URL de arquivo inválida");
+        err.status = 400;
+        throw err;
+    }
+
+    // 1) Stream direto da URL pública
+    try {
+        const resposta = await fetch(url);
+
+        if (resposta.ok && resposta.body) {
+            const contentType =
+                resposta.headers.get("content-type")
+                || "application/octet-stream";
+            const contentLength = resposta.headers.get("content-length");
+
+            res.setHeader(
+                "Content-Disposition",
+                `attachment; filename="${nomeSeguro}"`
+            );
+            res.setHeader("Content-Type", contentType);
+            res.setHeader("Cache-Control", "no-store");
+            if (contentLength) {
+                res.setHeader("Content-Length", contentLength);
+            }
+
+            const nodeStream = Readable.fromWeb(resposta.body);
+            await pipeline(nodeStream, res);
+            return;
+        }
+    } catch (erroStream) {
+        console.warn(
+            "Stream público falhou; tentando Storage SDK:",
+            erroStream?.message || erroStream
+        );
+    }
+
+    // 2) Fallback Storage SDK
+    const buffer = await baixarBufferViaStorage(storage.bucket, storage.path);
+
+    if (!buffer) {
+        const viaFetch = await baixarBufferItem({ url });
+        if (!viaFetch) {
+            const err = new Error("Arquivo não encontrado");
+            err.status = 404;
+            throw err;
+        }
+
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${nomeSeguro}"`
+        );
+        res.setHeader("Content-Type", "application/octet-stream");
+        res.setHeader("Cache-Control", "no-store");
+        res.setHeader("Content-Length", viaFetch.length);
+        res.send(viaFetch);
+        return;
+    }
+
+    res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${nomeSeguro}"`
+    );
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Content-Length", buffer.length);
+    res.send(buffer);
+}
+
+function deduplicarNomesZip(entradas) {
+    const nomesUsados = new Set();
+
+    for (const entrada of entradas) {
+        let nomeFinal = entrada.name;
+        let contador = 2;
+
+        while (nomesUsados.has(nomeFinal.toLowerCase())) {
+            const ponto = entrada.name.lastIndexOf(".");
+            if (ponto > entrada.name.lastIndexOf("/")) {
+                nomeFinal =
+                    `${entrada.name.slice(0, ponto)}-${contador}`
+                    + entrada.name.slice(ponto);
+            } else {
+                nomeFinal = `${entrada.name}-${contador}`;
+            }
+            contador += 1;
+        }
+
+        nomesUsados.add(nomeFinal.toLowerCase());
+        entrada.name = nomeFinal;
+    }
 }
 
 // Download do kit completo da campanha
@@ -159,30 +298,32 @@ router.get("/kit/:campanha_id", async (req, res) => {
             });
         }
 
-        // Baixa buffers ANTES de abrir a resposta ZIP
-        // (evita Content-Type application/zip com corpo vazio/corrompido)
-        const entradas = [];
+        // Baixa buffers em paralelo (concorrência limitada) ANTES de abrir o ZIP
+        const baixados = await mapWithConcurrency(
+            arquivos,
+            KIT_DOWNLOAD_CONCURRENCY,
+            async (item, i) => {
+                const buffer = await baixarBufferItem(item);
 
-        for (let i = 0; i < arquivos.length; i++) {
-            const item = arquivos[i];
-            const buffer = await baixarBufferItem(item);
+                if (!buffer) {
+                    console.log(
+                        "Erro ao baixar item do kit:",
+                        item.url || item.arquivo
+                    );
+                    return null;
+                }
 
-            if (!buffer) {
-                console.log(
-                    "Erro ao baixar item do kit:",
-                    item.url || item.arquivo
-                );
-                continue;
+                const pasta = pastaPorFormatoMaterial(item);
+                const nomeBase = nomeArquivoItem(item, i + 1);
+
+                return {
+                    buffer,
+                    name: `${pasta}/${nomeBase}`
+                };
             }
+        );
 
-            const pasta = pastaPorFormatoMaterial(item);
-            const nomeBase = nomeArquivoItem(item, i + 1);
-
-            entradas.push({
-                buffer,
-                name: `${pasta}/${nomeBase}`
-            });
-        }
+        const entradas = baixados.filter(Boolean);
 
         if (!entradas.length) {
             return res.status(404).json({
@@ -190,36 +331,18 @@ router.get("/kit/:campanha_id", async (req, res) => {
             });
         }
 
-        // Evita nomes duplicados no ZIP
-        const nomesUsados = new Set();
-        for (const entrada of entradas) {
-            let nomeFinal = entrada.name;
-            let contador = 2;
-
-            while (nomesUsados.has(nomeFinal.toLowerCase())) {
-                const ponto = entrada.name.lastIndexOf(".");
-                if (ponto > entrada.name.lastIndexOf("/")) {
-                    nomeFinal =
-                        `${entrada.name.slice(0, ponto)}-${contador}`
-                        + entrada.name.slice(ponto);
-                } else {
-                    nomeFinal = `${entrada.name}-${contador}`;
-                }
-                contador += 1;
-            }
-
-            nomesUsados.add(nomeFinal.toLowerCase());
-            entrada.name = nomeFinal;
-        }
+        deduplicarNomesZip(entradas);
 
         res.setHeader("Content-Type", "application/zip");
         res.setHeader(
             "Content-Disposition",
             `attachment; filename=kit-${campanhaId}.zip`
         );
+        res.setHeader("Cache-Control", "no-store");
 
+        // Mídia quase não comprime; level 1 é bem mais rápido que 9
         const zip = archiver("zip", {
-            zlib: { level: 9 }
+            zlib: { level: 1 }
         });
 
         zip.on("error", (error) => {
@@ -252,7 +375,7 @@ router.get("/kit/:campanha_id", async (req, res) => {
 /**
  * Download de um arquivo pela URL pública do Storage.
  * GET /api/download/file?url=...&nome=opcional
- * Reutiliza baixarBufferItem (mesmo fluxo do kit).
+ * Prefere stream (headers cedo); fallback Storage SDK.
  */
 router.get("/file", async (req, res) => {
     try {
@@ -273,37 +396,26 @@ router.get("/file", async (req, res) => {
             });
         }
 
-        // Restringe a buckets conhecidos do projeto
-        if (!["campanhas", "stories"].includes(storage.bucket)) {
+        if (!BUCKETS_PERMITIDOS.includes(storage.bucket)) {
             return res.status(400).json({
                 erro: "Bucket não permitido"
             });
         }
 
-        const buffer = await baixarBufferItem({ url });
-
-        if (!buffer) {
-            return res.status(404).json({
-                erro: "Arquivo não encontrado"
-            });
-        }
-
-        const nomeSeguro = (nomeQuery || nomeArquivoItem({ url }, 1))
-            .replace(/[\\/]+/g, "_")
-            .replace(/"/g, "")
-            .slice(0, 180) || "arquivo";
-
-        res.setHeader(
-            "Content-Disposition",
-            `attachment; filename="${nomeSeguro}"`
+        const nomeSeguro = nomeArquivoSeguro(
+            nomeQuery || nomeArquivoItem({ url }, 1),
+            "arquivo"
         );
-        res.setHeader("Content-Type", "application/octet-stream");
-        res.setHeader("Content-Length", buffer.length);
-        return res.send(buffer);
+
+        await enviarArquivoComoStreamOuBuffer(res, { url, nomeSeguro });
     } catch (error) {
         console.error("Erro download file:", error);
-        return res.status(500).json({
-            erro: "Erro ao baixar arquivo"
+
+        if (res.headersSent) return;
+
+        const status = Number(error?.status) || 500;
+        return res.status(status).json({
+            erro: error?.message || "Erro ao baixar arquivo"
         });
     }
 });
@@ -313,7 +425,6 @@ router.get("/:arquivo", async (req, res) => {
     try {
         const arquivo = req.params.arquivo;
 
-        // Bloqueia path traversal
         if (
             !arquivo
             || arquivo.includes("..")
@@ -328,7 +439,7 @@ router.get("/:arquivo", async (req, res) => {
         let data = null;
         let error = null;
 
-        for (const bucket of ["campanhas", "stories"]) {
+        for (const bucket of BUCKETS_PERMITIDOS) {
             const resultado = await supabase.storage
                 .from(bucket)
                 .download(arquivo);
@@ -356,6 +467,7 @@ router.get("/:arquivo", async (req, res) => {
             "Content-Type",
             "application/octet-stream"
         );
+        res.setHeader("Cache-Control", "no-store");
         res.send(buffer);
     } catch (error) {
         console.error("Erro download arquivo:", error);

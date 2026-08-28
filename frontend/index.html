@@ -968,18 +968,80 @@
 
             </div>
 
+            <!-- Dialogs de download (Partner Hub) -->
+            <div
+                class="ph-download-dialog"
+                id="downloadingDialog"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="downloadingDialogLabel"
+                aria-hidden="true"
+                hidden
+            >
+                <div class="ph-download-dialog__overlay" aria-hidden="true"></div>
+                <div class="ph-download-dialog__box">
+                    <div class="ph-download-dialog__spinner" aria-hidden="true">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </div>
+                    <h2 class="ph-download-dialog__title" id="downloadingDialogLabel">
+                        Baixando arquivo
+                    </h2>
+                    <p class="ph-download-dialog__text">
+                        Aguarde enquanto preparamos o download…
+                    </p>
+                </div>
+            </div>
+
+            <div
+                class="ph-download-dialog"
+                id="unavailableDownloadDialog"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="unavailableDownloadTitle"
+                aria-describedby="unavailableDownloadMessage"
+                aria-hidden="true"
+                hidden
+            >
+                <div
+                    class="ph-download-dialog__overlay"
+                    data-unavailable-close
+                    aria-hidden="true"
+                ></div>
+                <div class="ph-download-dialog__box">
+                    <div class="ph-download-dialog__icon" aria-hidden="true">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h2 class="ph-download-dialog__title" id="unavailableDownloadTitle">
+                        Arquivo indisponível
+                    </h2>
+                    <p class="ph-download-dialog__text" id="unavailableDownloadMessage">
+                        Este arquivo está indisponível no momento. Tente novamente mais tarde.
+                    </p>
+                    <div class="ph-download-dialog__actions">
+                        <button
+                            type="button"
+                            class="btn"
+                            data-unavailable-close
+                        >
+                            Entendi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- JavaScript -->
             <script src="js/api-config.js?v=20260827f1"></script>
+            <script src="js/download-asset.js?v=20260827d1"></script>
             <script src="js/loader.js"></script>
             <script src="js/api.js?v=20260827f1"></script>
             <script src="js/navbar.js"></script>
             <script src="js/stats.js?v=20260827f1"></script>
-            <script src="js/destaque.js?v=20260827h8"></script>
+            <script src="js/destaque.js?v=20260828d1"></script>
             <script src="js/campanha.js?v=20260827f1"></script>
             <script src="js/calendario.js?v=20260827f1"></script>
-            <script src="js/modal.js?v=20260827f1"></script>
-            <script src="js/campanha-modal.js?v=20260827f1"></script>
-            <script src="js/materiais.js?v=20260827f1"></script>
+            <script src="js/modal.js?v=20260827d1"></script>
+            <script src="js/campanha-modal.js?v=20260827d1"></script>
+            <script src="js/materiais.js?v=20260827d1"></script>
             <script src="js/main.js"></script>
 </body>
 

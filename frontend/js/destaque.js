@@ -520,6 +520,129 @@ async function buscarCopiesCampanha(campanhaId) {
     }
 }
 
+async function buscarMateriaisCampanha(campanhaId) {
+    try {
+        const resposta = await fetch(
+            apiUrl(`/api/materiais/${campanhaId}`)
+        );
+
+        if (!resposta.ok) return [];
+
+        const dados = await resposta.json();
+        return Array.isArray(dados) ? dados : [];
+    } catch (error) {
+        console.error("Erro ao buscar materiais do destaque:", error);
+        return [];
+    }
+}
+
+function normalizarFormatoDestaque(valor) {
+    const bruto = String(valor || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (!bruto) return null;
+    if (["stories", "feed", "videos", "banners"].includes(bruto)) return bruto;
+    if (bruto.includes("stor")) return "stories";
+    if (bruto.includes("feed")) return "feed";
+    if (bruto.includes("video")) return "videos";
+    if (bruto.includes("banner")) return "banners";
+    return null;
+}
+
+function classificarGrupoMaterialDestaque(material) {
+    const porFormato = normalizarFormatoDestaque(material?.formato);
+    if (porFormato) return porFormato;
+
+    const legado = String(
+        material?.categoria
+        || material?.tipo
+        || material?.nome
+        || material?.titulo
+        || ""
+    )
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (
+        legado === "imagem"
+        || legado === "image"
+        || legado === "video"
+        || legado === "arquivo"
+    ) {
+        return "outros";
+    }
+
+    const porLegado = normalizarFormatoDestaque(legado);
+    if (porLegado) return porLegado;
+
+    if (legado.includes("1080x1920")) return "stories";
+    if (legado.includes("1080x1080")) return "feed";
+
+    return "outros";
+}
+
+function ehVideoMaterialDestaque(material) {
+    const tipo = String(material?.tipo || "").toLowerCase();
+    const url = String(material?.url || material?.arquivo || "").toLowerCase();
+    return (
+        tipo === "video"
+        || tipo.includes("video")
+        || tipo.includes("vídeo")
+        || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)
+    );
+}
+
+function resolverUrlMaterialDestaque(caminho) {
+    if (!caminho) return "";
+
+    if (/^https?:\/\//i.test(caminho)) {
+        return caminho;
+    }
+
+    const limpo = String(caminho).replace(/^\/+/, "");
+
+    if (limpo.startsWith("images/")) {
+        return "downloads/" + limpo.slice("images/".length);
+    }
+
+    return limpo;
+}
+
+function urlMaterialDestaque(material) {
+    return resolverUrlMaterialDestaque(
+        material?.preview
+        || material?.arquivo
+        || material?.url
+        || material?.imagem
+        || ""
+    );
+}
+
+function obterPrimeiroStoryDestaque(materiais = []) {
+    const lista = Array.isArray(materiais) ? materiais : [];
+    const stories = lista.filter(
+        (material) => classificarGrupoMaterialDestaque(material) === "stories"
+    );
+
+    if (!stories.length) return null;
+
+    const material = stories.find((item) => !ehVideoMaterialDestaque(item))
+        || stories[0];
+    const url = urlMaterialDestaque(material);
+
+    if (!url) return null;
+
+    return {
+        url,
+        nome: String(material?.nome || material?.titulo || "Story").trim()
+    };
+}
+
 async function obterCampanhaParaDestaque() {
     const resposta = await fetch(
         apiUrl("/api/campanhas")
@@ -551,13 +674,19 @@ async function preencherDestaqueComCampanha(campanha, opcoes = {}) {
         || document.querySelector("#highlightOpenKit");
     const openModalBtn = document.querySelector("#openModal");
 
-    const copies = await buscarCopiesCampanha(campanha.id);
+    const [copies, materiais] = await Promise.all([
+        buscarCopiesCampanha(campanha.id),
+        buscarMateriaisCampanha(campanha.id)
+    ]);
     const copyPrincipal = copies
         .slice()
         .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))[0];
 
+    const storyDestaque = obterPrimeiroStoryDestaque(materiais);
+
     const imagemSrc =
-        campanha.imagem_card
+        storyDestaque?.url
+        || campanha.imagem_card
         || campanha.banner
         || "";
 
@@ -597,9 +726,15 @@ async function preencherDestaqueComCampanha(campanha, opcoes = {}) {
     }
 
     if (downloadStory) {
-        downloadStory.href = imagemSrc
-            ? `${imagemSrc}`
-            : "#";
+        if (storyDestaque?.url) {
+            downloadStory.href = storyDestaque.url;
+            downloadStory.dataset.storyUrl = storyDestaque.url;
+            downloadStory.dataset.storyNome = storyDestaque.nome;
+        } else {
+            downloadStory.href = "#";
+            delete downloadStory.dataset.storyUrl;
+            delete downloadStory.dataset.storyNome;
+        }
     }
 
     if (mediaLabel) {
@@ -741,6 +876,41 @@ function iniciarAcoesDestaque() {
             } catch (error) {
                 console.error("Erro ao copiar texto:", error);
             }
+        });
+    }
+
+    const downloadStory = document.querySelector("#highlightDownloadStory");
+    if (downloadStory && !downloadStory.dataset.boundStoryDownload) {
+        downloadStory.dataset.boundStoryDownload = "1";
+        downloadStory.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const url = String(
+                downloadStory.dataset.storyUrl
+                || downloadStory.getAttribute("href")
+                || ""
+            ).trim();
+            const nome =
+                downloadStory.dataset.storyNome
+                || document.querySelector("#highlightTitle")?.textContent?.trim()
+                || document.querySelector("#highlightMediaLabel")?.textContent?.trim()
+                || "Story";
+
+            if (!url || url === "#") {
+                window.BullexDownload?.markUnavailable?.({
+                    title: nome,
+                    message: "Nenhum story disponível para download."
+                });
+                return;
+            }
+
+            window.BullexDownload?.startDownload?.({
+                type: "file",
+                url,
+                nome,
+                label: "Baixando arquivo"
+            });
         });
     }
 

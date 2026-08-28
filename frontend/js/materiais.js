@@ -172,6 +172,35 @@ function renderizarMateriaisSecao(materiais){
 
     });
 
+    container.querySelectorAll("a.btn[download], a.btn[href]").forEach((link) => {
+        const texto = String(link.textContent || "").toLowerCase();
+        if (!texto.includes("baixar")) return;
+
+        link.setAttribute("data-download-action", "file");
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            const url = link.getAttribute("href");
+            const card = link.closest(".kit-card");
+            const titulo =
+                card?.querySelector("h3")?.textContent?.trim()
+                || "Material";
+
+            if (window.BullexDownload?.startDownload) {
+                window.BullexDownload.startDownload({
+                    type: "file",
+                    url,
+                    nome: titulo,
+                    label: "Baixando arquivo"
+                });
+                return;
+            }
+
+            if (typeof forcarDownloadArquivo === "function") {
+                forcarDownloadArquivo(event, url, titulo);
+            }
+        });
+    });
+
 
 }
 
