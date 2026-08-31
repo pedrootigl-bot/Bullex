@@ -425,30 +425,7 @@
 }
 
 .hero__visual-caption {
-    position: absolute;
-    left: 1.15rem;
-    right: 1.15rem;
-    bottom: 1.15rem;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    pointer-events: none;
-}
-
-.hero__visual-caption strong {
-    color: #fff;
-    font-size: 1.05rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
-}
-
-.hero__visual-caption span {
-    color: rgba(229, 231, 235, 0.85);
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+    display: none !important;
 }
 
 @media (max-width: 1000px) {
@@ -771,6 +748,7 @@
     transition:
         opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s,
         transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s;
+    pointer-events: none;
 }
 
 .hero-accordion__caption strong {
@@ -778,14 +756,10 @@
     font-weight: 800;
     color: #76E000;
     letter-spacing: -0.01em;
-}
-
-.hero-accordion__caption span {
-    font-size: 0.78rem;
-    color: rgba(255, 255, 255, 0.88);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .hero-accordion__panel.is-active {
@@ -901,9 +875,5 @@
 @media (max-width: 640px) {
     .hero-accordion__caption strong {
         font-size: 0.82rem;
-    }
-
-    .hero-accordion__caption span {
-        font-size: 0.7rem;
     }
 }

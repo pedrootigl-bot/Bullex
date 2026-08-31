@@ -197,22 +197,11 @@ function preencherHeroComCampanha(campanha, opcoes = {}) {
 
     const revelar = opcoes.revelar !== false;
 
-    // Título grande do hero: campo "Texto do header" (fallback no título da campanha)
-    const tituloHeader =
-        String(campanha.texto_header || "").trim()
-        || campanha.titulo
-        || "Campanha ativa";
-    const tituloCampanha = campanha.titulo || tituloHeader;
-    const descricao =
-        campanha.descricao
-        || campanha.objetivo
-        || campanha.visao_geral
-        || "";
+    // Título e lead do hero são institucionais (fixos no HTML)
+    const tituloCampanha = campanha.titulo || "Campanha ativa";
     const cupom = campanha.cupom || "—";
     const imagemSrc = imagemCampanhaHero(campanha);
 
-    const elTitulo = document.querySelector("#heroTitle");
-    const elLead = document.querySelector("#heroLead");
     const elPeriod = document.querySelector("#heroPeriod");
     const elCupom = document.querySelector("#heroCupom");
     const elDeposito = document.querySelector("#heroDeposito");
@@ -221,11 +210,7 @@ function preencherHeroComCampanha(campanha, opcoes = {}) {
     const elCountdown = document.querySelector("#heroCountdown");
     const elStatus = document.querySelector("#heroBadgeStatus");
     const elImage = document.querySelector("#heroImage");
-    const elCaptionCupom = document.querySelector("#heroCaptionCupom");
-    const elCaptionTitulo = document.querySelector("#heroCaptionTitulo");
 
-    if (elTitulo) elTitulo.textContent = tituloHeader;
-    if (elLead) elLead.textContent = descricao || "Campanha ativa no momento.";
     if (elPeriod) elPeriod.textContent = formatarPeriodoHero(campanha);
     if (elCupom) elCupom.textContent = cupom;
     if (elDeposito) {
@@ -244,12 +229,8 @@ function preencherHeroComCampanha(campanha, opcoes = {}) {
 
     if (elImage) {
         elImage.src = imagemSrc;
-        elImage.alt = `${tituloHeader}${cupom && cupom !== "—" ? ` — ${cupom}` : ""}`;
+        elImage.alt = `${tituloCampanha}${cupom && cupom !== "—" ? ` — ${cupom}` : ""}`;
     }
-
-    if (elCaptionCupom) elCaptionCupom.textContent = cupom;
-    // Caption do card visual segue com o título da campanha
-    if (elCaptionTitulo) elCaptionTitulo.textContent = tituloCampanha;
 
     hero.dataset.campanhaId = String(campanha.id || "");
 
@@ -322,14 +303,18 @@ function montarHeroAccordion(campanhas = []) {
 
     accordion.classList.toggle("hero-accordion--single", lista.length === 1);
     accordion.innerHTML = lista.map((campanha, i) => {
-        const tituloHeader =
-            String(campanha.texto_header || "").trim()
-            || campanha.titulo
+        const titulo =
+            campanha.titulo
+            || String(campanha.texto_header || "").trim()
             || `Campanha ${i + 1}`;
-        const titulo = campanha.titulo || tituloHeader;
-        const cupom = campanha.cupom || "";
+        const cupom = String(campanha.cupom || "").trim();
         const src = imagemCampanhaHero(campanha);
         const ativo = i === 0 ? " is-active" : "";
+        const caption = cupom
+            ? `<span class="hero-accordion__caption">
+                    <strong>${escapeHtmlHero(cupom)}</strong>
+               </span>`
+            : "";
 
         return `
             <div
@@ -338,11 +323,8 @@ function montarHeroAccordion(campanhas = []) {
                 data-hero-index="${i}"
                 aria-current="${i === 0 ? "true" : "false"}"
             >
-                <img src="${escapeAttrHero(src)}" alt="${escapeAttrHero(tituloHeader)}" loading="${i === 0 ? "eager" : "lazy"}">
-                <span class="hero-accordion__caption">
-                    <strong>${escapeHtmlHero(cupom || tituloHeader)}</strong>
-                    <span>${escapeHtmlHero(titulo)}</span>
-                </span>
+                <img src="${escapeAttrHero(src)}" alt="${escapeAttrHero(titulo)}" loading="${i === 0 ? "eager" : "lazy"}">
+                ${caption}
             </div>
         `;
     }).join("");
@@ -374,10 +356,8 @@ function esperarProximoFrame() {
 }
 
 function textosHeaderHero() {
-    return [
-        document.querySelector("#heroTitle"),
-        document.querySelector("#heroLead"),
-    ].filter(Boolean);
+    // Título e lead são institucionais e não entram no fade da troca de campanha
+    return [];
 }
 
 function fadeOutTextosHeader() {
@@ -762,7 +742,7 @@ async function preencherDestaqueComCampanha(campanha, opcoes = {}) {
     // Mantém referência global para modal/kit/materiais/copies/regras
     window.campanhaDestaqueAtual = campanha;
 
-    // Hero: texto_header + demais campos da campanha atual do carrossel
+    // Hero: meta da campanha atual do carrossel (título/lead institucionais no HTML)
     preencherHeroComCampanha(campanha, {
         revelar: opcoes.revelarHero !== false
     });

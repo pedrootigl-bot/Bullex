@@ -1330,7 +1330,6 @@ const { error } = await supabaseClient.storage
     function pegarDadosCampanha() {
         return {
             titulo: document.getElementById("titulo")?.value.trim() || "",
-            texto_header: document.getElementById("texto_header")?.value.trim() || "",
             descricao: document.getElementById("descricao")?.value.trim() || "",
             resumo: document.getElementById("resumo")?.value.trim() || "",
             // Mantém o campo string no banco; múltiplas categorias separadas por vírgula
@@ -1358,7 +1357,6 @@ const { error } = await supabaseClient.storage
     function preencherFormulario(campanha) {
         const campos = [
             "titulo",
-            "texto_header",
             "descricao",
             "resumo",
             "publico_recomendado",
