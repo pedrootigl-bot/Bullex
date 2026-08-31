@@ -34,7 +34,6 @@
 @import url("sections/highlight.css");
 @import url("sections/campaign.css");
 @import url("sections/calendar.css");
-@import url("sections/support.css");
 
 /* ==================================================
    RESPONSIVE
@@ -48,6 +47,13 @@
 
 html {
     scroll-behavior: smooth;
+}
+
+#hero,
+#divulgar-hoje,
+#campaigns,
+#oportunidades {
+    scroll-margin-top: 5.5rem;
 }
 
 body {

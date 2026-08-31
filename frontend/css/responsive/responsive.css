@@ -34,10 +34,6 @@
     .hero__actions-buttons .btn {
         width: 100%;
     }
-
-    .support__cards {
-        grid-template-columns: 1fr;
-    }
 }
 
 @media (max-width: 600px) {

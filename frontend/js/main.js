@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 ".highlight",
                 ".campaigns",
                 ".calendar-section",
-                ".support",
                 ".footer"
             ].join(", ")
         );

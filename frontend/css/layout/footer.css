@@ -12,7 +12,7 @@
 
 .footer__content {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 2.5rem;
 }
 
@@ -54,23 +54,13 @@
     padding-top: 1.35rem;
     border-top: 1px solid var(--border);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     gap: 1.25rem;
 }
 
 .footer__bottom p {
     color: #6b7280;
-    font-size: 0.85rem;
-}
-
-.footer__legal {
-    display: flex;
-    gap: 1.4rem;
-}
-
-.footer__legal a {
-    margin: 0;
     font-size: 0.85rem;
 }
 
@@ -96,8 +86,7 @@
         margin: auto;
     }
 
-    .footer__links,
-    .footer__contact {
+    .footer__links {
         text-align: center;
     }
 
@@ -106,12 +95,6 @@
     }
 
     .footer__bottom {
-        flex-direction: column;
         text-align: center;
-    }
-
-    .footer__legal {
-        flex-direction: column;
-        gap: 0.55rem;
     }
 }
