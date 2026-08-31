@@ -379,22 +379,16 @@ America/Sao_Paulo
 Fluxo:
 
 ```text
-        data_inicio
-             │
-             ▼
-       ┌───────────┐
-       │ AGENDADA  │
-       └─────┬─────┘
-             │
-             ▼
-       ┌───────────┐
-       │   ATIVA   │
-       └─────┬─────┘
-             │
-             ▼
-       ┌────────────┐
-       │ FINALIZADA │
-       └────────────┘
+       AGENDADA
+    │
+    │ Pré Aquecimento
+    │ data_inicio
+    ▼
+ ATIVA
+    │
+    │ data_fim
+    ▼
+FINALIZADA
 ```
 
 Documentação:
