@@ -466,15 +466,4 @@
         grid-column: 1 / -1;
         min-width: 0;
     }
-
-    .admin-board {
-        grid-template-columns: 1fr;
-    }
-
-    .admin-sidebar {
-        position: relative;
-        height: auto;
-        border-right: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
 }

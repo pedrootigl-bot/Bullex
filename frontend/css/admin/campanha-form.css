@@ -333,11 +333,11 @@ main.dashboard > #voltarBtn {
 }
 
 .angulos-list:empty::before {
-    content: "Nenhum ângulo adicionado. Clique em “Adicionar ângulo”.";
+    content: 'Nenhum ângulo adicionado. Clique em "Adicionar ângulo".';
 }
 
 .mecanica-list:empty::before {
-    content: "Nenhum passo de mecânica. Clique em “Adicionar passo”.";
+    content: 'Nenhum passo de mecânica. Clique em "Adicionar passo".';
 }
 
 .form-section__eyebrow {
@@ -1241,6 +1241,16 @@ main.dashboard > #voltarBtn {
     .form-actions {
         flex-direction: column;
         align-items: stretch;
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+        padding: 0.85rem 0 calc(0.85rem + env(safe-area-inset-bottom, 0px));
+        background: linear-gradient(180deg, transparent, rgba(4, 10, 5, 0.96) 28%);
+    }
+
+    .form-actions .btn,
+    .form-actions button {
+        width: 100%;
     }
 
     #campanhaForm input,
@@ -1573,7 +1583,7 @@ main.dashboard > #voltarBtn {
     gap: 0.45rem;
 }
 
-/* Select — Formato da postagem */
+/* Select â Formato da postagem */
 .material-formato,
 #materialFormato.material-formato,
 .material-item .material-formato,
@@ -1696,7 +1706,7 @@ TELAS MUITO PEQUENAS
 
 }
 /* ======================================================
-   LOADING � salvar campanha
+   LOADING — salvar campanha
 ====================================================== */
 
 .salvar-loading[hidden] {

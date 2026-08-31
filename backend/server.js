@@ -46,6 +46,16 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "2mb" }));
 
+// JSON da API sempre com charset UTF-8
+app.use((req, res, next) => {
+    const originalJson = res.json.bind(res);
+    res.json = (body) => {
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        return originalJson(body);
+    };
+    next();
+});
+
 // Rotas
 
 app.use(
@@ -112,10 +122,29 @@ app.get("/api/health", (req, res) => {
 // Frontend estático na mesma porta da API (substitui npx serve na 3000)
 // extensions: permite /admin/login além de /admin/login.html
 app.use(express.static(frontendPath, {
-    extensions: ["html"]
+    extensions: ["html"],
+    setHeaders(res, filePath) {
+        if (/\.(html?|js|css|json|svg|txt|md)$/i.test(filePath)) {
+            const ext = path.extname(filePath).toLowerCase();
+            const types = {
+                ".html": "text/html; charset=utf-8",
+                ".htm": "text/html; charset=utf-8",
+                ".js": "text/javascript; charset=utf-8",
+                ".css": "text/css; charset=utf-8",
+                ".json": "application/json; charset=utf-8",
+                ".svg": "image/svg+xml; charset=utf-8",
+                ".txt": "text/plain; charset=utf-8",
+                ".md": "text/markdown; charset=utf-8"
+            };
+            if (types[ext]) {
+                res.setHeader("Content-Type", types[ext]);
+            }
+        }
+    }
 }));
 
 app.get("/", (req, res) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.sendFile(path.join(frontendPath, "index.html"));
 });
 

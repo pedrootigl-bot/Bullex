@@ -16,7 +16,7 @@
 
 <body class="admin-board">
 
-    <aside class="admin-sidebar">
+    <aside class="admin-sidebar" id="adminSidebar">
         <a href="dashboard.html" class="admin-sidebar__brand">
             <span class="admin-sidebar__logo"><i class="fa-solid fa-chart-simple"></i></span>
             <strong>Bullex</strong>
@@ -33,6 +33,16 @@
     <div class="admin-board__main">
 
         <header class="admin-topbar">
+            <button
+                type="button"
+                class="admin-menu-toggle"
+                id="adminMenuToggle"
+                aria-label="Abrir menu"
+                aria-controls="adminSidebar"
+                aria-expanded="false"
+            >
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
             <h1>Bullex Admin</h1>
 
             <label class="admin-search" for="campanhaSearch">
@@ -57,7 +67,8 @@
                 </div>
                 <button type="button" id="voltarBtn" class="admin-ghost-btn">Dashboard</button>
                 <a href="../index.html" class="btn-site-publico">
-                    Voltar para o site público
+                    <span class="btn-site-publico__full">Voltar para o site público</span>
+                    <span class="btn-site-publico__short">Site público</span>
                 </a>
             </div>
         </header>
@@ -243,6 +254,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/api-config.js?v=20260827f1"></script>
     <script src="./supabase-client.js"></script>
+    <script src="./admin-shell.js?v=20260831r1"></script>
     <script src="./notificacoes-admin.js?v=20260812n1"></script>
     <script src="./campanhas.js?v=20260827f1"></script>
 

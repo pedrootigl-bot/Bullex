@@ -604,7 +604,195 @@ select:focus {
     margin-bottom: 2rem !important;
 }
 
+.btn-site-publico__short {
+    display: none;
+}
+
 .btn-nova-campanha {
     background: linear-gradient(180deg, #7ae600 0%, #68da00 100%) !important;
     color: #071000 !important;
+}
+
+/* ======================================================
+   RESPONSIVO — shell compartilhado (header + drawer)
+====================================================== */
+
+.admin-menu-toggle {
+    display: none;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.05rem;
+}
+
+.admin-menu-toggle:hover {
+    border-color: rgba(104, 218, 0, 0.4);
+    background: rgba(104, 218, 0, 0.1);
+    color: #9cff5c;
+}
+
+.admin-sidebar-overlay {
+    display: none;
+}
+
+@media (max-width: 980px) {
+    .admin-menu-toggle {
+        display: inline-flex;
+    }
+
+    body.admin-board {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.admin-board .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1200;
+        width: min(280px, 86vw);
+        height: 100vh;
+        height: 100dvh;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 0;
+        transform: translateX(-105%);
+        transition: transform 0.28s ease;
+        box-shadow: 18px 0 48px rgba(0, 0, 0, 0.45);
+    }
+
+    body.admin-board.admin-sidebar-open .admin-sidebar {
+        transform: translateX(0);
+    }
+
+    body.admin-board .admin-sidebar__nav {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+    .admin-sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1100;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(2px);
+    }
+
+    .admin-sidebar-overlay[hidden] {
+        display: none !important;
+    }
+
+    body.admin-sidebar-open {
+        overflow: hidden;
+    }
+
+    .admin-board__main {
+        padding: 0.9rem 0.9rem 1.75rem;
+    }
+
+    .admin-topbar {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .admin-topbar h1 {
+        flex: 1;
+        min-width: 0;
+        font-size: 1.1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .btn-site-publico {
+        white-space: nowrap;
+        max-width: 100%;
+        padding: 0.55rem 0.85rem !important;
+        font-size: 0.78rem !important;
+    }
+}
+
+@media (max-width: 720px) {
+    .admin-header {
+        flex-wrap: wrap;
+        min-height: auto;
+        padding: 0.85rem 4%;
+        gap: 0.75rem;
+    }
+
+    .admin-header__left {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .admin-header__actions {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        justify-content: flex-start;
+    }
+
+    .admin-header h1,
+    .admin-header__left h1,
+    #pageTitle {
+        font-size: 1.15rem !important;
+        line-height: 1.25;
+    }
+
+    .btn-site-publico span,
+    .btn-site-publico {
+        font-size: 0.78rem !important;
+    }
+
+    .btn-site-publico {
+        flex: 1 1 auto;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .admin-user div {
+        display: none;
+    }
+
+    .admin-topbar__right .admin-ghost-btn,
+    .admin-topbar__right .gm-btn span {
+        display: none;
+    }
+
+    .admin-topbar__right .gm-btn {
+        padding-inline: 0.7rem;
+    }
+
+    .btn-site-publico__full {
+        display: none !important;
+    }
+
+    .btn-site-publico__short {
+        display: inline !important;
+    }
+
+    .btn-site-publico {
+        max-width: none;
+        overflow: visible;
+        text-overflow: unset;
+        white-space: nowrap !important;
+    }
+}
+
+@media (max-width: 560px) {
+    .admin-board__main {
+        padding: 0.75rem 0.7rem 1.5rem;
+    }
+
+    .admin-header__actions .btn-site-publico {
+        max-width: none;
+        width: 100%;
+    }
 }
