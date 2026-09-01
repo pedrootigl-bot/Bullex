@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=20260831h7">
+    <link rel="stylesheet" href="css/style.css?v=20260901m5">
 </head>
 
 <body>
@@ -362,8 +362,13 @@
 
             <div class="modal__body" id="modalBody">
 
-                <div class="modal__banner">
-                    <img id="campaignBanner" src="" alt="">
+                <div class="modal__banner-wrap">
+                    <div class="modal__banner">
+                        <img id="campaignBanner" src="" alt="">
+                    </div>
+                    <div class="modal__banner-bar" aria-hidden="false">
+                        <p class="modal__banner-kicker">Detalhes da campanha</p>
+                    </div>
                 </div>
 
                 <div class="modal__content">
@@ -379,7 +384,11 @@
 
                     <div class="modal__panels">
 
-                        <div class="modal__panel is-active" data-panel="materiais" id="panelMateriais">
+                        <div class="modal__panel is-active" data-panel="visao-geral" id="panelVisaoGeral">
+                            <div class="modal__panel-content" id="visaoGeralContent"></div>
+                        </div>
+
+                        <div class="modal__panel" data-panel="materiais" id="panelMateriais" hidden>
                             <div class="modal__top">
                                 <p id="campaignSubtitle"></p>
                                 <a id="downloadKit" class="btn btn--outline modal__kit-btn" href="#">
@@ -388,10 +397,6 @@
                                 </a>
                             </div>
                             <div id="materialsContainer" class="modal__materials"></div>
-                        </div>
-
-                        <div class="modal__panel" data-panel="visao-geral" id="panelVisaoGeral" hidden>
-                            <div class="modal__panel-content" id="visaoGeralContent"></div>
                         </div>
 
                         <div class="modal__panel" data-panel="copies" id="panelCopies" hidden>
@@ -923,7 +928,7 @@
             <script src="js/destaque.js?v=20260831h3"></script>
             <script src="js/campanha.js?v=20260827f1"></script>
             <script src="js/calendario.js?v=20260827f1"></script>
-            <script src="js/modal.js?v=20260827d1"></script>
+            <script src="js/modal.js?v=20260901m3"></script>
             <script src="js/campanha-modal.js?v=20260827d1"></script>
             <script src="js/materiais.js?v=20260827d1"></script>
             <script src="js/main.js"></script>

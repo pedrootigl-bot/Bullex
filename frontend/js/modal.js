@@ -116,6 +116,9 @@ async function obterCampanha(id) {
         periodo: formatarPeriodoCampanha(campanha),
         subtitulo: "Materiais organizados por formato para acelerar sua divulgação.",
         banner: campanha.imagem_card || campanha.banner || "",
+        cupom: campanha.cupom || "",
+        deposito_minimo: campanha.deposito_minimo,
+        premio: campanha.premio || campanha.valor || "",
         abas: [
             { id: "visao-geral", label: "Visão geral" },
             { id: "materiais", label: "Materiais" },
@@ -154,7 +157,7 @@ function setModalState({ loading = false, error = null, ready = false } = {}) {
     }
 }
 
-let modalAbaInicial = "materiais";
+let modalAbaInicial = "visao-geral";
 
 function abrirModal(campanhaId, opcoes = {}) {
     if (!modal) return;
@@ -162,7 +165,7 @@ function abrirModal(campanhaId, opcoes = {}) {
     modalAbaInicial =
         opcoes.abaInicial
         || opcoes.aba
-        || "materiais";
+        || "visao-geral";
 
     modal.hidden = false;
     requestAnimationFrame(() => {
@@ -212,8 +215,22 @@ async function carregarCampanhaNoModal(campanhaId) {
 
 function popularCampanha(campanha) {
     const banner = document.getElementById("campaignBanner");
-    banner.src = campanha.banner || "";
-    banner.alt = campanha.titulo || "Campanha";
+    const bannerWrap = banner?.closest(".modal__banner");
+    const bannerSrc = String(campanha.banner || "").trim();
+
+    if (banner) {
+        if (bannerSrc) {
+            banner.hidden = false;
+            banner.src = bannerSrc;
+            banner.alt = campanha.titulo || "Campanha";
+            bannerWrap?.classList.remove("is-empty");
+        } else {
+            banner.hidden = true;
+            banner.removeAttribute("src");
+            banner.alt = "";
+            bannerWrap?.classList.add("is-empty");
+        }
+    }
 
     const statusEl = document.getElementById("campaignStatus");
     if (statusEl) {
@@ -292,7 +309,12 @@ function popularCampanha(campanha) {
     }
 
     renderizarAbas(campanha.abas || []);
-    renderizarVisaoGeral(campanha.visaoGeral);
+    renderizarVisaoGeral(campanha.visaoGeral, {
+        periodo: campanha.periodo,
+        cupom: campanha.cupom,
+        deposito_minimo: campanha.deposito_minimo,
+        premio: campanha.premio
+    });
     renderizarCopies(campanha.copies || []);
     renderizarRegras(campanha.regras || []);
 
@@ -321,6 +343,7 @@ function renderizarAbas(abas) {
         button.textContent = label;
         button.dataset.tab = id;
         button.classList.toggle("active", index === 0);
+        button.classList.toggle("is-active", index === 0);
         button.addEventListener("click", () => ativarAba(id));
         container.appendChild(button);
     });
@@ -328,7 +351,9 @@ function renderizarAbas(abas) {
 
 function ativarAba(abaId) {
     document.querySelectorAll(".modal__tabs button").forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.tab === abaId);
+        const ativo = btn.dataset.tab === abaId;
+        btn.classList.toggle("active", ativo);
+        btn.classList.toggle("is-active", ativo);
     });
 
     document.querySelectorAll(".modal__panel").forEach((panel) => {
@@ -669,7 +694,61 @@ function parseObjetivosModal(valor) {
     }));
 }
 
-function renderizarVisaoGeral(visaoGeral = {}) {
+function formatarDepositoModal(valor) {
+    if (valor === null || valor === undefined || valor === "") return "—";
+
+    const numero = Number(
+        String(valor).replace(/[^\d.,-]/g, "").replace(",", ".")
+    );
+
+    if (!Number.isFinite(numero)) {
+        return String(valor);
+    }
+
+    return numero.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        maximumFractionDigits: 0
+    });
+}
+
+function renderizarInfoGrid(meta = {}) {
+    const items = [
+        {
+            label: "Período",
+            value: String(meta.periodo || "").trim() || "—",
+            highlight: false
+        },
+        {
+            label: "Cupom",
+            value: String(meta.cupom || "").trim() || "—",
+            highlight: true
+        },
+        {
+            label: "Depósito mínimo",
+            value: formatarDepositoModal(meta.deposito_minimo),
+            highlight: false
+        },
+        {
+            label: "Prêmio",
+            value: String(meta.premio || "").trim() || "—",
+            highlight: false
+        }
+    ];
+
+    return `
+        <div class="modal__info-grid">
+            ${items.map((item) => `
+                <article class="modal__info-card">
+                    <p class="modal__info-card__label">${escapeHtml(item.label)}</p>
+                    <p class="modal__info-card__value${item.highlight ? " is-accent" : ""}">${escapeHtml(item.value)}</p>
+                </article>
+            `).join("")}
+        </div>
+    `;
+}
+
+function renderizarVisaoGeral(visaoGeral = {}, meta = {}) {
     const container = document.getElementById("visaoGeralContent");
     if (!container) return;
 
@@ -688,6 +767,8 @@ function renderizarVisaoGeral(visaoGeral = {}) {
             </section>
         `
         : "";
+
+    const blocoInfo = renderizarInfoGrid(meta);
 
     const blocoPublico = publico
         ? `
@@ -754,6 +835,7 @@ function renderizarVisaoGeral(visaoGeral = {}) {
     if (!resumo && !publico && !temObjetivoAtivo && !mecanica.length && !angulos.length) {
         container.innerHTML = `
             <div class="modal__visao-geral">
+                ${blocoInfo}
                 <p class="modal__visao-geral__empty">
                     As informações de visão geral ainda não foram cadastradas.
                 </p>
@@ -765,6 +847,7 @@ function renderizarVisaoGeral(visaoGeral = {}) {
     container.innerHTML = `
         <div class="modal__visao-geral">
             ${blocoResumo}
+            ${blocoInfo}
             ${blocoPublico}
             ${blocoObjetivo}
             ${blocoMecanica}
